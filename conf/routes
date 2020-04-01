@@ -1,0 +1,3 @@
+GET        /             controllers.FrontendController.index()
+
+GET        /*file        controllers.FrontendController.assetOrDefault(file)
