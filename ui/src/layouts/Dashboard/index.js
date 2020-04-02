@@ -5,7 +5,6 @@ import {makeStyles} from '@material-ui/styles';
 import {LinearProgress} from '@material-ui/core';
 import NavBar from './NavBar';
 import TopBar from './TopBar';
-import EntitySummarySnackbar from "../../components/Entity/EntitySummarySnackbar";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -46,7 +45,6 @@ function Dashboard({route}) {
           </Suspense>
         </div>
       </div>
-      <EntitySummarySnackbar open={false}/>
     </>
   );
 }

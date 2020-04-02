@@ -4,7 +4,7 @@ organization := "ai.semplify"
 version := "1.0-SNAPSHOT"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala).settings(
-  watchSources ++= (baseDirectory.value / "public/ui" ** "*").get
+  watchSources ++= (baseDirectory.value / "ui" ** "*").get
 )
 
 scalaVersion := "2.13.1"

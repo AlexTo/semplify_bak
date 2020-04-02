@@ -11,7 +11,6 @@ import {
   Avatar,
   List,
   ListSubheader,
-  Typography,
   Hidden,
   IconButton,
   Badge,

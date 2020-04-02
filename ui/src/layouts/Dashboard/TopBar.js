@@ -22,7 +22,6 @@ import InputIcon from '@material-ui/icons/Input';
 import MenuIcon from '@material-ui/icons/Menu';
 import SearchIcon from '@material-ui/icons/Search';
 import NotificationsPopover from 'src/components/NotificationsPopover';
-import ChatBar from './ChatBar';
 import {useKeycloak} from '@react-keycloak/web';
 import {searchActions} from "../../actions";
 
@@ -92,19 +91,10 @@ function TopBar({onOpenNavBarMobile, className, ...rest}) {
 
   const [notifications, setNotifications] = useState([]);
   const [openNotifications, setOpenNotifications] = useState(false);
-  const [openChatBar, setOpenChatBar] = useState(false);
 
   const handleLogout = () => {
     keycloak.logout().then(() => {
     });
-  };
-
-  const handleChatBarOpen = () => {
-    setOpenChatBar(true);
-  };
-
-  const handleChatBarClose = () => {
-    setOpenChatBar(false);
   };
 
   const handleNotificationsOpen = () => {
@@ -163,16 +153,6 @@ function TopBar({onOpenNavBarMobile, className, ...rest}) {
               defaultValue={searchReducer.query}/>
           </div>
         </Hidden>
-        <IconButton
-          className={classes.chatButton}
-          color="inherit"
-          onClick={handleChatBarOpen}>
-          <Badge
-            badgeContent={6}
-            color="secondary">
-            <PeopleIcon/>
-          </Badge>
-        </IconButton>
         <Hidden mdDown>
           <IconButton
             className={classes.notificationsButton}
