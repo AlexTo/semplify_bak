@@ -4,7 +4,7 @@ organization := "ai.semplify"
 version := "1.0-SNAPSHOT"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala).settings(
-  watchSources ++= (baseDirectory.value / "ui" ** "*").get
+  watchSources ++= (baseDirectory.value / "public/ui" ** "*").get
 )
 
 scalaVersion := "2.13.1"
@@ -16,7 +16,8 @@ libraryDependencies ++= Seq(
   "org.pac4j" % "pac4j-http" % "4.0.0-SNAPSHOT",
   "org.sangria-graphql" %% "sangria" % "2.0.0-M4",
   "org.reactivemongo" % "play2-reactivemongo_2.13" % "0.20.3-play28",
-  "org.eclipse.rdf4j" % "rdf4j-client" % "3.1.2" pomOnly(),
+  "org.reactivemongo" %% "reactivemongo-play-json-compat" % "0.20.3-play28",
+  "org.eclipse.rdf4j" % "rdf4j-storage" % "3.2.0-M1",
   "com.typesafe.play" % "play-cache_2.13" % "2.8.1",
   "org.scalatestplus.play" %% "scalatestplus-play" % "5.0.0" % Test)
 

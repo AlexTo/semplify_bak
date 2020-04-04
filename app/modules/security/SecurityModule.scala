@@ -12,11 +12,11 @@ import org.pac4j.play.store.{PlayCacheSessionStore, PlaySessionStore}
 import play.api.{Configuration, Environment}
 
 
-class SecurityModule(environment: Environment, configuration: Configuration) extends AbstractModule {
+class SecurityModule(env: Environment, conf: Configuration) extends AbstractModule {
 
-  val clientId: String = configuration.get[String]("keycloak.clientId")
-  val secret: String = configuration.get[String]("keycloak.secret")
-  val discoveryUri: String = configuration.get[String]("keycloak.discoveryUri")
+  val clientId: String = conf.get[String]("app.keycloak.clientId")
+  val secret: String = conf.get[String]("app.keycloak.secret")
+  val discoveryUri: String = conf.get[String]("app.keycloak.discoveryUri")
 
   override def configure(): Unit = {
     bind(classOf[PlaySessionStore]).to(classOf[PlayCacheSessionStore])
@@ -38,6 +38,7 @@ class SecurityModule(environment: Environment, configuration: Configuration) ext
   @Provides
   def provideConfig(headerClient: HeaderClient): Config = {
     val clients = new Clients(headerClient)
+
     val config = new Config(clients)
     config
   }
