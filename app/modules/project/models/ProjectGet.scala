@@ -2,7 +2,7 @@ package modules.project.models
 
 import play.api.libs.json.{Json, OWrites, Reads}
 
-case class ProjectGet(_id: String,
+case class ProjectGet(id: String,
                       title: String)
 
 object ProjectGet {

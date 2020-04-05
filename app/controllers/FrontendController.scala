@@ -7,8 +7,8 @@ import play.api.http.HttpErrorHandler
 import play.api.mvc._
 
 @Singleton
-class FrontendController @Inject()(assets: Assets, errorHandler: HttpErrorHandler, config: Configuration,
-                                   cc: ControllerComponents) extends AbstractController(cc) {
+class FrontendController @Inject()(assets: Assets, errorHandler: HttpErrorHandler,
+                                   config: Configuration, cc: ControllerComponents) extends AbstractController(cc) {
 
   def index: Action[AnyContent] = assets.at("index.html")
 

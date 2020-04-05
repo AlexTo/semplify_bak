@@ -4,7 +4,7 @@ import java.util.Date
 
 import play.api.libs.json.{Json, OWrites, Reads}
 import reactivemongo.bson.BSONObjectID
-import reactivemongo.play.json.BSONObjectIDFormat
+import reactivemongo.play.json._
 
 case class Project(_id: BSONObjectID,
                    title: String,

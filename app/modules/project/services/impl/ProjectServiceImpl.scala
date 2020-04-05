@@ -12,12 +12,12 @@ import reactivemongo.play.json.collection.JSONCollection
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class ProjectServiceImpl @Inject()(val reactiveMongoApi: ReactiveMongoApi,
-                                  )(implicit ex: ExecutionContext) extends ProjectService {
+class ProjectServiceImpl @Inject()(val reactiveMongoApi: ReactiveMongoApi)
+                                  (implicit ex: ExecutionContext) extends ProjectService {
 
   def collection: Future[JSONCollection] = reactiveMongoApi.database.map(_.collection[JSONCollection]("projects"))
 
-  override def save(project: ProjectCreate, username: String): Future[ProjectGet] = {
+  override def create(project: ProjectCreate, username: String): Future[ProjectGet] = {
     val entity = Project(_id = BSONObjectID.generate(),
       project.title,
       username, username,

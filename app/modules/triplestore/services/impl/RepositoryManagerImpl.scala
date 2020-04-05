@@ -10,13 +10,20 @@ import org.eclipse.rdf4j.repository.manager.LocalRepositoryManager
 import org.eclipse.rdf4j.repository.sail.config.SailRepositoryConfig
 import org.eclipse.rdf4j.sail.nativerdf.config.NativeStoreConfig
 import play.api.Configuration
+import play.api.inject.ApplicationLifecycle
+
+import scala.concurrent.Future
 
 @Singleton
-class RepositoryManagerImpl @Inject()(conf: Configuration) extends RepositoryManager {
+class RepositoryManagerImpl @Inject()(conf: Configuration, applicationLifecycle: ApplicationLifecycle) extends RepositoryManager {
 
   var storageDir = new File(conf.get[String]("app.storageDir"))
   var manager = new LocalRepositoryManager(storageDir)
   manager.init()
+
+  applicationLifecycle.addStopHook(() => {
+    Future.successful(manager.shutDown())
+  })
 
   override def getRepository(repositoryId: String): Repository = {
     val backendConfig = new NativeStoreConfig()

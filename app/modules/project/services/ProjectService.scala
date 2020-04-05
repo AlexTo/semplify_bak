@@ -8,5 +8,5 @@ import scala.concurrent.Future
 
 @ImplementedBy(classOf[ProjectServiceImpl])
 trait ProjectService {
-  def save(project: ProjectCreate, username: String): Future[ProjectGet]
+  def create(project: ProjectCreate, username: String): Future[ProjectGet]
 }

@@ -1,5 +1,9 @@
-GET         /                     controllers.FrontendController.index()
+GET         /                         controllers.FrontendController.index
 
-GET         /*file                controllers.FrontendController.assetOrDefault(file)
+GET         /*file                    controllers.FrontendController.assetOrDefault(file)
 
-POST        /api/projects/        modules.project.controllers.ProjectController.save()
+POST        /api/projects/            modules.project.controllers.ProjectController.create
+
+POST        /api/files/               modules.fileserver.controllers.FileController.upload
+
+POST        /api/rml/map-file/        modules.rml.controllers.RMLController.execute
