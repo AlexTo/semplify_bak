@@ -16,7 +16,7 @@ class RMLController @Inject()(rmlService: RMLService, cc: ControllerComponents)
     val json = request.body
     val mapFileRequest = json.as[MapFileRequest]
 
-    rmlService.execute(mapFileRequest.dataFileId, mapFileRequest.mappingFileId, "turtle")
+    rmlService.executeAsString(mapFileRequest.dataFileId, mapFileRequest.mappingFileId, "turtle")
       .map(s => Ok(Json.obj({
         "rdf" -> JsString(s)
       })))

@@ -4,7 +4,7 @@ import javax.inject.{Inject, Singleton}
 import modules.project.models.ProjectCreate
 import modules.project.services.ProjectService
 import modules.security.services.ProfileService
-import modules.triplestore.services.RepositoryManager
+import modules.triplestore.services.RepositoryService
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
 
@@ -13,9 +13,9 @@ import scala.concurrent.ExecutionContext
 @Singleton
 class ProjectController @Inject()(projectService: ProjectService,
                                   profileService: ProfileService,
-                                  repositoryManager: RepositoryManager,
-                                  val controllerComponents: ControllerComponents)
-                                 (implicit ec: ExecutionContext) extends BaseController {
+                                  repositoryManager: RepositoryService,
+                                  cc: ControllerComponents)
+                                 (implicit ec: ExecutionContext) extends AbstractController(cc) {
 
   def create: Action[JsValue] = Action.async(parse.json) { request: Request[JsValue] =>
 

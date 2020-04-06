@@ -1,9 +1,13 @@
-GET         /                         controllers.FrontendController.index
+GET         /                            controllers.FrontendController.index
 
-GET         /*file                    controllers.FrontendController.assetOrDefault(file)
+POST        /api/projects/               modules.project.controllers.ProjectController.create
 
-POST        /api/projects/            modules.project.controllers.ProjectController.create
+POST        /api/files/                  modules.fileserver.controllers.FileController.upload
 
-POST        /api/files/               modules.fileserver.controllers.FileController.upload
+POST        /api/rml/map-file/           modules.rml.controllers.RMLController.execute
 
-POST        /api/rml/map-file/        modules.rml.controllers.RMLController.execute
+GET         /api/entity-hub/test1        modules.entityhub.controllers.EntityHubController.test
+
+GET         /api/entity-hub/test2       modules.entityhub.controllers.EntityHubController.test2
+
+GET         /*file                       controllers.FrontendController.assetOrDefault(file)

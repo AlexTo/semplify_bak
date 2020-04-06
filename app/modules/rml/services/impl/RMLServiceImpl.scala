@@ -19,7 +19,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class RMLServiceImpl @Inject()(fileService: FileService, conf: Configuration)(implicit ec: ExecutionContext, m: Materializer)
   extends RMLService {
 
-  override def execute(dataFileId: String, mappingFileId: String, outputFormat: String): Future[String] = {
+  override def execute(dataFileId: String, mappingFileId: String): Future[QuadStore] = {
     val tmpDir = Files.createTempDir()
     for {
       dataFile <- fileService.get(dataFileId)
@@ -38,13 +38,18 @@ class RMLServiceImpl @Inject()(fileService: FileService, conf: Configuration)(im
       val factory = new RecordsFactory(dataTempFile.getParent)
       val outputStore = new RDF4JStore
 
-      val executor = new Executor(rmlStore, factory, null, outputStore, Utils.getBaseDirectiveTurtle(mappingStream))
+      val executor = new Executor(rmlStore, factory, null, outputStore,
+        Utils.getBaseDirectiveTurtle(mappingStream))
 
-      val result: QuadStore = executor.execute(null)
-
-      val output = new ByteArrayOutputStream();
-      result.write(output, outputFormat)
-      new String(output.toByteArray)
+      executor.execute(null)
     }
+  }
+
+  override def executeAsString(dataFileId: String, mappingFileId: String, outputFormat: String): Future[String] = {
+    execute(dataFileId, mappingFileId).map(quadStore => {
+      val output = new ByteArrayOutputStream();
+      quadStore.write(output, outputFormat)
+      new String(output.toByteArray)
+    })
   }
 }

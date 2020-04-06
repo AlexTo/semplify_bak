@@ -1,18 +1,16 @@
 package modules.fileserver.controllers
 
-import java.nio.file.Paths
-
 import javax.inject.{Inject, Singleton}
 import modules.fileserver.services.FileService
 import play.api.libs.Files
 import play.api.libs.json.Json
-import play.api.mvc.{Action, BaseController, ControllerComponents, MultipartFormData}
+import play.api.mvc.{AbstractController, Action, ControllerComponents, MultipartFormData}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class FileController @Inject()(fileService: FileService, val controllerComponents: ControllerComponents)
-                              (implicit ec: ExecutionContext) extends BaseController {
+class FileController @Inject()(fileService: FileService, cc: ControllerComponents)
+                              (implicit ec: ExecutionContext) extends AbstractController(cc) {
 
   def upload: Action[MultipartFormData[Files.TemporaryFile]] = Action.async(parse.multipartFormData) { request =>
     request.body
