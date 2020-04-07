@@ -15,6 +15,8 @@ libraryDependencies ++= Seq(
   "org.pac4j" % "pac4j-oidc" % "4.0.0-SNAPSHOT",
   "org.pac4j" % "pac4j-http" % "4.0.0-SNAPSHOT",
   "org.sangria-graphql" %% "sangria" % "2.0.0-M4",
+  "org.sangria-graphql" %% "sangria-slowlog" % "2.0.0-M1",
+  "org.sangria-graphql" %% "sangria-play-json" % "2.0.1",
   "org.reactivemongo" % "play2-reactivemongo_2.13" % "0.20.3-play28",
   "org.reactivemongo" %% "reactivemongo-play-json-compat" % "0.20.3-play28",
   "commons-lang" % "commons-lang" % "2.6",

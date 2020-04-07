@@ -1,13 +1,20 @@
-GET         /                            controllers.FrontendController.index
+GET         /                                 controllers.FrontendController.index
 
-POST        /api/projects/               modules.project.controllers.ProjectController.create
+GET         /api/graphql                      modules.graphql.controllers.GraphQLController.graphql(query: String, variables: Option[String], operation: Option[String])
 
-POST        /api/files/                  modules.fileserver.controllers.FileController.upload
+POST        /api/graphql                      modules.graphql.controllers.GraphQLController.graphqlPost
 
-POST        /api/rml/map-file/           modules.rml.controllers.RMLController.execute
+GET         /api/graphql/render-schema        modules.graphql.controllers.GraphQLController.renderSchema
 
-GET         /api/entity-hub/test1        modules.entityhub.controllers.EntityHubController.test
 
-GET         /api/entity-hub/test2       modules.entityhub.controllers.EntityHubController.test2
+POST        /api/projects/                    modules.project.controllers.ProjectController.create
 
-GET         /*file                       controllers.FrontendController.assetOrDefault(file)
+POST        /api/files/                       modules.fileserver.controllers.FileController.upload
+
+POST        /api/rml/map-file/                modules.rml.controllers.RMLController.execute
+
+GET         /api/entity-hub/test1             modules.entityhub.controllers.EntityHubController.test
+
+GET         /api/entity-hub/test2             modules.entityhub.controllers.EntityHubController.test2
+
+GET         /*file                            controllers.FrontendController.assetOrDefault(file)

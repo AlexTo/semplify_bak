@@ -32,11 +32,13 @@ class RepositoryServiceImpl @Inject()(conf: Configuration, applicationLifecycle:
 
   override def getRepository(repositoryId: String): Repository = {
     val nativeStoreConfig = new NativeStoreConfig()
+    /*
     val solrConfig = new SolrSailConfig(nativeStoreConfig)
     solrConfig.setParameter(LuceneSail.INDEX_CLASS_KEY, classOf[SolrIndex].getName)
     solrConfig.setParameter(SolrIndex.SERVER_KEY, "embedded:")
     solrConfig.setIndexDir(storageDir)
-    val repositoryTypeSpec = new SailRepositoryConfig(solrConfig)
+     */
+    val repositoryTypeSpec = new SailRepositoryConfig(nativeStoreConfig)
     val repConfig = new RepositoryConfig(repositoryId, repositoryTypeSpec)
     manager.addRepositoryConfig(repConfig)
     val repository = manager.getRepository(repositoryId)

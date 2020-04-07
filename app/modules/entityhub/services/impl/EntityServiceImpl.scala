@@ -2,16 +2,14 @@ package modules.entityhub.services.impl
 
 import javax.inject.Inject
 import modules.entityhub.models.{Edge, Node}
-import modules.entityhub.services.NodeService
+import modules.entityhub.services.EntityService
 import modules.entityhub.utils.ValueUtils
 import modules.triplestore.services.RepositoryService
-import org.eclipse.rdf4j.model.{BNode, IRI, Literal}
 
 import scala.collection.mutable.ListBuffer
-import scala.jdk.javaapi.OptionConverters
 
 
-class NodeServiceImpl @Inject()(repositoryService: RepositoryService) extends NodeService {
+class EntityServiceImpl @Inject()(repositoryService: RepositoryService) extends EntityService {
   override def findNode(projectId: String, graph: String, uri: String): Option[Node] = {
     val repo = repositoryService.getRepository(projectId)
     val f = repo.getValueFactory
@@ -41,6 +39,33 @@ class NodeServiceImpl @Inject()(repositoryService: RepositoryService) extends No
         val pred = statement.getPredicate
         val obj = statement.getObject
         val toNode = ValueUtils.createNode(projectId, graph, obj)
+        val edge = Edge(projectId, graph, pred.stringValue(), fromNode, toNode)
+        edges.addOne(edge)
+      }
+      edges.toSeq
+
+    } finally {
+      con.close()
+    }
+  }
+
+  override def findEdgesToNode(projectId: String, graph: String, toNodeUri: String): Seq[Edge] = {
+    val repo = repositoryService.getRepository(projectId)
+    val con = repo.getConnection
+
+    val f = repo.getValueFactory
+    val context = f.createIRI(graph)
+    val obj = f.createIRI(toNodeUri)
+    val toNode = ValueUtils.createNode(projectId, graph, obj)
+
+    try {
+      val statements = con.getStatements(null, null, obj, context)
+      val edges = new ListBuffer[Edge]
+      while (statements.hasNext) {
+        val statement = statements.next
+        val pred = statement.getPredicate
+        val sub = statement.getSubject
+        val fromNode = ValueUtils.createNode(projectId, graph, sub)
         val edge = Edge(projectId, graph, pred.stringValue(), fromNode, toNode)
         edges.addOne(edge)
       }
