@@ -23,8 +23,7 @@ libraryDependencies ++= Seq(
   "com.jayway.jsonpath" % "json-path" % "2.4.0",
   "org.rdfhdt" % "hdt-java-core" % "1.1",
   "org.eclipse.rdf4j" % "rdf4j-storage" % "3.2.0-M1",
-  "org.eclipse.rdf4j" % "rdf4j-sail-solr" % "3.2.0-M1",
-  "org.apache.solr" % "solr-core" % "7.5.0" excludeAll (ExclusionRule("org.apache.logging.log4j")),
+  "org.eclipse.rdf4j" % "rdf4j-sail-lucene" % "3.2.0-M1",
   "com.google.guava" % "guava" % "28.2-jre",
   "com.typesafe.play" % "play-cache_2.13" % "2.8.1",
   "org.scalatestplus.play" %% "scalatestplus-play" % "5.0.0" % Test).map(_.excludeAll(ExclusionRule("org.slf4j")))

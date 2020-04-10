@@ -5,6 +5,7 @@ import modules.entityhub.models.{Edge, Node}
 import modules.entityhub.services.EntityService
 import modules.entityhub.utils.ValueUtils
 import modules.triplestore.services.RepositoryService
+import org.eclipse.rdf4j.query.QueryLanguage
 
 import scala.collection.mutable.ListBuffer
 
@@ -74,5 +75,32 @@ class EntityServiceImpl @Inject()(repositoryService: RepositoryService) extends 
     } finally {
       con.close()
     }
+  }
+
+  override def searchNodes(projectId: String, term: String): Seq[Node] = {
+    val projectId = "5e8943b050040030a6ee3942"
+    val qry = "PREFIX search: <http://www.openrdf.org/contrib/lucenesail#> " +
+      "SELECT ?subj ?text " +
+      "WHERE { ?subj search:matches [" +
+      " search:query ?term ; " +
+      " search:snippet ?text ] } ";
+
+    val repo = repositoryService.getRepository(projectId)
+
+    val conn = repo.getConnection
+    val f = conn.getValueFactory
+    val nodes = new ListBuffer[Node]
+    try {
+      val tq = conn.prepareTupleQuery(QueryLanguage.SPARQL, qry)
+      tq.setBinding("term", f.createLiteral("mat" + "*"))
+      val results = tq.evaluate
+      while (results.hasNext) {
+        val bindings = results.next()
+        val i = 0
+      }
+    } finally {
+      conn.close()
+    }
+    nodes.toSeq
   }
 }

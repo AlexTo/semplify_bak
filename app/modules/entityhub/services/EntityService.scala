@@ -12,4 +12,6 @@ trait EntityService {
   def findEdgesFromNode(projectId: String, graph: String, fromNodeUri: String): Seq[Edge]
 
   def findEdgesToNode(projectId: String, graph: String, fromNodeUri: String): Seq[Edge]
+
+  def searchNodes(projectId: String, term: String): Seq[Node]
 }

@@ -17,4 +17,6 @@ GET         /api/entity-hub/test1             modules.entityhub.controllers.Enti
 
 GET         /api/entity-hub/test2             modules.entityhub.controllers.EntityHubController.test2
 
+GET         /api/entity-hub/test3             modules.entityhub.controllers.EntityHubController.test3
+
 GET         /*file                            controllers.FrontendController.assetOrDefault(file)

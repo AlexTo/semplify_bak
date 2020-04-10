@@ -6,11 +6,13 @@ import modules.entityhub.models.{Edge, Node}
 import modules.entityhub.utils.ValueUtils
 import modules.rml.services.RMLService
 import modules.triplestore.services.RepositoryService
+import org.eclipse.rdf4j.query.{QueryLanguage, QueryResults}
 import play.api.libs.json.Json
 import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
 
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.ExecutionContext
+import scala.util.Using
 
 @Singleton
 class EntityHubController @Inject()(rmlService: RMLService,
@@ -57,6 +59,28 @@ class EntityHubController @Inject()(rmlService: RMLService,
     } finally {
       conn.close()
     }
+  }
 
+  def test3: Action[AnyContent] = Action { request =>
+    val projectId = "5e8943b050040030a6ee3942"
+    val qry = "PREFIX search: <http://www.openrdf.org/contrib/lucenesail#> " +
+      "SELECT ?subj ?graph ?text " +
+      "WHERE { GRAPH ?graph { ?subj search:matches [" +
+      " search:query ?term ; " +
+      " search:snippet ?text ] }} ";
+
+    val repo = repositoryService.getRepository(projectId)
+    Using(repo.getConnection) { conn =>
+      val f = conn.getValueFactory
+      val tq = conn.prepareTupleQuery(QueryLanguage.SPARQL, qry)
+      tq.setBinding("term", f.createLiteral("mat" + "*"))
+      val results = tq.evaluate
+      while (results.hasNext) {
+        val bindings = results.next()
+        val i = 0
+      }
+    }
+
+    Ok
   }
 }
