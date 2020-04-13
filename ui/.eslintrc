@@ -4,7 +4,12 @@
     "es6": true,
     "browser": true
   },
-  //"extends": ["eslint:recommended", "airbnb", "airbnb/hooks"],
+  "extends": [
+    "eslint:recommended",
+    "plugin:mdx/recommended",
+    "airbnb",
+    "airbnb/hooks"
+  ],
   "settings": {
     "import/resolver": {
       "node": {
@@ -15,7 +20,8 @@
           ".js",
           ".jsx",
           ".ts",
-          ".tsx"
+          ".tsx",
+          ".mdx"
         ]
       }
     }
@@ -24,7 +30,7 @@
     "comma-dangle": "off",
     "no-plusplus": "off",
     "import/no-unresolved": "off",
-    // Temporary fix
+    "react-hooks/exhaustive-deps": "off",
     "react/jsx-filename-extension": "off",
     "react/jsx-props-no-spreading": "off",
     "react/require-default-props": "off",

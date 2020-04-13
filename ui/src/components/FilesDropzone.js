@@ -1,11 +1,11 @@
-import React, {useState, useCallback, useEffect} from 'react';
+/* eslint-disable react/no-array-index-key */
+import React, { useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
-import {v1 as uuid} from 'uuid';
-import {useDropzone} from 'react-dropzone';
+import { useDropzone } from 'react-dropzone';
 import PerfectScrollbar from 'react-perfect-scrollbar';
-import {makeStyles} from '@material-ui/styles';
 import {
+  Box,
   Button,
   IconButton,
   Link,
@@ -13,11 +13,12 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
+  Tooltip,
   Typography,
-  colors
+  makeStyles
 } from '@material-ui/core';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
-import ClearIcon from '@material-ui/icons/Clear';
+import MoreIcon from '@material-ui/icons/MoreVert';
 import bytesToSize from 'src/utils/bytesToSize';
 
 const useStyles = makeStyles((theme) => ({
@@ -31,13 +32,13 @@ const useStyles = makeStyles((theme) => ({
     flexWrap: 'wrap',
     alignItems: 'center',
     '&:hover': {
-      backgroundColor: colors.grey[50],
+      backgroundColor: theme.palette.action.hover,
       opacity: 0.5,
       cursor: 'pointer'
     }
   },
   dragActive: {
-    backgroundColor: colors.grey[50],
+    backgroundColor: theme.palette.action.active,
     opacity: 0.5
   },
   image: {
@@ -59,78 +60,85 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-function FilesDropzone({className, files, onFilesChanged, ...rest}) {
+function FilesDropzone({ className, ...rest }) {
   const classes = useStyles();
+  const [files, setFiles] = useState([]);
 
   const handleDrop = useCallback((acceptedFiles) => {
-    onFilesChanged((prevFiles) => [...prevFiles].concat(acceptedFiles));
+    setFiles((prevFiles) => [...prevFiles].concat(acceptedFiles));
   }, []);
 
-  const handleRemove = (file) => {
-    onFilesChanged(files.filter(f => f !== file));
-  };
-
   const handleRemoveAll = () => {
-    onFilesChanged([]);
+    setFiles([]);
   };
 
-  const {getRootProps, getInputProps, isDragActive} = useDropzone({
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: handleDrop
   });
 
   return (
     <div
+      className={clsx(classes.root, className)}
       {...rest}
-      className={clsx(classes.root, className)}>
+    >
       <div
         className={clsx({
           [classes.dropZone]: true,
           [classes.dragActive]: isDragActive
         })}
-        {...getRootProps()}      >
+        {...getRootProps()}
+      >
         <input {...getInputProps()} />
         <div>
           <img
             alt="Select file"
             className={classes.image}
-            src="/images/undraw_add_file2_gvbb.svg"/>
+            src="/static/images/undraw_add_file2_gvbb.svg"
+          />
         </div>
         <div>
           <Typography
             gutterBottom
-            variant="h3">
+            variant="h3"
+          >
             Select files
           </Typography>
-          <Typography
-            className={classes.info}
-            color="textSecondary"
-            variant="body1">
-            Drop files here or click
-            {' '}
-            <Link underline="always">browse</Link>
-            {' '}
-            thorough your machine
-          </Typography>
+          <Box mt={2}>
+            <Typography
+              color="textPrimary"
+              variant="body1"
+            >
+              Drop files here or click
+              {' '}
+              <Link underline="always">browse</Link>
+              {' '}
+              thorough your machine
+            </Typography>
+          </Box>
         </div>
       </div>
       {files.length > 0 && (
         <>
-          <PerfectScrollbar options={{suppressScrollX: true}}>
+          <PerfectScrollbar options={{ suppressScrollX: true }}>
             <List className={classes.list}>
               {files.map((file, i) => (
                 <ListItem
                   divider={i < files.length - 1}
-                  key={uuid()}>
+                  key={i}
+                >
                   <ListItemIcon>
-                    <FileCopyIcon/>
+                    <FileCopyIcon />
                   </ListItemIcon>
                   <ListItemText
                     primary={file.name}
-                    primaryTypographyProps={{variant: 'h5'}}
-                    secondary={bytesToSize(file.size)}/>
-                  <IconButton edge="end" onClick={() => handleRemove(file)}>
-                    <ClearIcon/>
-                  </IconButton>
+                    primaryTypographyProps={{ variant: 'h5' }}
+                    secondary={bytesToSize(file.size)}
+                  />
+                  <Tooltip title="More options">
+                    <IconButton edge="end">
+                      <MoreIcon />
+                    </IconButton>
+                  </Tooltip>
                 </ListItem>
               ))}
             </List>
@@ -138,8 +146,16 @@ function FilesDropzone({className, files, onFilesChanged, ...rest}) {
           <div className={classes.actions}>
             <Button
               onClick={handleRemoveAll}
-              size="small">
+              size="small"
+            >
               Remove all
+            </Button>
+            <Button
+              color="secondary"
+              size="small"
+              variant="contained"
+            >
+              Upload files
             </Button>
           </div>
         </>

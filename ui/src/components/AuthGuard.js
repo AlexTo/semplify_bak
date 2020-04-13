@@ -1,31 +1,31 @@
-import React, { useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import { useHistory } from 'react-router';
-import PropTypes from 'prop-types';
+import React from 'react'
+import {Route, Redirect} from 'react-router-dom'
 
-// Example of user roles: ['GUEST', 'USER', 'ADMIN'];
+import {useKeycloak} from '@react-keycloak/web'
+import LoadingScreen from "./LoadingScreen";
 
-function AuthGuard({ roles, children }) {
-  const session = useSelector((state) => state.session);
-  const history = useHistory();
+export function AuthGuard({component: Component, ...rest}) {
+  const [keycloak, initialized] = useKeycloak()
 
-  useEffect(() => {
-    if (!session.loggedIn || !session.user) {
-      history.push('/auth/login');
-      return;
-    }
+  if (!initialized) {
+    return <LoadingScreen/>
+  }
 
-    if (!roles.includes(session.user.role)) {
-      history.push('/errors/error-401');
-    }
-  }, [history, roles, session.loggedIn, session.user]);
-
-  return <>{children}</>;
+  return (
+    <Route
+      {...rest}
+      render={(props) =>
+        keycloak.authenticated ? (
+          <Component {...props} />
+        ) : (
+          <Redirect
+            to={{
+              pathname: '/login',
+              state: {from: props.location},
+            }}
+          />
+        )
+      }
+    />
+  )
 }
-
-AuthGuard.propTypes = {
-  children: PropTypes.node,
-  roles: PropTypes.array.isRequired
-};
-
-export default AuthGuard;

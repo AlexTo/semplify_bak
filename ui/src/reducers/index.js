@@ -1,14 +1,8 @@
 import {combineReducers} from 'redux';
-import searchReducer from './searchReducer';
-import entityReducer from "./entityReducer";
-import taskReducer from "./taskReducer";
-import fileAnnotationReducer from "./fileAnnotationReducer";
+import {reducer as formReducer} from 'redux-form';
 
 const rootReducer = combineReducers({
-  searchReducer: searchReducer,
-  entityReducer: entityReducer,
-  taskReducer: taskReducer,
-  fileAnnotationReducer: fileAnnotationReducer
+  form: formReducer
 });
 
 export default rootReducer;

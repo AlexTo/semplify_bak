@@ -1,47 +1,76 @@
-import React, {lazy} from 'react';
-import {Redirect} from 'react-router-dom';
-import ErrorLayout from './layouts/Error';
-import DashboardLayout from './layouts/Dashboard';
+/* eslint-disable react/no-array-index-key */
+import React, {
+  lazy,
+  Suspense,
+  Fragment
+} from 'react';
+import {
+  Switch,
+  Redirect,
+  Route
+} from 'react-router-dom';
+import DashboardLayout from 'src/layouts/DashboardLayout';
+import LoadingScreen from 'src/components/LoadingScreen';
+import {AuthGuard} from "./components/AuthGuard";
 
-export default [
+const routesConfig = [
   {
-    path: '/',
     exact: true,
-    component: () => <Redirect to="/overview"/>
+    path: '/404',
+    component: lazy(() => import('src/views/pages/Error404View'))
   },
   {
-    path: '/errors',
-    component: ErrorLayout,
+    path: '*',
+    layout: DashboardLayout,
+    guard: AuthGuard,
     routes: [
       {
-        path: '/errors/error-401',
         exact: true,
-        component: lazy(() => import('src/views/Error401'))
+        path: '/',
+        component: lazy(() => import('src/views/home/HomeView'))
       },
       {
-        path: '/errors/error-404',
         exact: true,
-        component: lazy(() => import('src/views/Error404'))
+        path: '/graph',
+        component: lazy(() => import('src/views/explore/GraphView'))
       },
       {
-        path: '/errors/error-500',
-        exact: true,
-        component: lazy(() => import('src/views/Error500'))
-      },
-      {
-        component: () => <Redirect to="/errors/error-404"/>
+        component: () => <Redirect to="/404"/>
       }
-    ]
-  },
-  {
-    route: '*',
-    component: DashboardLayout,
-    routes: [
-      {
-        path: '/overview',
-        exact: true,
-        component: lazy(() => import('src/views/Overview'))
-      },
     ]
   }
 ];
+
+const renderRoutes = (routes) => (routes ? (
+  <Suspense fallback={<LoadingScreen/>}>
+    <Switch>
+      {routes.map((route, i) => {
+        const Layout = route.layout || Fragment;
+        const Component = route.component;
+        const Guard = route.guard || Fragment;
+        return (
+          <Route
+            key={i}
+            path={route.path}
+            exact={route.exact}
+            render={(props) => (
+              <Guard>
+                <Layout>
+                  {route.routes
+                    ? renderRoutes(route.routes)
+                    : <Component {...props} />}
+                </Layout>
+              </Guard>
+            )}
+          />
+        );
+      })}
+    </Switch>
+  </Suspense>
+) : null);
+
+function Routes() {
+  return renderRoutes(routesConfig);
+}
+
+export default Routes;
