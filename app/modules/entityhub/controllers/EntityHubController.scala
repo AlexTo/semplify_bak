@@ -64,10 +64,15 @@ class EntityHubController @Inject()(rmlService: RMLService,
   def test3: Action[AnyContent] = Action { request =>
     val projectId = "5e8943b050040030a6ee3942"
     val qry = "PREFIX search: <http://www.openrdf.org/contrib/lucenesail#> " +
-      "SELECT ?subj ?graph ?text " +
-      "WHERE { GRAPH ?graph { ?subj search:matches [" +
-      " search:query ?term ; " +
-      " search:snippet ?text ] }} ";
+      "SELECT ?graph ?subj ?text " +
+      "WHERE { " +
+      " GRAPH ?graph { " +
+      "   ?subj ?pred ?obj . " +
+      "   ?subj search:matches [" +
+      "   search:query ?term ; " +
+      "   search:snippet ?text ] " +
+      " }" +
+      "}";
 
     val repo = repositoryService.getRepository(projectId)
     Using(repo.getConnection) { conn =>

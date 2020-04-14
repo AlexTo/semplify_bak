@@ -1,6 +1,6 @@
-import { useRef, useEffect } from 'react';
+import {useRef, useEffect} from 'react';
 
-export default function useIsMountedRef() {
+export function useIsMountedRef() {
   const isMounted = useRef(true);
 
   useEffect(() => () => {

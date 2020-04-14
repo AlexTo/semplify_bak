@@ -14,7 +14,6 @@ import {
   Link,
   List,
   ListSubheader,
-  Typography,
   makeStyles
 } from '@material-ui/core';
 import {

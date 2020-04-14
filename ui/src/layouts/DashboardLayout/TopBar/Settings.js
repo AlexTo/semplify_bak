@@ -1,21 +1,18 @@
 import React, {useState, useRef} from 'react';
 import {capitalCase} from 'change-case';
 import {
-  Badge,
   Box,
   Button,
-  FormControlLabel,
   IconButton,
   Popover,
   SvgIcon,
-  Switch,
   TextField,
   Tooltip,
   Typography,
   makeStyles
 } from '@material-ui/core';
 import {Settings as SettingsIcon} from 'react-feather';
-import useSettings from 'src/hooks/useSettings';
+import {useSettings} from "../../../hooks";
 import {THEMES} from 'src/constants';
 
 const useStyles = makeStyles((theme) => ({
@@ -66,21 +63,15 @@ function Settings() {
   return (
     <>
       <Tooltip title="Settings">
-        <Badge
-          color="secondary"
-          variant="dot"
-          classes={{badge: classes.badge}}
+        <IconButton
+          color="inherit"
+          onClick={handleOpen}
+          ref={ref}
         >
-          <IconButton
-            color="inherit"
-            onClick={handleOpen}
-            ref={ref}
-          >
-            <SvgIcon fontSize="small">
-              <SettingsIcon/>
-            </SvgIcon>
-          </IconButton>
-        </Badge>
+          <SvgIcon fontSize="small">
+            <SettingsIcon/>
+          </SvgIcon>
+        </IconButton>
       </Tooltip>
       <Popover
         anchorOrigin={{

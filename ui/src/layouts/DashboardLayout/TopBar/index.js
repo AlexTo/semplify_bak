@@ -9,14 +9,18 @@ import {
   IconButton,
   Toolbar,
   makeStyles,
-  SvgIcon
+  SvgIcon, Paper
 } from '@material-ui/core';
-import {Menu as MenuIcon} from 'react-feather';
+import {
+  Menu as MenuIcon,
+
+} from 'react-feather';
 import Logo from 'src/components/Logo';
 import {THEMES} from 'src/constants';
 import Account from './Account';
-import Search from './Search';
 import Settings from './Settings';
+import Projects from "./Projects";
+import NodeSearch from "../../../components/NodeSearch";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -49,7 +53,6 @@ function TopBar({
       <Toolbar className={classes.toolbar}>
         <Hidden lgUp>
           <IconButton
-            className={classes.menuButton}
             color="inherit"
             onClick={onMobileNavOpen}
           >
@@ -67,11 +70,10 @@ function TopBar({
           ml={2}
           flexGrow={1}
         />
-        <Search/>
+        <NodeSearch/>
+        <Projects/>
         <Settings/>
-        <Box ml={2}>
-          <Account/>
-        </Box>
+        <Account/>
       </Toolbar>
     </AppBar>
   );

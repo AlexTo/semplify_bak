@@ -9,6 +9,8 @@ GET         /api/graphql/render-schema        modules.graphql.controllers.GraphQ
 
 POST        /api/projects/                    modules.project.controllers.ProjectController.create
 
+GET         /api/projects/                    modules.project.controllers.ProjectController.findAll
+
 POST        /api/files/                       modules.fileserver.controllers.FileController.upload
 
 POST        /api/rml/map-file/                modules.rml.controllers.RMLController.execute

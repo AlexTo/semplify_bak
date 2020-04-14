@@ -1,29 +1,27 @@
 package modules.entityhub.services.impl
 
 import javax.inject.Inject
-import modules.entityhub.models.{Edge, Node}
+import modules.entityhub.models.{Edge, Node, SearchHit}
 import modules.entityhub.services.EntityService
 import modules.entityhub.utils.ValueUtils
 import modules.triplestore.services.RepositoryService
 import org.eclipse.rdf4j.query.QueryLanguage
 
 import scala.collection.mutable.ListBuffer
+import scala.util.{Try, Using}
 
 
 class EntityServiceImpl @Inject()(repositoryService: RepositoryService) extends EntityService {
-  override def findNode(projectId: String, graph: String, uri: String): Option[Node] = {
-    val repo = repositoryService.getRepository(projectId)
-    val f = repo.getValueFactory
 
-    val con = repo.getConnection
-    try {
+  override def findNode(projectId: String, graph: String, uri: String): Try[Option[Node]] = {
+    val repo = repositoryService.getRepository(projectId)
+
+    Using(repo.getConnection) { conn =>
       Some(Node(projectId, graph, uri, "uri", Option.empty, Option.empty))
-    } finally {
-      con.close()
     }
   }
 
-  override def findEdgesFromNode(projectId: String, graph: String, fromNodeUri: String): Seq[Edge] = {
+  override def findEdgesFromNode(projectId: String, graph: String, fromNodeUri: String): Try[Seq[Edge]] = {
     val repo = repositoryService.getRepository(projectId)
     val con = repo.getConnection
 
@@ -32,8 +30,8 @@ class EntityServiceImpl @Inject()(repositoryService: RepositoryService) extends 
     val sub = f.createIRI(fromNodeUri)
     val fromNode = ValueUtils.createNode(projectId, graph, sub)
 
-    try {
-      val statements = con.getStatements(sub, null, null, context)
+    Using(repo.getConnection) { conn =>
+      val statements = conn.getStatements(sub, null, null, context)
       val edges = new ListBuffer[Edge]
       while (statements.hasNext) {
         val statement = statements.next
@@ -44,23 +42,19 @@ class EntityServiceImpl @Inject()(repositoryService: RepositoryService) extends 
         edges.addOne(edge)
       }
       edges.toSeq
-
-    } finally {
-      con.close()
     }
   }
 
-  override def findEdgesToNode(projectId: String, graph: String, toNodeUri: String): Seq[Edge] = {
+  override def findEdgesToNode(projectId: String, graph: String, toNodeUri: String): Try[Seq[Edge]] = {
     val repo = repositoryService.getRepository(projectId)
-    val con = repo.getConnection
 
     val f = repo.getValueFactory
     val context = f.createIRI(graph)
     val obj = f.createIRI(toNodeUri)
     val toNode = ValueUtils.createNode(projectId, graph, obj)
 
-    try {
-      val statements = con.getStatements(null, null, obj, context)
+    Using(repo.getConnection) { conn =>
+      val statements = conn.getStatements(null, null, obj, context)
       val edges = new ListBuffer[Edge]
       while (statements.hasNext) {
         val statement = statements.next
@@ -71,36 +65,40 @@ class EntityServiceImpl @Inject()(repositoryService: RepositoryService) extends 
         edges.addOne(edge)
       }
       edges.toSeq
-
-    } finally {
-      con.close()
     }
   }
 
-  override def searchNodes(projectId: String, term: String): Seq[Node] = {
-    val projectId = "5e8943b050040030a6ee3942"
+  override def searchNodes(projectId: String, term: String): Try[Seq[SearchHit]] = {
     val qry = "PREFIX search: <http://www.openrdf.org/contrib/lucenesail#> " +
-      "SELECT ?subj ?text " +
-      "WHERE { ?subj search:matches [" +
-      " search:query ?term ; " +
-      " search:snippet ?text ] } ";
+      "SELECT ?graph ?subj ?snippet ?score " +
+      "WHERE { " +
+      " GRAPH ?graph { " +
+      "   ?subj ?pred ?obj . " +
+      "   ?subj search:matches [" +
+      "   search:query ?term ; " +
+      "   search:score ?score; " +
+      "   search:snippet ?snippet ] }} " +
+      " LIMIT 20 ";
 
     val repo = repositoryService.getRepository(projectId)
+    val f = repo.getValueFactory
 
-    val conn = repo.getConnection
-    val f = conn.getValueFactory
-    val nodes = new ListBuffer[Node]
-    try {
+    Using(repo.getConnection) { conn =>
+      val searchHits = new ListBuffer[SearchHit]
       val tq = conn.prepareTupleQuery(QueryLanguage.SPARQL, qry)
-      tq.setBinding("term", f.createLiteral("mat" + "*"))
+      tq.setBinding("term", f.createLiteral(term.trim + "*"))
       val results = tq.evaluate
       while (results.hasNext) {
         val bindings = results.next()
-        val i = 0
+        val graph = bindings.getValue("graph").stringValue()
+        val subj = bindings.getValue("subj")
+        val snippet = bindings.getValue("snippet").stringValue()
+        val score = bindings.getValue("score").stringValue()
+        val node = ValueUtils.createNode(projectId, graph, subj)
+        val searchHit = SearchHit(node, score.toDouble, snippet)
+        searchHits.addOne(searchHit)
       }
-    } finally {
-      conn.close()
+      searchHits.toSeq
     }
-    nodes.toSeq
   }
 }

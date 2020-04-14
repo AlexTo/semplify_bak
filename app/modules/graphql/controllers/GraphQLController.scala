@@ -26,9 +26,9 @@ class GraphQLController @Inject()(repository: Repository)(implicit ec: Execution
     val operation = (request.body \ "operationName").asOpt[String]
 
     val variables = (request.body \ "variables").toOption.flatMap {
-      case JsString(vars) ⇒ Some(parseVariables(vars))
-      case obj: JsObject ⇒ Some(obj)
-      case _ ⇒ None
+      case JsString(vars) => Some(parseVariables(vars))
+      case obj: JsObject => Some(obj)
+      case _ => None
     }
 
     executeQuery(query, variables, operation, isTracingEnabled(request))

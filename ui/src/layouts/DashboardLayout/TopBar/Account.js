@@ -3,7 +3,6 @@ import React, {
   useState
 } from 'react';
 import {Link as RouterLink} from 'react-router-dom';
-import {useHistory} from 'react-router';
 import {
   Avatar,
   Box,
@@ -29,7 +28,6 @@ const useStyles = makeStyles((theme) => ({
 
 function Account() {
   const classes = useStyles();
-  const history = useHistory();
   const ref = useRef(null);
   const {keycloak} = useKeycloak();
   const {idTokenParsed: token} = keycloak;

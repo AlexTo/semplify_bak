@@ -27,4 +27,8 @@ class ProjectController @Inject()(projectService: ProjectService,
       .map(model => Ok(Json.toJson(model)))
       .recover(_ => InternalServerError)
   }
+
+  def findAll: Action[AnyContent] = Action.async { _ =>
+    projectService.findAll.map(projects => Ok(Json.toJson(projects)))
+  }
 }
