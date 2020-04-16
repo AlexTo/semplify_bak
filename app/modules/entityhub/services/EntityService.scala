@@ -1,19 +1,21 @@
 package modules.entityhub.services
 
 import com.google.inject.ImplementedBy
-import modules.entityhub.models.{Edge, Node, SearchHit}
+import modules.entityhub.models.{IRI, Literal, Predicate, SearchHit}
 import modules.entityhub.services.impl.EntityServiceImpl
 
-import scala.util.Try
+import scala.concurrent.Future
 
 @ImplementedBy(classOf[EntityServiceImpl])
 trait EntityService {
 
-  def findNode(projectId: String, graph: String, uri: String): Try[Option[Node]]
+  def findNode(projectId: String, graph: String, uri: String): Future[Option[IRI]]
 
-  def findEdgesFromNode(projectId: String, graph: String, fromNodeUri: String): Try[Seq[Edge]]
+  def findPredicatesFromNode(projectId: String, graph: String, from: String): Future[Seq[Predicate]]
 
-  def findEdgesToNode(projectId: String, graph: String, fromNodeUri: String): Try[Seq[Edge]]
+  def findPredicatesToNode(projectId: String, graph: String, to: String): Future[Seq[Predicate]]
 
-  def searchNodes(projectId: String, term: String): Try[Seq[SearchHit]]
+  def searchNodes(projectId: String, term: String): Future[Seq[SearchHit]]
+
+  def getPrefLabel(projectId: String, nodeUri: String): Future[Option[Literal]]
 }

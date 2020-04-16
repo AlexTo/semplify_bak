@@ -11,4 +11,6 @@ trait ProjectService {
   def create(project: ProjectCreate, username: String): Future[ProjectGet]
 
   def findAll: Future[Seq[ProjectGet]]
+
+  def findById(projectId: String): Future[Option[ProjectGet]]
 }

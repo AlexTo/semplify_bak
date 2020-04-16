@@ -70,7 +70,6 @@ function TopBar({
           ml={2}
           flexGrow={1}
         />
-        <NodeSearch/>
         <Projects/>
         <Settings/>
         <Account/>

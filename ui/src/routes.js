@@ -31,7 +31,7 @@ const routesConfig = [
       },
       {
         exact: true,
-        path: '/graph',
+        path: '/visual-graph',
         component: lazy(() => import('src/views/explore/GraphView'))
       },
       {

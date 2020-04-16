@@ -9,11 +9,13 @@ import modules.project.services.ProjectService
 import play.api.libs.json.{JsObject, Json}
 import play.modules.reactivemongo.ReactiveMongoApi
 import reactivemongo.api.Cursor
+import reactivemongo.bson._
 import reactivemongo.bson.BSONObjectID
 import reactivemongo.play.json._
 import reactivemongo.play.json.collection.JSONCollection
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success}
 
 class ProjectServiceImpl @Inject()(val reactiveMongoApi: ReactiveMongoApi)
                                   (implicit ex: ExecutionContext) extends ProjectService {
@@ -35,4 +37,14 @@ class ProjectServiceImpl @Inject()(val reactiveMongoApi: ReactiveMongoApi)
     collection.map {
       _.find(Json.obj(), Option.empty[JsObject]).cursor[ProjectGet]()
     }.flatMap(_.collect[Seq](-1, Cursor.FailOnError[Seq[ProjectGet]]()))
+
+  override def findById(projectId: String): Future[Option[ProjectGet]] = {
+    BSONObjectID.parse(projectId) match {
+      case Success(id) => collection.flatMap {
+        _.find(BSONDocument("_id" -> id), Option.empty[JsObject])
+          .one[ProjectGet]
+      }
+      case Failure(_) => Future.successful(None)
+    }
+  }
 }

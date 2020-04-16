@@ -4,7 +4,7 @@ import {
   Menu,
   MenuItem,
   SvgIcon,
-  makeStyles
+  makeStyles, Typography
 } from '@material-ui/core';
 import {projectQueries} from "../../../graphql";
 import {useQuery} from "@apollo/react-hooks";
@@ -47,6 +47,7 @@ function Projects() {
       <Button
         className={classes.button}
         variant="outlined"
+        color="inherit"
         ref={actionRef}
         onClick={() => setMenuOpen(true)}
       >

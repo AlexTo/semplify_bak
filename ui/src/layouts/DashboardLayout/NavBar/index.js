@@ -28,9 +28,9 @@ const navConfig = [
     subheader: 'Explore',
     items: [
       {
-        title: 'Graph',
+        title: 'Visual Graph',
         icon: HexagonIcon,
-        href: '/graph'
+        href: '/visual-graph'
       }
     ]
   }

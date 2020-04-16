@@ -1,3 +1,3 @@
 package modules.entityhub.models
 
-case class SearchHit(node: Node, score: Double, snippet: String)
+case class SearchHit(node: IRI, score: Double, snippet: String)

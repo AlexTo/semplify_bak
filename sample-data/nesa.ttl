@@ -5,6 +5,7 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
 @prefix asn: <http://purl.org/ASN/schema/core/> .
+@prefix deo: <http://purl.org/spar/deo> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix dc: <http://purl.org/dc/elements/1.1/> .
 @prefix det: <http://thesaurus.education.nsw.gov.au/>.
@@ -23,23 +24,79 @@
   ];
 
   rr:predicateObjectMap [
-      rr:predicate dc:title;
+    rr:predicate dc:title;
       rr:objectMap [
         rml:reference "text"
       ]
   ];
 
   rr:predicateObjectMap [
-      rr:predicate det:code;
+    rr:predicate asn:altStatementNotation;
       rr:objectMap [
-        rml:reference "code"
+        rml:reference "asn_altStatementNotation.literal";
+        rr:language "en-au"
+      ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate asn:authorityStatus;
+      rr:objectMap [
+        rml:reference "asn_authorityStatus.uri";
+	    rr:termType rr:IRI
+      ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate asn:indexingStatus;
+      rr:objectMap [
+        rml:reference "asn_indexingStatus.uri";
+  	    rr:termType rr:IRI
+      ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate asn:statementLabel;
+      rr:objectMap [
+        rml:reference "asn_statementLabel.literal";
+        rr:language "en-au"
+      ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate asn:statementNotation;
+      rr:objectMap [
+        rml:reference "asn_statementNotation.literal";
+        rr:language "en-au"
+      ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dcterms:modified;
+      rr:objectMap [
+        rml:reference "dcterms_modified.literal";
+      ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dcterms:subject;
+      rr:objectMap [
+        rml:reference "dcterms_subject.uri";
+        rr:termType rr:IRI
+      ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dcterms:title;
+      rr:objectMap [
+        rml:reference "dcterms_title.literal";
+        rr:language "en-au"
       ]
   ];
 
   rr:predicateObjectMap [
     rr:predicate det:syllabus;
     rr:objectMap [
-      rr:template "http://thesaurus.education.nsw.gov.au/syllabus/{syllabuses.*.syllabus_id}"
+      rr:template "http://thesaurus.education.nsw.gov.au/syllabus/{children.*.id}"
     ]
   ].
 
@@ -47,11 +104,11 @@
   rml:logicalSource [
     rml:source "nesa.json";
     rml:referenceFormulation ql:JSONPath;
-    rml:iterator "$.syllabuses.*"
+    rml:iterator "$.children.*"
   ];
 
   rr:subjectMap [
-    rr:template "http://thesaurus.education.nsw.gov.au/{id}";
+    rr:template "http://thesaurus.education.nsw.gov.au/syllabus/{id}";
     rr:class det:Syllabus
   ];
 
@@ -59,7 +116,8 @@
     rr:predicate rdfs:label;
     rr:objectMap [
       rml:reference "text";
-	    rr:language "en-au" ]
+	  rr:language "en-au"
+    ]
   ];
 
   rr:predicateObjectMap [
@@ -74,7 +132,7 @@
     rr:predicate asn:authorityStatus;
     rr:objectMap [
       rml:reference "asn_authorityStatus.uri";
-	    rr:termType rr:IRI
+	  rr:termType rr:IRI
     ]
   ];
 
@@ -87,24 +145,106 @@
   ];
 
   rr:predicateObjectMap [
-    rr:predicate asn:indexingStatus;
+    rr:predicate asn:listID;
     rr:objectMap [
-      rml:reference "asn_statementLabel.uri";
+      rml:reference "asn_listID.literal";
+	  rr:language "en-au"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate asn:statementLabel;
+    rr:objectMap [
+      rml:reference "asn_statementLabel.literal";
+	  rr:language "en-au"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate asn:statementNotation;
+    rr:objectMap [
+      rml:reference "asn_statementNotation.literal";
+  	  rr:language "en-au"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dcterms:created;
+    rr:objectMap [
+      rml:reference "dcterms_created.literal";
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dcterms:dateAccepted;
+    rr:objectMap [
+      rml:reference "dcterms_dateAccepted.literal";
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dcterms:dateCopyrighted;
+    rr:objectMap [
+      rml:reference "dcterms_dateCopyrighted.literal";
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dcterms:educationLevel;
+    rr:objectMap [
+      rml:reference "dcterms_educationLevel.*.uri";
       rr:termType rr:IRI
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dcterms:issued;
+    rr:objectMap [
+      rml:reference "dcterms_issued.literal";
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dcterms:modified;
+    rr:objectMap [
+      rml:reference "dcterms_modified.literal";
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dcterms:subject;
+    rr:objectMap [
+      rml:reference "dcterms_subject.uri";
+      rr:termType rr:IRI
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dcterms:title;
+    rr:objectMap [
+      rml:reference "dcterms_title.literal";
+  	  rr:language "en-au"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dcterms:valid;
+    rr:objectMap [
+      rml:reference "dcterms_valid.literal";
     ]
   ];
 
   rr:predicateObjectMap [
     rr:predicate det:objective;
     rr:objectMap [
-      rr:template "http://thesaurus.education.nsw.gov.au/{objectives.*.id}"
+      rr:template "http://thesaurus.education.nsw.gov.au/objective/{objectives.*.id}"
     ]
   ];
 
   rr:predicateObjectMap [
     rr:predicate det:stage;
     rr:objectMap [
-      rr:template "http://thesaurus.education.nsw.gov.au/{children.*.id}"
+      rr:template "http://thesaurus.education.nsw.gov.au/stage/{children.*.id}"
     ]
   ].
 
@@ -116,7 +256,7 @@
   ];
 
   rr:subjectMap [
-    rr:template "http://thesaurus.education.nsw.gov.au/{id}";
+    rr:template "http://thesaurus.education.nsw.gov.au/objective/{id}";
     rr:class det:Objective
   ];
 
@@ -124,82 +264,92 @@
     rr:predicate rdfs:label;
     rr:objectMap [
       rml:reference "text";
-	    rr:language "en-au" ]
+	  rr:language "en-au"
+	]
   ];
 
   rr:predicateObjectMap [
     rr:predicate asn:altStatementNotation;
     rr:objectMap [
       rml:reference "asn_altStatementNotation.literal";
-	    rr:language "en-au"
+	  rr:language "en-au"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate asn:authorityStatus;
+    rr:objectMap [
+      rml:reference "asn_authorityStatus.uri";
+	  rr:termType rr:IRI
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate asn:indexingStatus;
+    rr:objectMap [
+      rml:reference "asn_indexingStatus.uri";
+      rr:termType rr:IRI
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate asn:listID;
+    rr:objectMap [
+      rml:reference "asn_listID.literal";
+  	  rr:language "en-au"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate asn:statementLabel;
+      rr:objectMap [
+        rml:reference "asn_statementLabel.literal";
+        rr:language "en-au"
+      ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dcterms:created;
+    rr:objectMap [
+      rml:reference "dcterms_created.literal";
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dcterms:educationLevel;
+    rr:objectMap [
+      rml:reference "dcterms_educationLevel.*.uri";
+      rr:termType rr:IRI
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dcterms:modified;
+    rr:objectMap [
+      rml:reference "dcterms_modified.literal";
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dcterms:subject;
+    rr:objectMap [
+      rml:reference "dcterms_subject.uri";
+      rr:termType rr:IRI
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dcterms:title;
+    rr:objectMap [
+      rml:reference "dcterms_title.literal";
+  	  rr:language "en-au"
     ]
   ];
 
   rr:predicateObjectMap [
     rr:predicate det:outcome;
     rr:objectMap [
-      rr:template "http://thesaurus.education.nsw.gov.au/{children.*.id}"
-    ]
-  ].
-
-<det:StageMapping> a rr:TriplesMap;
-  rml:logicalSource [
-    rml:source "nesa.json";
-    rml:referenceFormulation ql:JSONPath;
-    rml:iterator "$.children.*.children.*"
-  ];
-
-  rr:subjectMap [
-    rr:template "http://thesaurus.education.nsw.gov.au/{id}";
-    rr:class det:Stage
-  ];
-
-  rr:predicateObjectMap [
-    rr:predicate rdfs:label;
-    rr:objectMap [
-      rml:reference "text";
-	    rr:language "en-au" ]
-  ];
-
-  rr:predicateObjectMap [
-    rr:predicate asn:altStatementNotation;
-    rr:objectMap [
-      rml:reference "asn_altStatementNotation.literal";
-	    rr:language "en-au"
-    ]
-  ];
-
-  rr:predicateObjectMap [
-    rr:predicate det:contentGroup;
-    rr:objectMap [
-      rr:template "http://thesaurus.education.nsw.gov.au/{children.*.id}"
-    ]
-  ].
-
-<det:ContentGroupMapping> a rr:TriplesMap;
-  rml:logicalSource [
-    rml:source "nesa.json";
-    rml:referenceFormulation ql:JSONPath;
-    rml:iterator "$.children.*.children.*.children.*"
-  ];
-
-  rr:subjectMap [
-    rr:template "http://thesaurus.education.nsw.gov.au/{id}";
-    rr:class det:ContentGroup
-  ];
-
-  rr:predicateObjectMap [
-    rr:predicate rdfs:label;
-    rr:objectMap [
-      rml:reference "text";
-	    rr:language "en-au" ]
-  ];
-
-  rr:predicateObjectMap [
-    rr:predicate asn:altStatementNotation;
-    rr:objectMap [
-      rml:reference "asn_altStatementNotation.literal";
-	    rr:language "en-au"
+      rr:template "http://thesaurus.education.nsw.gov.au/outcome/{children.*.id}"
     ]
   ].
 
@@ -211,7 +361,7 @@
   ];
 
   rr:subjectMap [
-    rr:template "http://thesaurus.education.nsw.gov.au/{id}";
+    rr:template "http://thesaurus.education.nsw.gov.au/outcome/{id}";
     rr:class det:Outcome
   ];
 
@@ -219,13 +369,441 @@
     rr:predicate rdfs:label;
     rr:objectMap [
       rml:reference "text";
-	    rr:language "en-au" ]
+	  rr:language "en-au"
+	]
   ];
 
   rr:predicateObjectMap [
     rr:predicate asn:altStatementNotation;
     rr:objectMap [
       rml:reference "asn_altStatementNotation.literal";
-	    rr:language "en-au"
+	  rr:language "en-au"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate asn:authorityStatus;
+    rr:objectMap [
+      rml:reference "asn_authorityStatus.uri";
+	  rr:termType rr:IRI
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate asn:indexingStatus;
+    rr:objectMap [
+      rml:reference "asn_indexingStatus.uri";
+      rr:termType rr:IRI
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate asn:listID;
+    rr:objectMap [
+      rml:reference "asn_listID.literal";
+  	  rr:language "en-au"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate asn:statementLabel;
+    rr:objectMap [
+      rml:reference "asn_statementLabel.literal";
+	  rr:language "en-au"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate asn:statementNotation;
+    rr:objectMap [
+      rml:reference "asn_statementNotation.literal";
+  	  rr:language "en-au"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dcterms:created;
+    rr:objectMap [
+      rml:reference "dcterms_created.literal";
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dcterms:description;
+    rr:objectMap [
+      rml:reference "dcterms_description.literal";
+      rr:language "en-au"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dcterms:educationLevel;
+    rr:objectMap [
+      rml:reference "dcterms_educationLevel.*.uri";
+      rr:termType rr:IRI
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dcterms:modified;
+    rr:objectMap [
+      rml:reference "dcterms_modified.literal";
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dcterms:subject;
+    rr:objectMap [
+      rml:reference "dcterms_subject.uri";
+      rr:termType rr:IRI
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate det:nesa_syllabus_life_skills;
+    rr:objectMap [
+      rml:reference "nesa_syllabus_life_skills"
+    ]
+  ].
+
+<det:StageMapping> a rr:TriplesMap;
+  rml:logicalSource [
+    rml:source "nesa.json";
+    rml:referenceFormulation ql:JSONPath;
+    rml:iterator "$.children.*.children.*"
+  ];
+
+  rr:subjectMap [
+    rr:template "http://thesaurus.education.nsw.gov.au/stage/{id}";
+    rr:class det:Stage
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate rdfs:label;
+    rr:objectMap [
+      rml:reference "text";
+	  rr:language "en-au" ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate asn:altStatementNotation;
+    rr:objectMap [
+      rml:reference "asn_altStatementNotation.literal";
+	  rr:language "en-au"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate asn:authorityStatus;
+    rr:objectMap [
+      rml:reference "asn_authorityStatus.uri";
+	  rr:termType rr:IRI
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate asn:indexingStatus;
+    rr:objectMap [
+      rml:reference "asn_indexingStatus.uri";
+      rr:termType rr:IRI
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate asn:listID;
+    rr:objectMap [
+      rml:reference "asn_listID.literal";
+  	  rr:language "en-au"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate asn:statementLabel;
+    rr:objectMap [
+      rml:reference "asn_statementLabel.literal";
+	  rr:language "en-au"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate asn:statementNotation;
+    rr:objectMap [
+      rml:reference "asn_statementNotation.literal";
+  	  rr:language "en-au"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dcterms:created;
+    rr:objectMap [
+      rml:reference "dcterms_created.literal";
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dcterms:educationLevel;
+    rr:objectMap [
+      rml:reference "dcterms_educationLevel.*.uri";
+      rr:termType rr:IRI
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dcterms:issued;
+    rr:objectMap [
+      rml:reference "dcterms_issued.literal";
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dcterms:modified;
+    rr:objectMap [
+      rml:reference "dcterms_modified.literal";
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dcterms:subject;
+    rr:objectMap [
+      rml:reference "dcterms_subject.uri";
+      rr:termType rr:IRI
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dcterms:title;
+    rr:objectMap [
+      rml:reference "dcterms_title.literal";
+    	rr:language "en-au"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate det:contentGroup;
+    rr:objectMap [
+      rr:template "http://thesaurus.education.nsw.gov.au/content-group/{children.*.id}"
+    ]
+  ].
+
+<det:ContentGroupMapping> a rr:TriplesMap;
+  rml:logicalSource [
+    rml:source "nesa.json";
+    rml:referenceFormulation ql:JSONPath;
+    rml:iterator "$.children.*.children.*.children.*"
+  ];
+
+  rr:subjectMap [
+    rr:template "http://thesaurus.education.nsw.gov.au/content-group/{id}";
+    rr:class det:ContentGroup
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate rdfs:label;
+    rr:objectMap [
+      rml:reference "text";
+	  rr:language "en-au" ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate asn:altStatementNotation;
+    rr:objectMap [
+      rml:reference "asn_altStatementNotation.literal";
+	  rr:language "en-au"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate asn:authorityStatus;
+    rr:objectMap [
+      rml:reference "asn_authorityStatus.uri";
+	  rr:termType rr:IRI
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate asn:indexingStatus;
+    rr:objectMap [
+      rml:reference "asn_indexingStatus.uri";
+      rr:termType rr:IRI
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate asn:listID;
+    rr:objectMap [
+      rml:reference "asn_listID.literal";
+  	  rr:language "en-au"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate asn:statementLabel;
+    rr:objectMap [
+      rml:reference "asn_statementLabel.literal";
+	  rr:language "en-au"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dcterms:coverage;
+    rr:objectMap [
+      rml:reference "dcterms_coverage.literal";
+	  rr:language "en-au"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dcterms:created;
+    rr:objectMap [
+      rml:reference "dcterms_created.literal";
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dcterms:educationLevel;
+    rr:objectMap [
+      rml:reference "dcterms_educationLevel.*.uri";
+      rr:termType rr:IRI
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dcterms:modified;
+    rr:objectMap [
+      rml:reference "dcterms_modified.literal";
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dcterms:subject;
+    rr:objectMap [
+      rml:reference "dcterms_subject.uri";
+      rr:termType rr:IRI
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dcterms:title;
+    rr:objectMap [
+      rml:reference "dcterms_title.literal";
+    	rr:language "en-au"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate deo:epilogue;
+    rr:objectMap [
+      rml:reference "deo_epilogue.literal";
+      rr:language "en-au"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate deo:introduction;
+    rr:objectMap [
+      rml:reference "deo_introduction.literal";
+      rr:language "en-au"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate det:nesa_is_life_skills;
+    rr:objectMap [
+      rml:reference "nesa_is_life_skills";
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate det:content;
+    rr:objectMap [
+      rr:template "http://thesaurus.education.nsw.gov.au/content/{content.*.id}"
+    ]
+  ].
+
+<det:ContentMapping> a rr:TriplesMap;
+  rml:logicalSource [
+    rml:source "nesa.json";
+    rml:referenceFormulation ql:JSONPath;
+    rml:iterator "$.children.*.children.*.children.*.content.*"
+  ];
+
+  rr:subjectMap [
+    rr:template "http://thesaurus.education.nsw.gov.au/content/{id}";
+    rr:class det:Content
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate rdfs:label;
+    rr:objectMap [
+      rml:reference "text";
+	  rr:language "en-au" ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate asn:altStatementNotation;
+    rr:objectMap [
+      rml:reference "asn_altStatementNotation.literal";
+	  rr:language "en-au"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate asn:authorityStatus;
+    rr:objectMap [
+      rml:reference "asn_authorityStatus.uri";
+	  rr:termType rr:IRI
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate asn:indexingStatus;
+    rr:objectMap [
+      rml:reference "asn_indexingStatus.uri";
+      rr:termType rr:IRI
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate asn:listID;
+    rr:objectMap [
+      rml:reference "asn_listID";
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate asn:statementLabel;
+    rr:objectMap [
+      rml:reference "asn_statementLabel.literal";
+	  rr:language "en-au"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dcterms:description;
+    rr:objectMap [
+      rml:reference "dcterms_description.literal";
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dcterms:educationLevel;
+    rr:objectMap [
+      rml:reference "dcterms_educationLevel.*.uri";
+      rr:termType rr:IRI
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dcterms:modified;
+    rr:objectMap [
+      rml:reference "dcterms_modified.literal";
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dcterms:subject;
+    rr:objectMap [
+      rml:reference "dcterms_subject.uri";
+      rr:termType rr:IRI
     ]
   ].

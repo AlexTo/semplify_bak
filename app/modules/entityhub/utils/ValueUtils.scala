@@ -1,21 +1,20 @@
 package modules.entityhub.utils
 
-import modules.entityhub.models.{Edge, Node}
 import org.eclipse.rdf4j.model.{BNode, IRI, Literal, Value}
 
 import scala.jdk.javaapi.OptionConverters
 
 object ValueUtils {
-  def createNode(repositoryId: String, graph: String, value: Value): Node = {
+  def createValue(repositoryId: String, graph: Option[String], value: Value): modules.entityhub.models.Value = {
     value match {
       case iri: IRI =>
-        Node(repositoryId, graph, iri.stringValue(), "uri")
+        modules.entityhub.models.IRI(repositoryId, graph, iri.stringValue())
       case literal: Literal =>
-        Node(repositoryId, graph, literal.getLabel, "literal",
+        modules.entityhub.models.Literal(repositoryId, graph, literal.getLabel,
           OptionConverters.toScala(literal.getLanguage),
-          Some(literal.getDatatype.stringValue()))
+          literal.getDatatype.stringValue())
       case bNode: BNode =>
-        Node(repositoryId, graph, bNode.getID, "bnode")
+        modules.entityhub.models.BNode(repositoryId, graph, bNode.getID)
     }
   }
 }

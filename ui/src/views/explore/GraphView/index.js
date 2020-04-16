@@ -1,10 +1,13 @@
 import React from 'react';
 import {
+  Box,
   Container,
   makeStyles
 } from '@material-ui/core';
 import Page from 'src/components/Page';
 import Header from './Header';
+import NodeSearch from "../../../components/NodeSearch";
+import Graph from "./Graph";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -17,7 +20,12 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.up('lg')]: {
       paddingLeft: 64,
       paddingRight: 64
-    }
+    },
+    height: "75vh"
+  },
+  graphBox: {
+    width: "100%",
+    height: "100%"
   }
 }));
 
@@ -30,10 +38,16 @@ function GraphView() {
       title="Dashboard"
     >
       <Container
-        maxWidth={false}
         className={classes.container}
+        maxWidth={false}
       >
         <Header/>
+        <Box mt={3}>
+          <NodeSearch/>
+        </Box>
+        <Box mt={3} className={classes.graphBox}>
+          <Graph/>
+        </Box>
       </Container>
     </Page>
   );

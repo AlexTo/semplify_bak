@@ -1,34 +1,63 @@
 package modules.graphql.schema
 
-import modules.entityhub.models.{Edge, Node, SearchHit}
+import modules.entityhub.models.{BNode, IRI, Literal, Predicate, SearchHit}
 import modules.graphql.services.Repository
 import modules.project.models.ProjectGet
 import sangria.schema._
 
 object SchemaDefinition {
 
-  val Edge: ObjectType[Repository, Edge] = ObjectType("Edge", "A graph edge",
-    () => fields[Repository, Edge](
+  val Value: InterfaceType[Repository, modules.entityhub.models.Value] =
+    InterfaceType("Value", "An interface that represents a generic value in an RDF graph",
+      () => fields[Repository, modules.entityhub.models.Value](
+        Field("projectId", StringType, resolve = _.value.projectId),
+        Field("graph", OptionType(StringType), resolve = _.value.graph),
+        Field("value", StringType, resolve = _.value.value),
+      )
+    )
+
+  val IRI: ObjectType[Repository, IRI] = ObjectType("IRI", "An RDF IRI",
+    interfaces[Repository, IRI](Value),
+    () => fields[Repository, IRI](
       Field("projectId", StringType, resolve = _.value.projectId),
-      Field("graph", StringType, resolve = _.value.graph),
+      Field("graph", OptionType(StringType), resolve = _.value.graph),
       Field("value", StringType, resolve = _.value.value),
-      Field("from", Node, resolve = _.value.from),
-      Field("to", Node, resolve = _.value.to),
+      Field("prefLabel", OptionType(Literal), resolve = ctx => ctx.ctx.prefLabel(ctx.value.projectId, ctx.value.value)),
+      Field("outGoingPredicates", ListType(Predicate),
+        resolve = ctx => ctx.ctx.predicatesFromNode(ctx.value.projectId, ctx.value.graph.get, ctx.value.value)),
+      Field("incomingPredicates", ListType(Predicate),
+        resolve = ctx => ctx.ctx.predicatesToNode(ctx.value.projectId, ctx.value.graph.get, ctx.value.value))
     ))
 
-  val Node: ObjectType[Repository, Node] = ObjectType("Node", "A graph node",
-    () => fields[Repository, Node](
+  val Literal: ObjectType[Repository, Literal] = ObjectType("Literal", "An RDF Literal",
+    interfaces[Repository, Literal](Value),
+    () => fields[Repository, Literal](
       Field("projectId", StringType, resolve = _.value.projectId),
-      Field("graph", StringType, resolve = _.value.graph),
+      Field("graph", OptionType(StringType), resolve = _.value.graph),
       Field("value", StringType, resolve = _.value.value),
-      Field("type", StringType, resolve = _.value._type),
       Field("lang", OptionType(StringType), resolve = _.value.lang),
-      Field("dataType", OptionType(StringType), resolve = _.value.dataType),
-      Field("outGoingEdges", ListType(Edge),
-        resolve = ctx => ctx.ctx.edgesFromNode(ctx.value.projectId, ctx.value.graph, ctx.value.value)),
-      Field("incomingEdges", ListType(Edge),
-        resolve = ctx => ctx.ctx.edgesToNode(ctx.value.projectId, ctx.value.graph, ctx.value.value))
+      Field("dataType", StringType, resolve = _.value.dataType)
     ))
+
+  val BNode: ObjectType[Repository, BNode] = ObjectType("BNode", "An RDF BNode",
+    interfaces[Repository, BNode](Value),
+    () => fields[Repository, BNode](
+      Field("projectId", StringType, resolve = _.value.projectId),
+      Field("graph", OptionType(StringType), resolve = _.value.graph),
+      Field("value", StringType, resolve = _.value.value),
+    )
+  )
+
+  val Predicate: ObjectType[Repository, Predicate] = ObjectType("Predicate", "An RDF predicate",
+    interfaces[Repository, Predicate](Value),
+    () => fields[Repository, Predicate](
+      Field("projectId", StringType, resolve = _.value.projectId),
+      Field("graph", OptionType(StringType), resolve = _.value.graph),
+      Field("value", StringType, resolve = _.value.value),
+      Field("from", IRI, resolve = _.value.from),
+      Field("to", Value, resolve = _.value.to),
+    ))
+
 
   val Project: ObjectType[Repository, ProjectGet] = ObjectType("Project",
     () => fields[Repository, ProjectGet](
@@ -38,7 +67,7 @@ object SchemaDefinition {
 
   val SearchHit: ObjectType[Repository, SearchHit] = ObjectType("SearchHit",
     () => fields[Repository, SearchHit](
-      Field("node", Node, resolve = _.value.node),
+      Field("node", IRI, resolve = _.value.node),
       Field("snippet", StringType, resolve = _.value.snippet),
       Field("score", FloatType, resolve = _.value.score)
     )
@@ -51,9 +80,13 @@ object SchemaDefinition {
 
   val Query: ObjectType[Repository, Unit] = ObjectType(
     "Query", fields[Repository, Unit](
-      Field("node", OptionType(Node),
+      Field("node", OptionType(IRI),
         arguments = ProjectId :: Graph :: Uri :: Nil,
         resolve = ctx => ctx.ctx.node(ctx arg ProjectId, ctx arg Graph, ctx arg Uri)
+      ),
+      Field("predicatesFromNode", ListType(Predicate),
+        arguments = ProjectId :: Graph :: Uri :: Nil,
+        resolve = ctx => ctx.ctx.predicatesFromNode(ctx arg ProjectId, ctx arg Graph, ctx arg Uri)
       ),
       Field("projects", ListType(Project),
         resolve = ctx => ctx.ctx.projects()
@@ -64,5 +97,5 @@ object SchemaDefinition {
       )
     ))
 
-  val schema: Schema[Repository, Unit] = Schema(Query)
+  val schema: Schema[Repository, Unit] = Schema(Query, additionalTypes = Literal :: BNode :: Nil)
 }

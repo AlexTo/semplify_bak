@@ -6,6 +6,9 @@ export const entityHubQueries = {
       searchNodes(projectId: $projectId, term: $term) {
         node {
           value
+          prefLabel {
+            value
+          }
         }
         snippet
       }

@@ -23,7 +23,7 @@ const renderOption = (option) => <Grid container spacing={1}>
     {option.node.thumbnailUri && <Avatar alt={option.node.prefLabel} src={option.node.thumbnailUri}/>}
   </Grid>
   <Grid item xs>
-    {option.snippet}
+    {option.node.prefLabel.value}
     <Typography variant="body2" color="textSecondary">
       {option.node.value}
     </Typography>
@@ -33,7 +33,6 @@ const renderOption = (option) => <Grid container spacing={1}>
 const useStyles = makeStyles((theme) => ({
   root: {},
   searchBox: {
-    width: 700,
     marginRight: theme.spacing(2)
   },
   searchInput: {
@@ -55,10 +54,16 @@ function NodeSearch({onOptionSelected}) {
     fetchPolicy: "no-cache"
   });
 
+  useEffect(() => {
+    setSearchTerm("");
+  }, [projectId])
 
   useEffect(() => {
     if (debouncedSearchTerm) {
-      if (debouncedSearchTerm.length < 3) return;
+      if (debouncedSearchTerm.length < 3) {
+        setOptions([]);
+        return;
+      }
 
       if (projectId === "") {
         enqueueSnackbar('Please select a project', {
@@ -100,9 +105,8 @@ function NodeSearch({onOptionSelected}) {
       getOptionLabel={() => ""}
       filterOptions={(x) => x}
       options={options}
-      loading={loading}
-      openOnFocus={false}
-      autoHighlight={true}
+      loading={called & loading}
+      noOptionsText="Enter 3 characters or more ..."
       renderOption={renderOption}
       renderInput={params => (
         <Paper

@@ -8,6 +8,7 @@ import {
   makeStyles
 } from '@material-ui/core';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
+import NodeSearch from "../../../components/NodeSearch";
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -40,7 +41,7 @@ function Header({className, ...rest}) {
           <Typography
             variant="body1"
             color="textPrimary">
-            Graph
+            Visual Graph
           </Typography>
         </Breadcrumbs>
       </Grid>
