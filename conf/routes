@@ -15,7 +15,7 @@ POST        /api/files/                       modules.fileserver.controllers.Fil
 
 POST        /api/rml/map-file/                modules.rml.controllers.RMLController.execute
 
-GET         /api/entity-hub/test1             modules.entityhub.controllers.EntityHubController.test
+GET         /api/entity-hub/test1             modules.entityhub.controllers.EntityHubController.test(dataFileId: String, mappingFileId: String, projectId: String, graph: String)
 
 GET         /api/entity-hub/test2             modules.entityhub.controllers.EntityHubController.test2
 

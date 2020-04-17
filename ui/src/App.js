@@ -13,11 +13,11 @@ import {
   ThemeProvider
 } from '@material-ui/core';
 import {MuiPickersUtilsProvider} from '@material-ui/pickers';
-import SettingsNotification from 'src/components/SettingsNotification';
-import ScrollReset from 'src/components/ScrollReset';
+import SettingsNotification from './components/SettingsNotification';
+import ScrollReset from './components/ScrollReset'
 import {useSettings} from "./hooks";
-import {createTheme} from 'src/theme';
-import Routes from 'src/Routes';
+import {createTheme} from "./theme";
+import Routes from './routes';
 import Keycloak from 'keycloak-js'
 import {KeycloakProvider} from '@react-keycloak/web'
 import {ApolloClient} from 'apollo-client';
