@@ -1,36 +1,76 @@
-import React, {useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import cytoscape from 'cytoscape';
 import CytoscapeComponent from "react-cytoscapejs";
 import cola from 'cytoscape-cola';
+import cxtmenu from 'cytoscape-cxtmenu';
+import {Maximize2, MapPin, Trash} from 'react-feather';
+import {useSelector} from "react-redux";
+import {renderToString} from 'react-dom/server'
 
 cytoscape.use(cola);
+cytoscape.use(cxtmenu);
 
-function Graph() {
+
+function Graph({graphData, onNodeExpanded, onNodeRemoved}) {
 
   const [cy, setCy] = useState(null);
+  const {style} = useSelector(state => state.cyReducer)
+  const layout = {name: "cola"};
+  useEffect(() => {
+    if (cy) {
+      cy.cxtmenu(menu);
+    }
+  }, [cy])
 
-  const elements = [
-    {data: {id: '1', label: '1'}},
-    {data: {id: '2', label: '2'}},
-    {data: {id: '3', label: '3'}},
-    {data: {id: '4', label: '4'}},
-    {data: {id: '5', label: '5'}},
-    {data: {id: '6', label: '6'}},
-    {data: {id: '7', label: '7'}},
-    {data: {id: '8', label: '8'}},
-    {data: {source: '1', target: '2', label: 'Edge from Node1 to Node2'}},
-    {data: {source: '1', target: '3', label: 'Edge from Node1 to Node2'}},
-    {data: {source: '2', target: '3', label: 'Edge from Node1 to Node2'}},
-    {data: {source: '3', target: '4', label: 'Edge from Node1 to Node2'}},
-    {data: {source: '4', target: '5', label: 'Edge from Node1 to Node2'}},
-    {data: {source: '4', target: '6', label: 'Edge from Node1 to Node2'}},
-    {data: {source: '3', target: '7', label: 'Edge from Node1 to Node2'}},
-    {data: {source: '3', target: '8', label: 'Edge from Node1 to Node2'}},
-  ];
+  useEffect(() => {
+    if (cy) {
+      cy.layout(layout).run();
+    }
+  }, [graphData])
+
+
+  const menu = {
+    menuRadius: 55, // the radius of the circular menu in pixels
+    selector: 'node', // elements matching this Cytoscape.js selector will trigger cxtmenus
+    commands: [
+      {
+        content: renderToString(<Trash size={16}/>),
+        select: function (ele) {
+          onNodeRemoved(ele.id())
+        },
+      },
+      {
+        content: renderToString(<MapPin size={16}/>),
+        select: function (ele) {
+        },
+      },
+      {
+        content: renderToString(<Maximize2 size={16}/>),
+        select: function (ele) {
+          onNodeExpanded(ele.data())
+        },
+      },
+    ],
+    fillColor: 'rgba(138,180,219,0.75)',
+    activeFillColor: 'rgba(1, 105, 217, 0.75)',
+    activePadding: 0,
+    indicatorSize: 12,
+    separatorWidth: 3,
+    spotlightPadding: 0,
+    minSpotlightRadius: 24,
+    maxSpotlightRadius: 24,
+    itemColor: 'white',
+    itemTextShadowColor: 'transparent',
+    openMenuEvents: 'tap',
+    zIndex: 9999,
+    atMouse: false
+  };
+
   return (
-    <CytoscapeComponent elements={elements}
-                        cy={(cy) => setCy(cy)}
-                        layout={{name: "cola"}}
+    <CytoscapeComponent elements={graphData}
+                        cy={cy => setCy(cy)}
+                        layout={layout}
+                        stylesheet={style}
                         style={{width: '100%', height: '100%'}}/>
   )
 }

@@ -24,9 +24,9 @@ object SchemaDefinition {
       Field("value", StringType, resolve = _.value.value),
       Field("prefLabel", OptionType(Literal), resolve = ctx => ctx.ctx.prefLabel(ctx.value.projectId, ctx.value.value)),
       Field("outGoingPredicates", ListType(Predicate),
-        resolve = ctx => ctx.ctx.predicatesFromNode(ctx.value.projectId, ctx.value.graph.get, ctx.value.value)),
+        resolve = ctx => ctx.ctx.predicatesFromNode(ctx.value.projectId, None, ctx.value.value)),
       Field("incomingPredicates", ListType(Predicate),
-        resolve = ctx => ctx.ctx.predicatesToNode(ctx.value.projectId, ctx.value.graph.get, ctx.value.value))
+        resolve = ctx => ctx.ctx.predicatesToNode(ctx.value.projectId, None, ctx.value.value))
     ))
 
   val Literal: ObjectType[Repository, Literal] = ObjectType("Literal", "An RDF Literal",
@@ -36,7 +36,7 @@ object SchemaDefinition {
       Field("graph", OptionType(StringType), resolve = _.value.graph),
       Field("value", StringType, resolve = _.value.value),
       Field("lang", OptionType(StringType), resolve = _.value.lang),
-      Field("dataType", StringType, resolve = _.value.dataType)
+      Field("dataType", StringType, resolve = _.value.dataType),
     ))
 
   val BNode: ObjectType[Repository, BNode] = ObjectType("BNode", "An RDF BNode",
@@ -44,8 +44,7 @@ object SchemaDefinition {
     () => fields[Repository, BNode](
       Field("projectId", StringType, resolve = _.value.projectId),
       Field("graph", OptionType(StringType), resolve = _.value.graph),
-      Field("value", StringType, resolve = _.value.value),
-    )
+      Field("value", StringType, resolve = _.value.value))
   )
 
   val Predicate: ObjectType[Repository, Predicate] = ObjectType("Predicate", "An RDF predicate",
@@ -54,6 +53,7 @@ object SchemaDefinition {
       Field("projectId", StringType, resolve = _.value.projectId),
       Field("graph", OptionType(StringType), resolve = _.value.graph),
       Field("value", StringType, resolve = _.value.value),
+      Field("prefLabel", OptionType(Literal), resolve = ctx => ctx.ctx.prefLabel(ctx.value.projectId, ctx.value.value)),
       Field("from", IRI, resolve = _.value.from),
       Field("to", Value, resolve = _.value.to),
     ))
@@ -74,7 +74,8 @@ object SchemaDefinition {
   )
 
   val ProjectId: Argument[String] = Argument("projectId", StringType)
-  val Graph: Argument[String] = Argument("graph", StringType)
+  val Graph: Argument[Option[String]] = Argument("graph", OptionInputType(StringType))
+
   val Uri: Argument[String] = Argument("uri", StringType)
   val Term: Argument[String] = Argument("term", StringType)
 
@@ -92,8 +93,8 @@ object SchemaDefinition {
         resolve = ctx => ctx.ctx.projects()
       ),
       Field("searchNodes", ListType(SearchHit),
-        arguments = ProjectId :: Term :: Nil,
-        resolve = ctx => ctx.ctx.searchNodes(ctx arg ProjectId, ctx arg Term)
+        arguments = ProjectId :: Graph :: Term :: Nil,
+        resolve = ctx => ctx.ctx.searchNodes(ctx arg ProjectId, ctx arg Graph, ctx arg Term)
       )
     ))
 

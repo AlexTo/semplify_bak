@@ -20,92 +20,139 @@ class EntityServiceImpl @Inject()(repositoryService: RepositoryService,
                                   projectService: ProjectService)
                                  (implicit val ec: ExecutionContext) extends EntityService {
 
-  override def findNode(projectId: String, graph: String, uri: String): Future[Option[IRI]] = Future {
-    val repo = repositoryService.getRepository(projectId)
-    Using(repo.getConnection) { conn =>
-      Some(IRI(projectId, Some(graph), uri))
-    } match {
-      case Success(value) => value
+  override def findNode(projectId: String, graph: Option[String], uri: String): Future[Option[IRI]] = {
+    projectService.findById(projectId).map {
+      case Some(_) =>
+        val repo = repositoryService.getRepository(projectId)
+        val f = repo.getValueFactory
+        val q =
+          "SELECT ?s " + (if (graph.isEmpty) "?g" else "") +
+            " WHERE { " +
+            "  GRAPH ?g { " +
+            "   ?s ?p ?o " +
+            "}}"
+
+        Using(repo.getConnection) { conn =>
+          val tq = conn.prepareTupleQuery(QueryLanguage.SPARQL, q)
+          graph match {
+            case Some(iri) => tq.setBinding("g", f.createIRI(iri))
+            case _ =>
+          }
+          val results = tq.evaluate
+          if (results.hasNext) {
+            val bindings = results.next
+            val g = if (graph.isEmpty) bindings.getBinding("g").getValue.stringValue() else graph.get
+            val s = bindings.getBinding("s").getValue
+            Some(ValueUtils.createValue(projectId, Some(g), s).asInstanceOf[IRI])
+          } else None
+        } match {
+          case Success(value) => value
+        }
+    }
+
+  }
+
+  override def findPredicatesFromNode(projectId: String, graph: Option[String], from: String): Future[Seq[Predicate]] = {
+    projectService.findById(projectId).map {
+      case Some(_) =>
+        val repo = repositoryService.getRepository(projectId)
+        val f = repo.getValueFactory
+        val q =
+          "SELECT ?p ?o " + (if (graph.isEmpty) "?g" else "") +
+            " WHERE { " +
+            "  GRAPH ?g { " +
+            "   ?s ?p ?o " +
+            "}}"
+        val subj = f.createIRI(from)
+        val fromNode = ValueUtils.createValue(projectId, graph, subj)
+        Using(repo.getConnection) { conn =>
+          val tq = conn.prepareTupleQuery(QueryLanguage.SPARQL, q)
+          tq.setBinding("s", f.createIRI(from))
+          graph match {
+            case Some(iri) => tq.setBinding("g", f.createIRI(iri))
+            case _ =>
+          }
+          val results = tq.evaluate
+          val predicates = new ListBuffer[Predicate]
+          while (results.hasNext) {
+            val bindings = results.next()
+            val g = if (graph.isEmpty) bindings.getBinding("g").getValue.stringValue() else graph.get
+            val p = bindings.getBinding("p").getValue.stringValue()
+            val o = ValueUtils.createValue(projectId, Some(g), bindings.getBinding("o").getValue)
+            val predicate = Predicate(projectId, Some(g), p, fromNode.asInstanceOf[IRI], o)
+            predicates.addOne(predicate)
+          }
+          predicates.toSeq
+        } match {
+          case Success(value) => value
+        }
     }
   }
 
-  override def findPredicatesFromNode(projectId: String, graph: String, from: String): Future[Seq[Predicate]] = Future {
-    val repo = repositoryService.getRepository(projectId)
-    val f = repo.getValueFactory
-    val context = f.createIRI(graph)
-    val sub = f.createIRI(from)
-    val fromNode = ValueUtils.createValue(projectId, Some(graph), sub)
-
-    Using(repo.getConnection) { conn =>
-      val statements = conn.getStatements(sub, null, null, context)
-      val predicates = new ListBuffer[Predicate]
-      while (statements.hasNext) {
-        val statement = statements.next
-        val pred = statement.getPredicate
-        val obj = statement.getObject
-        val toNode = ValueUtils.createValue(projectId, Some(graph), obj)
-        val predicate = Predicate(projectId, Some(graph), pred.stringValue(), fromNode.asInstanceOf[IRI], toNode)
-        predicates.addOne(predicate)
-      }
-      predicates.toSeq
-    } match {
-      case Success(value) => value
+  override def findPredicatesToNode(projectId: String, graph: Option[String], to: String): Future[Seq[Predicate]] = {
+    projectService.findById(projectId).map {
+      case Some(_) =>
+        val repo = repositoryService.getRepository(projectId)
+        val f = repo.getValueFactory
+        val q =
+          "SELECT ?s ?p " + (if (graph.isEmpty) "?g" else "") + " WHERE { " +
+            "GRAPH ?g { " +
+            "  ?s ?p ?o " +
+            "}}"
+        val obj = f.createIRI(to)
+        val toNode = ValueUtils.createValue(projectId, graph, obj)
+        Using(repo.getConnection) { conn =>
+          val tq = conn.prepareTupleQuery(QueryLanguage.SPARQL, q)
+          tq.setBinding("o", f.createIRI(to))
+          graph match {
+            case Some(iri) => tq.setBinding("g", f.createIRI(iri))
+            case _ =>
+          }
+          val results = tq.evaluate
+          val predicates = new ListBuffer[Predicate]
+          while (results.hasNext) {
+            val bindings = results.next()
+            val g = if (graph.isEmpty) bindings.getBinding("g").getValue.stringValue() else graph.get
+            val p = bindings.getBinding("p").getValue.stringValue()
+            val s = ValueUtils.createValue(projectId, Some(g), bindings.getBinding("s").getValue)
+            val predicate = Predicate(projectId, Some(g), p, s.asInstanceOf[IRI], toNode)
+            predicates.addOne(predicate)
+          }
+          predicates.toSeq
+        } match {
+          case Success(value) => value
+        }
     }
   }
 
-  override def findPredicatesToNode(projectId: String, graph: String, to: String): Future[Seq[Predicate]] = Future {
-    val repo = repositoryService.getRepository(projectId)
-
-    val f = repo.getValueFactory
-    val context = f.createIRI(graph)
-    val obj = f.createIRI(to)
-    val toNode = ValueUtils.createValue(projectId, Some(graph), obj)
-
-    Using(repo.getConnection) { conn =>
-      val statements = conn.getStatements(null, null, obj, context)
-      val predicates = new ListBuffer[Predicate]
-      while (statements.hasNext) {
-        val statement = statements.next
-        val pred = statement.getPredicate
-        val sub = statement.getSubject
-        val fromNode = ValueUtils.createValue(projectId, Some(graph), sub)
-        val predicate = Predicate(projectId, Some(graph), pred.stringValue(), fromNode.asInstanceOf[IRI], toNode)
-        predicates.addOne(predicate)
-      }
-      predicates.toSeq
-    } match {
-      case Success(value) => value
-    }
-  }
-
-  override def searchNodes(projectId: String, term: String): Future[Seq[SearchHit]] = Future {
-    val qry = "PREFIX search: <http://www.openrdf.org/contrib/lucenesail#> " +
-      "SELECT ?graph ?subj ?score ?snippet " +
-      "WHERE { " +
-      " GRAPH ?graph { " +
-      "   ?subj ?pred ?obj . " +
-      "   ?subj search:matches [" +
+  override def searchNodes(projectId: String, graph: Option[String], term: String): Future[Seq[SearchHit]] = Future {
+    val q = "PREFIX search: <http://www.openrdf.org/contrib/lucenesail#> " +
+      "SELECT ?s ?score ?snippet " + (if (graph.isEmpty) "?g" else "") +
+      " WHERE { " +
+      "  GRAPH ?g { " +
+      "   ?s ?p ?o . " +
+      "   ?s search:matches [" +
       "   search:query ?term ; " +
       "   search:score ?score; " +
       "   search:snippet ?snippet ] }} " +
-      " LIMIT 20 "
+      "LIMIT 20 "
 
     val repo = repositoryService.getRepository(projectId)
     val f = repo.getValueFactory
 
     Using(repo.getConnection) { conn =>
       val searchHits = new ListBuffer[SearchHit]
-      val tq = conn.prepareTupleQuery(QueryLanguage.SPARQL, qry)
+      val tq = conn.prepareTupleQuery(QueryLanguage.SPARQL, q)
       tq.setBinding("term", f.createLiteral(term.trim + "*"))
       val results = tq.evaluate
       while (results.hasNext) {
         val bindings = results.next()
-        val graph = bindings.getValue("graph").stringValue()
-        val subj = bindings.getValue("subj")
-        if (!searchHits.map(s => s.node.value).contains(subj.stringValue())) {
+        val g = if (graph.isEmpty) bindings.getBinding("g").getValue.stringValue() else graph.get
+        val s = bindings.getValue("s")
+        if (!searchHits.map(s => s.node.value).contains(s.stringValue())) {
           val snippet = bindings.getValue("snippet").stringValue()
           val score = bindings.getValue("score").stringValue()
-          val node = ValueUtils.createValue(projectId, Some(graph), subj)
+          val node = ValueUtils.createValue(projectId, Some(g), s)
           val searchHit = SearchHit(node.asInstanceOf[IRI], score.toDouble, snippet)
           searchHits.addOne(searchHit)
         }
@@ -166,12 +213,14 @@ class EntityServiceImpl @Inject()(repositoryService: RepositoryService,
           if (prefLabel.isEmpty) {
             var separator = nodeUri.lastIndexOf("#")
             if (nodeUri.lastIndexOf("/") > separator) {
-              separator = nodeUri.lastIndexOf("/") + 1
-              if (separator < 0)
-                separator = 0
-              if (separator < nodeUri.length) {
-                prefLabel = Some(Literal(projectId, None, nodeUri.substring(separator), None, RDF.LANGSTRING.stringValue()))
-              }
+              separator = nodeUri.lastIndexOf("/")
+            }
+            if (separator < 0)
+              separator = 0
+            if (separator < nodeUri.length - 1) {
+              prefLabel = Some(Literal(projectId, None, nodeUri.substring(separator + 1), None, RDF.LANGSTRING.stringValue()))
+            } else {
+              prefLabel = Some(Literal(projectId, None, "", None, RDF.LANGSTRING.stringValue()))
             }
           }
           prefLabel

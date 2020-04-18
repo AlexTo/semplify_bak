@@ -1,8 +1,8 @@
 import {PROJECT_ACTIVATE} from "../actions/projectActions";
 
 const initialState = {
-  projectId: "",
-  projectTitle: ""
+  projectId: "5e8943b050040030a6ee3942",
+  projectTitle: "Mathematics Curriculum"
 }
 
 export const projectReducer = (state = initialState, action) => {

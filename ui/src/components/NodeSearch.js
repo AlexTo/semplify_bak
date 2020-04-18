@@ -105,8 +105,8 @@ function NodeSearch({onOptionSelected}) {
       getOptionLabel={() => ""}
       filterOptions={(x) => x}
       options={options}
-      loading={called & loading}
-      noOptionsText="Enter 3 characters or more ..."
+      loading={called && loading}
+      noOptionsText="Enter 3 characters or more to search ..."
       renderOption={renderOption}
       renderInput={params => (
         <Paper
