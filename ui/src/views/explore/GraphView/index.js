@@ -11,7 +11,6 @@ import Graph from "./Graph";
 import {useLazyQuery} from "@apollo/react-hooks";
 import {entityHubQueries} from "../../../graphql";
 import {useSnackbar} from "notistack";
-import {node} from "prop-types";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -41,31 +40,31 @@ function GraphView() {
   const [graphData, setGraphData] = useState([])
   const {enqueueSnackbar} = useSnackbar();
 
-  const createGraphNode = (node) => {
-    return {
-      data: {
-        id: node.value,
-        projectId: node.projectId,
-        graph: node.graph,
-        label: node.prefLabel.value.length > 15
-          ? `${node.prefLabel.value.substring(0, 15)}...` : node.prefLabel.value
-      },
-      classes: 'center-center'
-    }
-  }
+  useEffect(() => {
+    setGraphData([...nodes, ...edges]);
+  }, [nodes, edges])
 
-  const createGraphEdge = (pred) => {
-    return {
-      data: {
-        projectId: pred.projectId,
-        graph: pred.graph,
-        label: pred.prefLabel.value,
-        source: pred.from.value,
-        target: pred.to.value
-      },
-      classes: 'autorotate'
-    }
-  }
+  const createGraphNode = (node) => ({
+    data: {
+      id: node.value,
+      projectId: node.projectId,
+      graph: node.graph,
+      label: node.prefLabel.value.length > 15
+        ? `${node.prefLabel.value.substring(0, 15)}...` : node.prefLabel.value
+    },
+    classes: 'center-center'
+  })
+
+  const createGraphEdge = (pred) => ({
+    data: {
+      projectId: pred.projectId,
+      graph: pred.graph,
+      label: pred.prefLabel.value,
+      source: pred.from.value,
+      target: pred.to.value
+    },
+    classes: 'autorotate'
+  })
 
   const [loadPredicatesFromNode] = useLazyQuery(
     entityHubQueries.predicatesFromNode, {
@@ -94,7 +93,6 @@ function GraphView() {
           setNodes(newNodes);
           const newEdges = [...addedEdges, ...edges];
           setEdges(newEdges);
-          setGraphData([...newNodes, ...newEdges])
         }
       },
       fetchPolicy: 'no-cache'
@@ -109,7 +107,6 @@ function GraphView() {
     const newNode = createGraphNode(node);
     const newNodes = [newNode, ...nodes];
     setNodes(newNodes);
-    setGraphData([...newNodes, ...edges])
   }
 
   const handleNodeExpanded = (node) => {
@@ -123,12 +120,17 @@ function GraphView() {
 
   const handleNodeRemoved = (id) => {
     console.log(id);
-    console.log(nodes);
+    /*
     const newNodes = nodes.filter(n => n.data.id !== id);
     const newEdges = edges.filter(e => e.data.source !== id && e.data.target !== id);
     setNodes(newNodes);
     setEdges(newEdges);
     setGraphData([...newNodes, ...newEdges]);
+    */
+  }
+
+  const handleNodePinned = (id) => {
+    console.log(nodes);
   }
 
   return (
@@ -145,7 +147,10 @@ function GraphView() {
           <NodeSearch onOptionSelected={handleNodeSelected}/>
         </Box>
         <Box mt={3} className={classes.graphBox}>
-          <Graph graphData={graphData} onNodeExpanded={handleNodeExpanded} onNodeRemoved={handleNodeRemoved}/>
+          <Graph graphData={graphData}
+                 onNodeExpanded={handleNodeExpanded}
+                 onNodeRemoved={handleNodeRemoved}
+                 onNodePinned={handleNodePinned}/>
         </Box>
       </Container>
     </Page>

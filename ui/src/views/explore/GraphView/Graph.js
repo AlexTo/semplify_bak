@@ -11,7 +11,7 @@ cytoscape.use(cola);
 cytoscape.use(cxtmenu);
 
 
-function Graph({graphData, onNodeExpanded, onNodeRemoved}) {
+function Graph({graphData, onNodeExpanded, onNodeRemoved, onNodePinned}) {
 
   const [cy, setCy] = useState(null);
   const {style} = useSelector(state => state.cyReducer)
@@ -28,11 +28,8 @@ function Graph({graphData, onNodeExpanded, onNodeRemoved}) {
     }
   }, [graphData])
 
-
-  const menu = {
-    menuRadius: 55, // the radius of the circular menu in pixels
-    selector: 'node', // elements matching this Cytoscape.js selector will trigger cxtmenus
-    commands: [
+  const createMenuItems = () => {
+    return [
       {
         content: renderToString(<Trash size={16}/>),
         select: function (ele) {
@@ -42,6 +39,7 @@ function Graph({graphData, onNodeExpanded, onNodeRemoved}) {
       {
         content: renderToString(<MapPin size={16}/>),
         select: function (ele) {
+          onNodePinned(ele.id())
         },
       },
       {
@@ -50,7 +48,13 @@ function Graph({graphData, onNodeExpanded, onNodeRemoved}) {
           onNodeExpanded(ele.data())
         },
       },
-    ],
+    ]
+  }
+
+  const menu = {
+    menuRadius: 55,
+    selector: 'node',
+    commands: createMenuItems,
     fillColor: 'rgba(138,180,219,0.75)',
     activeFillColor: 'rgba(1, 105, 217, 0.75)',
     activePadding: 0,
