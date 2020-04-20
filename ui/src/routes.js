@@ -35,6 +35,21 @@ const routesConfig = [
         component: lazy(() => import('src/views/explore/GraphView'))
       },
       {
+        exact: true,
+        path: '/web-crawler',
+        component: lazy(() => import('src/views/integration/WebCrawlerView'))
+      },
+      {
+        exact: true,
+        path: '/rml',
+        component: lazy(() => import('src/views/integration/RMLView'))
+      },
+      {
+        exact: true,
+        path: '/projects',
+        component: lazy(() => import('src/views/management/ProjectsView'))
+      },
+      {
         component: () => <Redirect to="/404"/>
       }
     ]

@@ -15,8 +15,9 @@ import {useLazyQuery} from "@apollo/react-hooks";
 import {useDebounce} from "../hooks";
 import {Search as SearchIcon} from "react-feather";
 import {entityHubQueries} from "../graphql";
-import {useSelector} from "react-redux";
+import {useSelector, useDispatch} from "react-redux";
 import {useSnackbar} from "notistack";
+import {visualGraphActions} from "../actions";
 
 const renderOption = (option) => <Grid container spacing={1}>
   <Grid item>
@@ -40,7 +41,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-function NodeSearch({onOptionSelected}) {
+function NodeSearch() {
   const classes = useStyles();
 
   const {enqueueSnackbar} = useSnackbar();
@@ -48,6 +49,7 @@ function NodeSearch({onOptionSelected}) {
   const [options, setOptions] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const projectReducer = useSelector(state => state.projectReducer);
+  const dispatch = useDispatch();
   const {projectId} = projectReducer;
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [load, {called, loading, data}] = useLazyQuery(entityHubQueries.searchNodes, {
@@ -92,6 +94,12 @@ function NodeSearch({onOptionSelected}) {
     }
   }, [open, data]);
 
+  const handleOptionSelected = (value) => {
+    if (!value)
+      return;
+    dispatch(visualGraphActions.addNode(value.node));
+  }
+
   return (
     <Autocomplete
       open={open}
@@ -101,7 +109,7 @@ function NodeSearch({onOptionSelected}) {
       onClose={() => {
         setOpen(false);
       }}
-      onChange={(event, value) => onOptionSelected(value)}
+      onChange={(event, value) => handleOptionSelected(value)}
       getOptionLabel={() => ""}
       filterOptions={(x) => x}
       options={options}

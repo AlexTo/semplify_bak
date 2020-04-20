@@ -24,6 +24,9 @@ libraryDependencies ++= Seq(
   "org.rdfhdt" % "hdt-java-core" % "1.1",
   "org.eclipse.rdf4j" % "rdf4j-storage" % "3.2.0-M1",
   "org.eclipse.rdf4j" % "rdf4j-sail-lucene" % "3.2.0-M1",
+  "edu.uci.ics" % "crawler4j" % "4.4.0",
+  "org.apache.tika" % "tika-core" % "1.24",
+  "org.apache.tika" % "tika-parsers" % "1.24",
   "com.google.guava" % "guava" % "28.2-jre",
   "com.typesafe.play" % "play-cache_2.13" % "2.8.1",
   "org.scalatestplus.play" %% "scalatestplus-play" % "5.0.0" % Test).map(_.excludeAll(ExclusionRule("org.slf4j")))

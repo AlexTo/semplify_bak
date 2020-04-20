@@ -1,21 +1,49 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import cytoscape from 'cytoscape';
 import CytoscapeComponent from "react-cytoscapejs";
 import cola from 'cytoscape-cola';
 import cxtmenu from 'cytoscape-cxtmenu';
 import {Maximize2, MapPin, Trash} from 'react-feather';
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {renderToString} from 'react-dom/server'
+import {useLazyQuery} from "@apollo/react-hooks";
+import {entityHubQueries} from "../../../graphql";
+import {useSnackbar} from "notistack";
+import {visualGraphActions} from "../../../actions";
 
 cytoscape.use(cola);
 cytoscape.use(cxtmenu);
 
 
-function Graph({graphData, onNodeExpanded, onNodeRemoved, onNodePinned}) {
+function Graph() {
 
   const [cy, setCy] = useState(null);
   const {style} = useSelector(state => state.cyReducer)
   const layout = {name: "cola"};
+  const {enqueueSnackbar} = useSnackbar();
+  const visualGraphReducer = useSelector(state => state.visualGraphReducer)
+  const dispatch = useDispatch();
+  const {nodes, edges} = visualGraphReducer;
+
+
+  const [loadPredicatesFromNode] = useLazyQuery(
+    entityHubQueries.predicatesFromNode, {
+      onCompleted: data => {
+        const {predicatesFromNode} = data;
+        const edgesToAdd = predicatesFromNode.filter(p => p.to.__typename === 'IRI');
+        if (edgesToAdd.length === 0) {
+          enqueueSnackbar('This node has no other connections', {
+            variant: 'success'
+          });
+          return;
+        }
+
+        dispatch(visualGraphActions.addEdges(edgesToAdd));
+
+      },
+      fetchPolicy: 'no-cache'
+    });
+
   useEffect(() => {
     if (cy) {
       cy.cxtmenu(menu);
@@ -26,26 +54,30 @@ function Graph({graphData, onNodeExpanded, onNodeRemoved, onNodePinned}) {
     if (cy) {
       cy.layout(layout).run();
     }
-  }, [graphData])
+  }, [nodes, edges])
 
   const createMenuItems = () => {
     return [
       {
         content: renderToString(<Trash size={16}/>),
         select: function (ele) {
-          onNodeRemoved(ele.id())
+          dispatch(visualGraphActions.removeNode(ele.id()))
         },
       },
       {
         content: renderToString(<MapPin size={16}/>),
         select: function (ele) {
-          onNodePinned(ele.id())
         },
       },
       {
         content: renderToString(<Maximize2 size={16}/>),
         select: function (ele) {
-          onNodeExpanded(ele.data())
+          loadPredicatesFromNode({
+            variables: {
+              projectId: ele.data().projectId,
+              uri: ele.id()
+            }
+          })
         },
       },
     ]
@@ -65,13 +97,13 @@ function Graph({graphData, onNodeExpanded, onNodeRemoved, onNodePinned}) {
     maxSpotlightRadius: 24,
     itemColor: 'white',
     itemTextShadowColor: 'transparent',
-    openMenuEvents: 'tap',
+    openMenuEvents: 'cxttapstart taphold',
     zIndex: 9999,
     atMouse: false
   };
 
   return (
-    <CytoscapeComponent elements={graphData}
+    <CytoscapeComponent elements={CytoscapeComponent.normalizeElements({nodes, edges})}
                         cy={cy => setCy(cy)}
                         layout={layout}
                         stylesheet={style}

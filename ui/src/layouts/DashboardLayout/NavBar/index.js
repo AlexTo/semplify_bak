@@ -18,6 +18,10 @@ import {
 } from '@material-ui/core';
 import {
   Hexagon as HexagonIcon,
+  Globe as GlobeIcon,
+  Code as CodeIcon,
+  Trello as TrelloIcon,
+  Database as DatabaseIcon
 } from 'react-feather';
 import Logo from 'src/components/Logo';
 import NavItem from './NavItem';
@@ -33,7 +37,37 @@ const navConfig = [
         href: '/visual-graph'
       }
     ]
-  }
+  },
+  {
+    subheader: 'Data Integration',
+    items: [
+      {
+        title: 'Web Crawler',
+        icon: GlobeIcon,
+        href: '/web-crawler'
+      },
+      {
+        title: 'RDF Mapping Language',
+        icon: CodeIcon,
+        href: '/web-crawler'
+      }
+    ]
+  },
+  {
+    subheader: 'Management',
+    items: [
+      {
+        title: 'Projects',
+        icon: TrelloIcon,
+        href: '/projects'
+      },
+      {
+        title: 'Repositories',
+        icon: DatabaseIcon,
+        href: '/repositories'
+      }
+    ]
+  },
 ];
 
 function renderNavItems({items, ...rest}) {
