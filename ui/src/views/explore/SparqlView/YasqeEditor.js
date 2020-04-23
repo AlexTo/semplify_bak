@@ -4,9 +4,9 @@ import "@triply/yasqe/build/yasqe.min.css";
 import "codemirror/theme/darcula.css";
 import {useSelector} from "react-redux";
 import PerfectScrollbar from "react-perfect-scrollbar";
-import {Box, Card, TableCell, Table, TableBody, TableHead, TableRow} from "@material-ui/core";
+import {Box, Card, TableCell, Table, TableBody, TableHead, TableRow, Divider} from "@material-ui/core";
 
-function YasqeEditor() {
+function YasqeEditor({id}) {
 
   const {projectId} = useSelector(state => state.projectReducer);
   const {theme} = useSelector(state => state.yasqeReducer);
@@ -16,7 +16,8 @@ function YasqeEditor() {
     setYasqe(new Yasqe(document.getElementById("yasqe"), {
       createShareableLink: false,
       showQueryButton: false,
-      theme: theme
+      theme: theme,
+      persistenceId: `yasqe_${id}`
     }));
     return () => {
     };
@@ -26,30 +27,28 @@ function YasqeEditor() {
     if (yasque) {
       yasque.setOption("theme", theme)
     }
-    console.log(theme);
   }, [theme])
 
   return (
     <>
       <div id="yasqe"/>
-      <Card>
-        <PerfectScrollbar>
-          <Box minWidth={1200}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Haha</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                <TableRow>
-                  <TableCell>Haha</TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </Box>
-        </PerfectScrollbar>
-      </Card>
+      <Divider/>
+      <PerfectScrollbar>
+        <Box minWidth={1200}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Haha</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              <TableRow>
+                <TableCell>Haha</TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </Box>
+      </PerfectScrollbar>
     </>
   )
 }

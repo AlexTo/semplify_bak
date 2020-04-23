@@ -1,5 +1,4 @@
 import React from 'react';
-import {Link as RouterLink} from 'react-router-dom';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import {
@@ -7,15 +6,12 @@ import {
   Breadcrumbs,
   Button,
   Grid,
-  Link,
   SvgIcon,
   Typography,
   makeStyles
 } from '@material-ui/core';
 import {
-  PlusCircle as PlusCircleIcon,
-  Download as DownloadIcon,
-  Upload as UploadIcon
+  Target as TargetIcon,
 } from 'react-feather';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import {useDispatch} from "react-redux";
@@ -65,48 +61,17 @@ function Header({className, ...rest}) {
             Web Crawler
           </Typography>
         </Breadcrumbs>
-        <Typography
-          variant="h3"
-          color="textPrimary"
-        >
-          Crawled Pages
-        </Typography>
         <Box mt={2}>
-          <Button className={classes.action}>
+          <Button className={classes.action} onClick={() => dispatch(webCrawlerActions.openNewCrawl())}>
             <SvgIcon
               fontSize="small"
               className={classes.actionIcon}
             >
-              <UploadIcon/>
+              <TargetIcon/>
             </SvgIcon>
-            Import
-          </Button>
-          <Button className={classes.action}>
-            <SvgIcon
-              fontSize="small"
-              className={classes.actionIcon}
-            >
-              <DownloadIcon/>
-            </SvgIcon>
-            Export
+            Crawl
           </Button>
         </Box>
-      </Grid>
-      <Grid item>
-        <Button
-          color="secondary"
-          variant="contained"
-          className={classes.action}
-          onClick={() => dispatch(webCrawlerActions.openNewCrawl())}
-        >
-          <SvgIcon
-            fontSize="small"
-            className={classes.actionIcon}
-          >
-            <PlusCircleIcon/>
-          </SvgIcon>
-          Crawl
-        </Button>
       </Grid>
     </Grid>
   );

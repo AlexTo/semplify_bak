@@ -25,7 +25,6 @@ import {
   ArrowRight as ArrowRightIcon,
   Search as SearchIcon
 } from 'react-feather';
-import Label from 'src/components/Label';
 import {useQuery} from "@apollo/react-hooks";
 import {webCrawlerQueries} from "../../../graphql/webCrawlerQueries";
 import {useSelector} from "react-redux";

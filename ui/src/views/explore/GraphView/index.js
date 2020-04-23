@@ -17,10 +17,6 @@ const useStyles = makeStyles((theme) => ({
     paddingBottom: theme.spacing(3)
   },
   container: {
-    [theme.breakpoints.up('lg')]: {
-      paddingLeft: 64,
-      paddingRight: 64
-    },
     height: "75vh"
   },
   graphBox: {
@@ -32,7 +28,6 @@ const useStyles = makeStyles((theme) => ({
 
 function GraphView() {
   const classes = useStyles();
-
   return (
     <Page
       className={classes.root}
