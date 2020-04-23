@@ -29,6 +29,8 @@ class ProjectController @Inject()(projectService: ProjectService,
   }
 
   def findAll: Action[AnyContent] = Action.async { _ =>
-    projectService.findAll.map(projects => Ok(Json.toJson(projects)))
+    projectService.findAll map {
+      projects => Ok(Json.toJson(projects))
+    }
   }
 }

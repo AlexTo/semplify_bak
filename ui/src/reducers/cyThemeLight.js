@@ -4,12 +4,13 @@ export const cyThemeLight = [
     style: {
       height: 28,
       width: 28,
-      "background-color": '#619ed2'
+      "background-color": '#393333'
     },
   },
   {
     selector: "node[label]",
     style: {
+      color: '#131111',
       label: "data(label)",
       fontSize: 10,
     }
@@ -17,6 +18,7 @@ export const cyThemeLight = [
   {
     selector: "edge[label]",
     style: {
+
       label: "data(label)",
       width: 3,
       fontSize: 8

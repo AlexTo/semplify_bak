@@ -21,6 +21,7 @@ import Account from './Account';
 import Settings from './Settings';
 import Projects from "./Projects";
 import NodeSearch from "../../../components/NodeSearch";
+import Search from "./Search";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -70,6 +71,7 @@ function TopBar({
           ml={2}
           flexGrow={1}
         />
+        <Search/>
         <Projects/>
         <Settings/>
         <Account/>

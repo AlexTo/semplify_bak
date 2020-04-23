@@ -48,9 +48,8 @@ function NodeSearch() {
   const [open, setOpen] = useState(false);
   const [options, setOptions] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const projectReducer = useSelector(state => state.projectReducer);
+  const {projectId} = useSelector(state => state.projectReducer);
   const dispatch = useDispatch();
-  const {projectId} = projectReducer;
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [load, {called, loading, data}] = useLazyQuery(entityHubQueries.searchNodes, {
     fetchPolicy: "no-cache"

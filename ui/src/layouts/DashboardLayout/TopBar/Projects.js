@@ -3,13 +3,12 @@ import {
   Button,
   Menu,
   MenuItem,
-  SvgIcon,
-  makeStyles, Typography
+  makeStyles
 } from '@material-ui/core';
 import {projectQueries} from "../../../graphql";
 import {useQuery} from "@apollo/react-hooks";
 import {useDispatch, useSelector} from "react-redux";
-import {projectActions} from "../../../actions/projectActions";
+import {projectActions} from "../../../actions";
 
 const useStyles = makeStyles((theme) => ({
   root: {},

@@ -13,57 +13,23 @@ import {
   ThemeProvider
 } from '@material-ui/core';
 import {MuiPickersUtilsProvider} from '@material-ui/pickers';
-import SettingsNotification from './components/SettingsNotification';
 import ScrollReset from './components/ScrollReset'
 import {useSettings} from "./hooks";
 import {createTheme} from "./theme";
 import Routes from './routes';
-import Keycloak from 'keycloak-js'
+import keycloak from "./services/keycloak";
 import {KeycloakProvider} from '@react-keycloak/web'
-import {ApolloClient} from 'apollo-client';
-import {InMemoryCache} from 'apollo-cache-inmemory';
-import {setContext} from 'apollo-link-context';
-import {ApolloLink} from 'apollo-link';
-import {createHttpLink} from 'apollo-link-http';
 import {ApolloProvider} from '@apollo/react-hooks';
+import apolloClient from "./services/apollo";
 
 const history = createBrowserHistory();
 const jss = create({plugins: [...jssPreset().plugins, rtl()]});
 
 
-const keycloak = new Keycloak({
-  realm: process.env.REACT_APP_KEYCLOAK_REALM,
-  url: process.env.REACT_APP_KEYCLOAK_URL,
-  clientId: process.env.REACT_APP_KEYCLOAK_CLIENT_ID,
-})
-
 const keycloakProviderInitConfig = {
   onLoad: 'login-required',
 }
 
-const httpLink = createHttpLink({
-  uri: '/api/graphql',
-});
-
-const authLink = setContext((_, {headers}) => {
-  // get the authentication token from local storage if it exists
-  const token = keycloak.token;
-  // return the headers to the context so httpLink can read them
-  return {
-    headers: {
-      ...headers,
-      authorization: token ? `Bearer ${token}` : "",
-    }
-  }
-});
-
-const link = ApolloLink.from([authLink, httpLink]);
-
-
-const client = new ApolloClient({
-  link: link,
-  cache: new InMemoryCache()
-});
 
 const useStyles = makeStyles(() => createStyles({
   '@global': {
@@ -103,9 +69,8 @@ function App() {
           <MuiPickersUtilsProvider utils={MomentUtils}>
             <SnackbarProvider maxSnack={1}>
               <Router history={history}>
-                <ApolloProvider client={client}>
+                <ApolloProvider client={apolloClient}>
                   <ScrollReset/>
-                  <SettingsNotification/>
                   <Routes/>
                 </ApolloProvider>
               </Router>

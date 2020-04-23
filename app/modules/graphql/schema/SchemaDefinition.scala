@@ -1,8 +1,10 @@
 package modules.graphql.schema
 
-import modules.entityhub.models.{BNode, IRI, Literal, Predicate, SearchHit}
+import modules.entityhub.models._
 import modules.graphql.services.Repository
 import modules.project.models.ProjectGet
+import modules.task.models.TaskGet
+import modules.webcrawler.models.PageGet
 import sangria.schema._
 
 object SchemaDefinition {
@@ -58,6 +60,25 @@ object SchemaDefinition {
       Field("to", Value, resolve = _.value.to),
     ))
 
+  val WebPage: ObjectType[Repository, PageGet] = ObjectType("WebPage",
+    () => fields[Repository, PageGet](
+      Field("id", StringType, resolve = _.value.id),
+      Field("projectId", StringType, resolve = _.value.projectId),
+      Field("url", StringType, resolve = _.value.url),
+      Field("title", OptionType(StringType), resolve = _.value.title),
+      Field("content", StringType, resolve = _.value.content),
+      Field("contentType", OptionType(StringType), resolve = _.value.contentType),
+      Field("domain", OptionType(StringType), resolve = _.value.domain)
+    )
+  )
+
+  val Task: ObjectType[Repository, TaskGet] = ObjectType("Task",
+    () => fields[Repository, TaskGet](
+      Field("id", StringType, resolve = _.value.id),
+      Field("projectId", StringType, resolve = _.value.projectId),
+      Field("type", StringType, resolve = _.value.`type`),
+      Field("status", StringType, resolve = _.value.status),
+    ))
 
   val Project: ObjectType[Repository, ProjectGet] = ObjectType("Project",
     () => fields[Repository, ProjectGet](
@@ -91,6 +112,10 @@ object SchemaDefinition {
       ),
       Field("projects", ListType(Project),
         resolve = ctx => ctx.ctx.projects()
+      ),
+      Field("crawledPages", ListType(WebPage),
+        arguments = ProjectId :: Nil,
+        resolve = ctx => ctx.ctx.crawledPages(ctx arg ProjectId)
       ),
       Field("searchNodes", ListType(SearchHit),
         arguments = ProjectId :: Graph :: Term :: Nil,

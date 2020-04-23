@@ -10,8 +10,8 @@ case class Project(_id: BSONObjectID,
                    title: String,
                    createdBy: String,
                    modifiedBy: String,
-                   created: Date,
-                   modified: Date)
+                   created: Long,
+                   modified: Long)
 
 object Project {
   implicit val writes: OWrites[Project] = Json.writes[Project]

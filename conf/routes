@@ -6,7 +6,13 @@ POST        /api/graphql                      modules.graphql.controllers.GraphQ
 
 GET         /api/graphql/render-schema        modules.graphql.controllers.GraphQLController.renderSchema
 
-POST        /api/web-crawler/                 modules.webcrawler.controllers.WebCrawlerController.crawl
+GET         /api/crawled-pages/               modules.webcrawler.controllers.WebPageController.findAll(projectId: String)
+
+POST        /api/tasks/                       modules.task.controllers.TaskController.create
+
+PUT         /api/tasks/                       modules.task.controllers.TaskController.update
+
+GET         /api/tasks/                       modules.task.controllers.TaskController.findAll
 
 POST        /api/projects/                    modules.project.controllers.ProjectController.create
 

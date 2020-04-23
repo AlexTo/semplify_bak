@@ -1,4 +1,4 @@
-export const PROJECT_ACTIVATE = "PROJECT_ACTIVATE";
+export const PROJECT_ACTIVATE = "PROJECT/ACTIVATE";
 
 export const projectActions = {
   activate

@@ -14,6 +14,8 @@ import {
 import {Settings as SettingsIcon} from 'react-feather';
 import {useSettings} from "../../../hooks";
 import {THEMES} from 'src/constants';
+import {useDispatch} from "react-redux";
+import {cyActions, yasqeActions} from "../../../actions";
 
 const useStyles = makeStyles((theme) => ({
   badge: {
@@ -32,6 +34,7 @@ const useStyles = makeStyles((theme) => ({
 function Settings() {
   const classes = useStyles();
   const ref = useRef(null);
+  const dispatch = useDispatch();
   const {settings, saveSettings} = useSettings();
   const [isOpen, setOpen] = useState(false);
   const [values, setValues] = useState({
@@ -57,6 +60,8 @@ function Settings() {
 
   const handleSave = () => {
     saveSettings(values);
+    dispatch(cyActions.setTheme(values.theme));
+    dispatch(yasqeActions.setTheme(values.theme));
     setOpen(false);
   };
 

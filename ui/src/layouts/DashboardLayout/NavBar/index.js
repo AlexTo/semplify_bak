@@ -21,7 +21,9 @@ import {
   Globe as GlobeIcon,
   Code as CodeIcon,
   Trello as TrelloIcon,
-  Database as DatabaseIcon
+  Database as DatabaseIcon,
+  Terminal as TerminalIcon,
+  Grid as GridIcon,
 } from 'react-feather';
 import Logo from 'src/components/Logo';
 import NavItem from './NavItem';
@@ -31,6 +33,16 @@ const navConfig = [
   {
     subheader: 'Explore',
     items: [
+      {
+        title: 'Graphs',
+        icon: GridIcon,
+        href: '/graphs'
+      },
+      {
+        title: 'SPARQL',
+        icon: TerminalIcon,
+        href: '/sparql'
+      },
       {
         title: 'Visual Graph',
         icon: HexagonIcon,
@@ -49,7 +61,7 @@ const navConfig = [
       {
         title: 'RDF Mapping Language',
         icon: CodeIcon,
-        href: '/web-crawler'
+        href: '/rml'
       }
     ]
   },

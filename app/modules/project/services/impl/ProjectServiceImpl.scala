@@ -17,34 +17,33 @@ import reactivemongo.play.json.collection.JSONCollection
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
-class ProjectServiceImpl @Inject()(val reactiveMongoApi: ReactiveMongoApi)
+class ProjectServiceImpl @Inject()(reactiveMongoApi: ReactiveMongoApi)
                                   (implicit ex: ExecutionContext) extends ProjectService {
 
   def collection: Future[JSONCollection] = reactiveMongoApi.database.map(_.collection[JSONCollection]("projects"))
 
   override def create(project: ProjectCreate, username: String): Future[ProjectGet] = {
-    val entity = Project(_id = BSONObjectID.generate(),
-      project.title,
-      username, username,
-      Calendar.getInstance().getTime,
-      Calendar.getInstance().getTime)
+    val entity = Project(BSONObjectID.generate(),
+      project.title, username, username,
+      Calendar.getInstance().getTimeInMillis,
+      Calendar.getInstance().getTimeInMillis)
     collection
       .flatMap(_.insert.one(entity))
       .map(_ => ProjectGet(entity._id.stringify, entity.title))
   }
 
-  override def findAll: Future[Seq[ProjectGet]] =
-    collection.map {
-      _.find(Json.obj(), Option.empty[JsObject]).cursor[ProjectGet]()
-    }.flatMap(_.collect[Seq](-1, Cursor.FailOnError[Seq[ProjectGet]]()))
+  override def findAll: Future[Seq[ProjectGet]] = collection map {
+    _.find(Json.obj(), Option.empty[JsObject]).cursor[ProjectGet]()
+  } flatMap {
+    _.collect[Seq](-1, Cursor.FailOnError[Seq[ProjectGet]]())
+  }
 
-  override def findById(projectId: String): Future[Option[ProjectGet]] = {
-    BSONObjectID.parse(projectId) match {
-      case Success(id) => collection.flatMap {
-        _.find(BSONDocument("_id" -> id), Option.empty[JsObject])
-          .one[ProjectGet]
-      }
-      case Failure(_) => Future.successful(None)
+  override def findById(projectId: String): Future[Option[ProjectGet]] = BSONObjectID.parse(projectId) match {
+    case Success(id) => collection.flatMap {
+      val query = BSONDocument("_id" -> id)
+      _.find(query, Option.empty[JsObject])
+        .one[ProjectGet]
     }
+    case Failure(_) => Future.successful(None)
   }
 }

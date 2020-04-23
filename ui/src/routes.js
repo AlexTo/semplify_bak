@@ -36,6 +36,11 @@ const routesConfig = [
       },
       {
         exact: true,
+        path: '/sparql',
+        component: lazy(() => import('src/views/explore/SparqlView'))
+      },
+      {
+        exact: true,
         path: '/web-crawler',
         component: lazy(() => import('src/views/integration/WebCrawlerView'))
       },

@@ -3,7 +3,7 @@ import {
   VISUAL_GRAPH_EDGES_ADDED,
   VISUAL_GRAPH_NODE_ADDED,
   VISUAL_GRAPH_NODE_REMOVED
-} from "../actions/visualGraphActions";
+} from "../actions";
 
 const initialState = {
   nodes: [],

@@ -4,6 +4,8 @@ import com.google.inject.ImplementedBy
 import modules.entityhub.models.{IRI, Literal, Predicate, SearchHit}
 import modules.graphql.services.impl.RepositoryImpl
 import modules.project.models.ProjectGet
+import modules.task.models.TaskGet
+import modules.webcrawler.models.PageGet
 
 import scala.concurrent.Future
 
@@ -19,6 +21,10 @@ trait Repository {
 
   def projects(): Future[Seq[ProjectGet]]
 
+  def tasks(): Future[Seq[TaskGet]]
+
   def searchNodes(projectId: String, graph: Option[String], term: String): Future[Seq[SearchHit]]
+
+  def crawledPages(projectId: String): Future[Seq[PageGet]]
 
 }

@@ -18,12 +18,11 @@ cytoscape.use(cxtmenu);
 function Graph() {
 
   const [cy, setCy] = useState(null);
-  const {style} = useSelector(state => state.cyReducer)
+  const {theme} = useSelector(state => state.cyReducer)
   const layout = {name: "cola"};
   const {enqueueSnackbar} = useSnackbar();
-  const visualGraphReducer = useSelector(state => state.visualGraphReducer)
+  const {nodes, edges} = useSelector(state => state.visualGraphReducer)
   const dispatch = useDispatch();
-  const {nodes, edges} = visualGraphReducer;
 
 
   const [loadPredicatesFromNode] = useLazyQuery(
@@ -106,7 +105,7 @@ function Graph() {
     <CytoscapeComponent elements={CytoscapeComponent.normalizeElements({nodes, edges})}
                         cy={cy => setCy(cy)}
                         layout={layout}
-                        stylesheet={style}
+                        stylesheet={theme}
                         style={{width: '100%', height: '100%'}}/>
   )
 }
