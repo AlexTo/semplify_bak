@@ -22,10 +22,10 @@ class RMLServiceImpl @Inject()(fileService: FileService, conf: Configuration)(im
   override def execute(dataFileId: String, mappingFileId: String): Future[QuadStore] = {
     val tmpDir = Files.createTempDir()
     for {
-      dataFile <- fileService.get(dataFileId)
+      dataFile <- fileService.find(dataFileId)
       dataTempFile = new File(tmpDir, dataFile.filename)
 
-      mappingFile <- fileService.get(mappingFileId)
+      mappingFile <- fileService.find(mappingFileId)
       mappingTempFile = new File(tmpDir, mappingFile.filename)
       _ <- dataFile.content.runWith(FileIO.toPath(dataTempFile.toPath))
       _ <- mappingFile.content.runWith(FileIO.toPath(mappingTempFile.toPath))

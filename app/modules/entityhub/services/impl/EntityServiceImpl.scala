@@ -21,7 +21,7 @@ class EntityServiceImpl @Inject()(repositoryService: RepositoryService,
                                  (implicit val ec: ExecutionContext) extends EntityService {
 
   override def findNode(projectId: String, graph: Option[String], uri: String): Future[Option[IRI]] = {
-    projectService.findById(projectId).map {
+    projectService.findById(projectId) map {
       case Some(_) =>
         val repo = repositoryService.getRepository(projectId)
         val f = repo.getValueFactory

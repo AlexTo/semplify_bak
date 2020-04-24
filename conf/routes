@@ -1,5 +1,7 @@
 GET         /                                 controllers.FrontendController.index
 
+POST        /api/sparql                       modules.sparql.controllers.SPARQLController.execute(projectId: String)
+
 GET         /api/graphql                      modules.graphql.controllers.GraphQLController.graphql(query: String, variables: Option[String], operation: Option[String])
 
 POST        /api/graphql                      modules.graphql.controllers.GraphQLController.graphqlPost
@@ -19,6 +21,8 @@ POST        /api/projects/                    modules.project.controllers.Projec
 GET         /api/projects/                    modules.project.controllers.ProjectController.findAll
 
 POST        /api/files/                       modules.fileserver.controllers.FileController.upload
+
+GET         /api/files/                       modules.fileserver.controllers.FileController.findAll(projectId: String)
 
 POST        /api/rml/map-file/                modules.rml.controllers.RMLController.execute
 

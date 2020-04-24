@@ -3,6 +3,8 @@ package modules.graphql.services.impl
 import javax.inject.Inject
 import modules.entityhub.models.{IRI, Literal, Predicate, SearchHit}
 import modules.entityhub.services.EntityService
+import modules.fileserver.models.FileInfo
+import modules.fileserver.services.FileService
 import modules.graphql.services.Repository
 import modules.project.models.ProjectGet
 import modules.project.services.ProjectService
@@ -15,6 +17,7 @@ import scala.concurrent.Future
 
 class RepositoryImpl @Inject()(entityService: EntityService,
                                projectService: ProjectService,
+                               fileService: FileService,
                                taskService: TaskService,
                                webCrawlerService: WebCrawlerService) extends Repository {
   override def node(projectId: String, graph: Option[String], uri: String): Future[Option[IRI]]
@@ -38,4 +41,6 @@ class RepositoryImpl @Inject()(entityService: EntityService,
   override def tasks(): Future[Seq[TaskGet]] = taskService.findAll
 
   override def crawledPages(projectId: String): Future[Seq[PageGet]] = webCrawlerService.findAllCrawledPages(projectId)
+
+  override def files(projectId: String): Future[Seq[FileInfo]] = fileService.findAll(projectId)
 }

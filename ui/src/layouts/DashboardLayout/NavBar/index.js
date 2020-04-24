@@ -19,6 +19,7 @@ import {
 import {
   Hexagon as HexagonIcon,
   Globe as GlobeIcon,
+  Upload as UploadIcon,
   Code as CodeIcon,
   Trello as TrelloIcon,
   Database as DatabaseIcon,
@@ -53,6 +54,11 @@ const navConfig = [
   {
     subheader: 'Data Integration',
     items: [
+      {
+        title: 'Import',
+        icon: UploadIcon,
+        href: '/import'
+      },
       {
         title: 'Web Crawler',
         icon: GlobeIcon,

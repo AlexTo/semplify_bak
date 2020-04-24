@@ -1,6 +1,7 @@
 package modules.graphql.schema
 
 import modules.entityhub.models._
+import modules.fileserver.models.FileInfo
 import modules.graphql.services.Repository
 import modules.project.models.ProjectGet
 import modules.task.models.TaskGet
@@ -94,6 +95,14 @@ object SchemaDefinition {
     )
   )
 
+  val FileInfo: ObjectType[Repository, FileInfo] = ObjectType("FileInfo",
+    () => fields[Repository, FileInfo](
+      Field("id", StringType, resolve = _.value.id),
+      Field("filename", StringType, resolve = _.value.filename),
+      Field("contentType", OptionType(StringType), resolve = _.value.contentType),
+      Field("uploadDate", OptionType(LongType), resolve = _.value.uploadDate),
+    ))
+
   val ProjectId: Argument[String] = Argument("projectId", StringType)
   val Graph: Argument[Option[String]] = Argument("graph", OptionInputType(StringType))
 
@@ -109,6 +118,10 @@ object SchemaDefinition {
       Field("predicatesFromNode", ListType(Predicate),
         arguments = ProjectId :: Graph :: Uri :: Nil,
         resolve = ctx => ctx.ctx.predicatesFromNode(ctx arg ProjectId, ctx arg Graph, ctx arg Uri)
+      ),
+      Field("files", ListType(FileInfo),
+        arguments = ProjectId :: Nil,
+        resolve = ctx => ctx.ctx.files(ctx arg ProjectId)
       ),
       Field("projects", ListType(Project),
         resolve = ctx => ctx.ctx.projects()

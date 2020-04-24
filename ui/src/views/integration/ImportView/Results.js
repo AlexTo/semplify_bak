@@ -21,36 +21,12 @@ import {
   makeStyles
 } from '@material-ui/core';
 import {
-  Edit as EditIcon,
-  ArrowRight as ArrowRightIcon,
-  Search as SearchIcon
+  Search as SearchIcon,
+  UploadCloud as UploadCloudIcon
 } from 'react-feather';
 import {useQuery} from "@apollo/react-hooks";
-import {webCrawlerQueries} from "../../../graphql/webCrawlerQueries";
 import {useSelector} from "react-redux";
-
-const categoryOptions = [
-  {
-    id: 'all',
-    name: 'All'
-  },
-  {
-    id: 'dress',
-    name: 'Dress'
-  },
-  {
-    id: 'jewelry',
-    name: 'Jewelry'
-  },
-  {
-    id: 'blouse',
-    name: 'Blouse'
-  },
-  {
-    id: 'beauty',
-    name: 'Beauty'
-  }
-];
+import {fileQueries} from "../../../graphql";
 
 const sortOptions = [
   {
@@ -129,11 +105,11 @@ const useStyles = makeStyles((theme) => ({
 
 function Results({className, ...rest}) {
   const classes = useStyles();
-  const [selectedWebPages, setSelectedWebPages] = useState([]);
+  const [selectedFiles, setSelectedFiles] = useState([]);
   const [page, setPage] = useState(0);
-  const [webPages, setWebPages] = useState([]);
+  const [files, setFiles] = useState([]);
   const {projectId} = useSelector(state => state.projectReducer);
-  const {data} = useQuery(webCrawlerQueries.crawledPages, {
+  const {data} = useQuery(fileQueries.files, {
     variables: {
       projectId
     }
@@ -142,15 +118,18 @@ function Results({className, ...rest}) {
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState(sortOptions[0].value);
   const [filters, setFilters] = useState({
-    domain: null,
+    category: null,
+    availability: null,
+    inStock: null,
+    isShippable: null
   });
 
   useEffect(() => {
     if (!data) {
-      setWebPages([])
+      setFiles([])
       return;
     }
-    setWebPages(data.crawledPages);
+    setFiles(data.files);
   }, [data])
 
   const handleQueryChange = (event) => {
@@ -158,37 +137,17 @@ function Results({className, ...rest}) {
     setQuery(event.target.value);
   };
 
-  const handleDomainChange = (event) => {
-    event.persist();
-
-    let value = null;
-
-    if (event.target.value !== 'all') {
-      value = event.target.value;
-    }
-
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      domain: value
-    }));
-  };
-
-  const handleSortChange = (event) => {
-    event.persist();
-    setSort(event.target.value);
-  };
-
   const handleSelectAll = (event) => {
-    setSelectedWebPages(event.target.checked
-      ? webPages.map((p) => p.id)
+    setSelectedFiles(event.target.checked
+      ? files.map((p) => p.id)
       : []);
   };
 
   const handleSelectOne = (event, pageId) => {
-    if (!selectedWebPages.includes(pageId)) {
-      setSelectedWebPages((prevSelected) => [...prevSelected, pageId]);
+    if (!selectedFiles.includes(pageId)) {
+      setSelectedFiles((prevSelected) => [...prevSelected, pageId]);
     } else {
-      setSelectedWebPages((prevSelected) => prevSelected.filter((id) => id !== pageId));
+      setSelectedFiles((prevSelected) => prevSelected.filter((id) => id !== pageId));
     }
   };
 
@@ -200,11 +159,11 @@ function Results({className, ...rest}) {
     setLimit(event.target.value);
   };
 
-  const filteredList = applyFilters(webPages, query, filters);
+  const filteredList = applyFilters(files, query, filters);
   const paginatedList = applyPagination(filteredList, page, limit);
-  const enableBulkOperations = selectedWebPages.length > 0;
-  const selectedSome = selectedWebPages.length > 0 && selectedWebPages.length < webPages.length;
-  const selectedAll = selectedWebPages.length === webPages.length;
+  const enableBulkOperations = selectedFiles.length > 0;
+  const selectedSome = selectedFiles.length > 0 && selectedFiles.length < files.length;
+  const selectedAll = selectedFiles.length === files.length;
 
   return (
     <Card
@@ -236,49 +195,6 @@ function Results({className, ...rest}) {
             variant="outlined"
           />
           <Box flexGrow={1}/>
-          <TextField
-            label="Sort By"
-            name="sort"
-            onChange={handleSortChange}
-            select
-            SelectProps={{native: true}}
-            value={sort}
-            variant="outlined"
-          >
-            {sortOptions.map((option) => (
-              <option
-                key={option.value}
-                value={option.value}
-              >
-                {option.label}
-              </option>
-            ))}
-          </TextField>
-        </Box>
-        <Box
-          mt={3}
-          display="flex"
-          alignItems="center"
-        >
-          <TextField
-            className={classes.categoryField}
-            label="Domain"
-            name="domain"
-            onChange={handleDomainChange}
-            select
-            SelectProps={{native: true}}
-            value={filters.category || 'all'}
-            variant="outlined"
-          >
-            {categoryOptions.map((categoryOption) => (
-              <option
-                key={categoryOption.id}
-                value={categoryOption.id}
-              >
-                {categoryOption.name}
-              </option>
-            ))}
-          </TextField>
         </Box>
       </Box>
       {enableBulkOperations && (
@@ -317,10 +233,7 @@ function Results({className, ...rest}) {
                   />
                 </TableCell>
                 <TableCell>
-                  Title
-                </TableCell>
-                <TableCell>
-                  Url
+                  File Name
                 </TableCell>
                 <TableCell align="right">
                   Actions
@@ -328,37 +241,29 @@ function Results({className, ...rest}) {
               </TableRow>
             </TableHead>
             <TableBody>
-              {paginatedList.map((p) => {
-                const isSelected = selectedWebPages.includes(p.id);
+              {paginatedList.map(f => {
+                const isSelected = selectedFiles.includes(f.id);
 
                 return (
                   <TableRow
                     hover
-                    key={p.id}
+                    key={f.id}
                     selected={isSelected}
                   >
                     <TableCell padding="checkbox">
                       <Checkbox
                         checked={isSelected}
-                        onChange={(event) => handleSelectOne(event, p.id)}
+                        onChange={(event) => handleSelectOne(event, f.id)}
                         value={isSelected}
                       />
                     </TableCell>
                     <TableCell>
-                      {p.title}
-                    </TableCell>
-                    <TableCell>
-                      {p.url}
+                      {f.filename}
                     </TableCell>
                     <TableCell align="right">
                       <IconButton>
                         <SvgIcon fontSize="small">
-                          <EditIcon/>
-                        </SvgIcon>
-                      </IconButton>
-                      <IconButton>
-                        <SvgIcon fontSize="small">
-                          <ArrowRightIcon/>
+                          <UploadCloudIcon/>
                         </SvgIcon>
                       </IconButton>
                     </TableCell>

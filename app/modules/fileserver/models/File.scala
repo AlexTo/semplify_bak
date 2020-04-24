@@ -10,4 +10,5 @@ case class File(id: String,
                 filename: String,
                 contentType: Option[String],
                 length: Long,
+                uploadDate: Option[Long],
                 content: Source[ByteString, Future[State]])

@@ -41,6 +41,11 @@ const routesConfig = [
       },
       {
         exact: true,
+        path: '/import',
+        component: lazy(() => import('src/views/integration/ImportView'))
+      },
+      {
+        exact: true,
         path: '/web-crawler',
         component: lazy(() => import('src/views/integration/WebCrawlerView'))
       },

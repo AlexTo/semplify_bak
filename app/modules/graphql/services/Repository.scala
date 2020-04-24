@@ -2,6 +2,7 @@ package modules.graphql.services
 
 import com.google.inject.ImplementedBy
 import modules.entityhub.models.{IRI, Literal, Predicate, SearchHit}
+import modules.fileserver.models.FileInfo
 import modules.graphql.services.impl.RepositoryImpl
 import modules.project.models.ProjectGet
 import modules.task.models.TaskGet
@@ -26,5 +27,7 @@ trait Repository {
   def searchNodes(projectId: String, graph: Option[String], term: String): Future[Seq[SearchHit]]
 
   def crawledPages(projectId: String): Future[Seq[PageGet]]
+
+  def files(projectId: String): Future[Seq[FileInfo]]
 
 }
