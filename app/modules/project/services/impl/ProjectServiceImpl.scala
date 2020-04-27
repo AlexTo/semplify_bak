@@ -23,10 +23,10 @@ class ProjectServiceImpl @Inject()(reactiveMongoApi: ReactiveMongoApi)
   def collection: Future[JSONCollection] = reactiveMongoApi.database.map(_.collection[JSONCollection]("projects"))
 
   override def create(project: ProjectCreate, username: String): Future[ProjectGet] = {
+    val created = System.currentTimeMillis()
     val entity = Project(BSONObjectID.generate(),
       project.title, username, username,
-      Calendar.getInstance().getTimeInMillis,
-      Calendar.getInstance().getTimeInMillis)
+      created, created)
     collection
       .flatMap(_.insert.one(entity))
       .map(_ => ProjectGet(entity._id.stringify, entity.title))

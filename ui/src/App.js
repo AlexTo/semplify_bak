@@ -21,6 +21,7 @@ import keycloak from "./services/keycloak";
 import {KeycloakProvider} from '@react-keycloak/web'
 import {ApolloProvider} from '@apollo/react-hooks';
 import apolloClient from "./services/apollo";
+import axios from "./services/axios";
 
 const history = createBrowserHistory();
 const jss = create({plugins: [...jssPreset().plugins, rtl()]});
@@ -63,7 +64,10 @@ function App() {
   return (
     <KeycloakProvider
       keycloak={keycloak}
-      initConfig={keycloakProviderInitConfig}>
+      initConfig={keycloakProviderInitConfig}
+      onTokens={tokens => {
+        axios.defaults.headers.common['Authorization'] = `Bearer ${tokens.token}`;
+      }}>
       <ThemeProvider theme={createTheme(settings)}>
         <StylesProvider jss={jss}>
           <MuiPickersUtilsProvider utils={MomentUtils}>

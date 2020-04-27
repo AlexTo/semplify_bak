@@ -14,6 +14,8 @@ import {
   makeStyles
 } from '@material-ui/core';
 import {useKeycloak} from "@react-keycloak/web";
+import {useDispatch} from "react-redux";
+import {sessionActions} from "../../../actions";
 
 const useStyles = makeStyles((theme) => ({
   avatar: {
@@ -30,6 +32,7 @@ function Account() {
   const classes = useStyles();
   const ref = useRef(null);
   const {keycloak} = useKeycloak();
+  const dispatch = useDispatch();
   const {idTokenParsed: token} = keycloak;
   const [isOpen, setOpen] = useState(false);
 
@@ -43,6 +46,7 @@ function Account() {
 
   const handleLogout = () => {
     keycloak.logout().then(() => {
+      dispatch(sessionActions.logout())
     });
   };
 

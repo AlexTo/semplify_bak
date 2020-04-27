@@ -2,7 +2,6 @@ import React from "react";
 import Page from "../../../components/Page";
 import {Box, Container, makeStyles} from "@material-ui/core";
 import Header from "./Header";
-import YasqeEditor from "./YasqeEditor";
 import YasqeManager from "./YasqeManager";
 
 

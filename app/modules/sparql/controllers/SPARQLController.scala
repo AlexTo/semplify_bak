@@ -1,9 +1,11 @@
 package modules.sparql.controllers
 
 import javax.inject.{Inject, Singleton}
+import modules.security.services.ProfileService
+import modules.sparql.models.QueryCreate
 import modules.sparql.services.SPARQLService
-import play.api.libs.json.Json
-import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents, Result}
+import play.api.libs.json.{JsValue, Json}
+import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents, Request, Result}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -30,4 +32,6 @@ class SPARQLController @Inject()(sparqlService: SPARQLService,
       }
     }
   }
+
+
 }

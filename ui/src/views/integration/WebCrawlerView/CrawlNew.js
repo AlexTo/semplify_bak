@@ -67,7 +67,7 @@ function CrawlNew() {
           enqueueSnackbar("Web crawl task has been queued.", {
             variant: "success"
           });
-        dispatch(webCrawlerActions.closeNewCrawl())
+          dispatch(webCrawlerActions.closeNewCrawl())
         }
       );
   }
@@ -106,7 +106,7 @@ function CrawlNew() {
           <TextField
             error={Boolean(errors.seedUrl)}
             helperText={errors.seedUrl && errors.seedUrl.message}
-            fullWidth label="Seed URL" name="seedUrl" variant="outlined"
+            fullWidth label="Seed URL" name="seedUrl"
             inputRef={register({required: "Seed Url is required"})}/>
         </Box>
         <Box p={1}>
@@ -114,7 +114,8 @@ function CrawlNew() {
             error={Boolean(errors.depth)}
             helperText={errors.depth && errors.depth.message}
             fullWidth
-            label="Depth" name="depth" variant="outlined" type="number" defaultValue={1}
+            label="Depth" name="depth"
+            type="number" defaultValue={1}
             inputRef={register({
               min: {
                 value: 1,

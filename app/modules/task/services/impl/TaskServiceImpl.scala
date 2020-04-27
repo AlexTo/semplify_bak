@@ -1,8 +1,7 @@
 package modules.task.services.impl
 
-import java.util.Date
-
 import javax.inject.Inject
+import modules.project.services.ProjectService
 import modules.task.entities.{Task, TaskStatus}
 import modules.task.models.{TaskCreate, TaskGet}
 import modules.task.services.TaskService
@@ -16,22 +15,24 @@ import reactivemongo.play.json.collection.JSONCollection
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Success
 
-class TaskServiceImpl @Inject()(
-                                 reactiveMongoApi: ReactiveMongoApi)
+class TaskServiceImpl @Inject()(projectService: ProjectService,
+                                reactiveMongoApi: ReactiveMongoApi)
                                (implicit val ec: ExecutionContext) extends TaskService {
 
   def collection: Future[JSONCollection] = reactiveMongoApi.database.map(_.collection[JSONCollection]("tasks"))
 
-  def create(task: TaskCreate): Future[TaskGet] = {
-    val taskId = BSONObjectID.generate()
-    val entity = Task(taskId, task.`type`, task.projectId, TaskStatus.Queued, task.params,
-      BSONDateTime(System.currentTimeMillis()),
-      BSONDateTime(System.currentTimeMillis()))
+  def create(task: TaskCreate): Future[TaskGet] = projectService.findById(task.projectId) flatMap {
+    case Some(_) =>
+      val taskId = BSONObjectID.generate()
+      val created = BSONDateTime(System.currentTimeMillis())
+      val entity = Task(taskId, task.`type`, BSONObjectID.parse(task.projectId).get,
+        TaskStatus.Queued, task.params,
+        created, created)
 
-    collection
-      .flatMap(_.insert.one(entity))
-      .map(_ => TaskGet(entity._id.stringify, entity.`type`, entity.projectId, entity.params,
-        entity.status.toString, entity.created.value, entity.modified.value))
+      collection
+        .flatMap(_.insert.one(entity))
+        .map(_ => TaskGet(entity._id.stringify, entity.`type`, entity.projectId.stringify, entity.params,
+          entity.status.toString, created.value, created.value))
   }
 
   def setTaskStarted(taskId: String): Future[Int] = BSONObjectID.parse(taskId) match {

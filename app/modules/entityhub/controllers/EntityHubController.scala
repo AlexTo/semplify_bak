@@ -11,12 +11,16 @@ import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponent
 
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.ExecutionContext
+import scala.util.Using
+import play.api.Logger
 
 @Singleton
 class EntityHubController @Inject()(rmlService: RMLService,
                                     repositoryService: RepositoryService,
                                     cc: ControllerComponents)
                                    (implicit ec: ExecutionContext) extends AbstractController(cc) {
+
+  val logger: Logger = Logger(this.getClass)
 
   def test(dataFileId: String, mappingFileId: String, projectId: String, graph: String): Action[AnyContent] = Action.async { _ =>
 
@@ -37,6 +41,15 @@ class EntityHubController @Inject()(rmlService: RMLService,
   }
 
   def test2: Action[AnyContent] = Action { request =>
+    val projectId = "5ea45125aa00005f7f9ce6f0"
+    val repo = repositoryService.getRepository(projectId)
+    Using(repo.getConnection) { conn =>
+      
+    }
+    Ok
+  }
+
+  def test3: Action[AnyContent] = Action { request =>
     val projectId = "5e8943b050040030a6ee3942"
     val repo = repositoryService.getRepository(projectId)
     val conn = repo.getConnection

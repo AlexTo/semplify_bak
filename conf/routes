@@ -1,12 +1,14 @@
 GET         /                                 controllers.FrontendController.index
 
-POST        /api/sparql                       modules.sparql.controllers.SPARQLController.execute(projectId: String)
-
 GET         /api/graphql                      modules.graphql.controllers.GraphQLController.graphql(query: String, variables: Option[String], operation: Option[String])
 
 POST        /api/graphql                      modules.graphql.controllers.GraphQLController.graphqlPost
 
 GET         /api/graphql/render-schema        modules.graphql.controllers.GraphQLController.renderSchema
+
+POST        /api/sparql                       modules.sparql.controllers.SPARQLController.execute(projectId: String)
+
+POST        /api/queries/                     modules.sparql.controllers.QueryController.create()
 
 GET         /api/crawled-pages/               modules.webcrawler.controllers.WebPageController.findAll(projectId: String)
 

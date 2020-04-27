@@ -1,8 +1,7 @@
 import axios from "./axios";
 
-const serviceUrl = '/api/tasks/';
+const serviceUrl = '/api/tasks';
 const taskType = "webCrawler";
-
 
 export const webCrawlerService = {
   crawl

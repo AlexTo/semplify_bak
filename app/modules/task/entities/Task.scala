@@ -7,7 +7,7 @@ import reactivemongo.play.json._
 
 case class Task(_id: BSONObjectID,
                 `type`: String,
-                projectId: String,
+                projectId: BSONObjectID,
                 status: TaskStatus,
                 params: JsObject,
                 created: BSONDateTime,

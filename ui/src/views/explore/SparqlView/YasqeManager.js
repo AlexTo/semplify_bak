@@ -1,59 +1,153 @@
 import React, {useEffect, useState} from "react";
-import {Tabs, Tab, Divider, Card, Box} from "@material-ui/core";
+import {
+  Tabs, Tab, Card, Box, IconButton, Typography, makeStyles, Grid
+} from "@material-ui/core";
 import {
   Plus as PlusIcon
 } from "react-feather";
 import YasqeEditor from "./YasqeEditor";
+import {v4 as uuidv4} from 'uuid';
+import CloseIcon from '@material-ui/icons/Close';
+import {useSnackbar} from "notistack";
+import Toolbar from "./Toolbar";
+import {useDispatch, useSelector} from "react-redux";
+import {sparqlActions} from "../../../actions/sparqlActions";
+import SaveQueryDialog from "./SaveQueryDialog";
+import {queryService, yasqeService} from "../../../services";
+
+const useStyles = makeStyles((theme) => ({
+  tab: {
+    display: 'flex',
+    alignItems: 'center',
+    width: '100%'
+  }
+}));
+
 
 function YasqeManager() {
-
+  const classes = useStyles();
   const [tabs, setTabs] = useState([])
-  const [currentTab, setCurrentTab] = useState(9999)
+  const [saveQueryDialogOpen, setSaveQueryDialogOpen] = useState(false);
+  const dispatch = useDispatch();
+  const {projectId} = useSelector(state => state.projectReducer);
+  const [currentTabId, setCurrentTabId] = useState(0);
+  const [currentTab, setCurrentTab] = useState(null)
+  const {enqueueSnackbar} = useSnackbar();
 
   useEffect(() => {
     if (tabs.length === 0) {
-      newTab();
+      handleNewTab();
     }
   }, []);
 
   useEffect(() => {
     if (tabs.length === 0)
       return;
-    setCurrentTab(tabs.length)
+    if (tabs.length === 1) {
+      setCurrentTabId(tabs[0].key)
+    }
+    console.log(currentTabId)
+    console.log(tabs);
+    if (!tabs.find(t => t.key === currentTabId)) {
+      setCurrentTabId(tabs[tabs.length - 1].key);
+    }
   }, [tabs])
 
+  useEffect(() => {
+    const tab = tabs.find(t => t.key === currentTabId);
+    setCurrentTab(tab);
+  }, [currentTabId])
+
   const handleTabsChange = (event, value) => {
-    if (value === 9999) {
+    if (value === 0) {
       return;
     }
-    setCurrentTab(value);
+    setCurrentTabId(value);
   };
 
-  const newTab = () => {
-    const key = tabs.length + 1
+  const handleNewTab = (label, description, serverId, query) => {
+    const key = uuidv4()
     const tab = {
       key: key,
       value: key,
-      label: "Unnamed",
-      editor: () => <YasqeEditor id={key}/>
+      label: label,
+      description: description,
+      serverId: null,
+      editor: () => <YasqeEditor id={key} query={query}/>
     }
     setTabs([...tabs, tab])
   }
 
+  const handleExecute = () => {
+    dispatch(sparqlActions.executeTab(currentTabId));
+  }
+
+  const handleSave = () => {
+    if (!currentTab.serverId) {
+      setSaveQueryDialogOpen(true)
+    }
+  }
+
+  const handleSaveConfirm = (label, description) => {
+    const query = yasqeService.getQuery(currentTabId);
+    queryService.create(projectId, label, description, query)
+      .then(result => {
+        setSaveQueryDialogOpen(false);
+        enqueueSnackbar("Query saved successfully", {
+          variant: "success"
+        });
+        setTabs(tabs.map(t => {
+          if (t.key !== currentTabId)
+            return t;
+          else return Object.assign({}, t, {
+            label: result.label,
+            description: result.description,
+            serverId: result.id
+          })
+        }))
+      });
+  }
+
+  const handleCloseTab = (key) => {
+    if (tabs.length === 1) {
+      enqueueSnackbar("Unable to close the last tab", {
+        variant: "error"
+      })
+      return;
+    }
+    const newTabs = tabs.filter(t => t.key !== key);
+    setTabs(newTabs)
+  }
+
   return (<>
     <Card>
-      <Tabs
-        onChange={handleTabsChange}
-        scrollButtons="auto"
-        textColor="secondary"
-        variant="scrollable"
-        value={currentTab}
-      >
-        {tabs.map(t =>
-          <Tab key={t.key}
-               value={t.value} label={t.label}/>)}
-        <Tab key={9999} value={9999} label={<PlusIcon/>} onClick={newTab}/>
-      </Tabs>
+      <Grid alignItems="center" container justify="space-between">
+        <Grid item>
+          <Tabs
+            onChange={handleTabsChange}
+            textColor="secondary"
+            variant="scrollable"
+            scrollButtons="auto"
+            value={currentTabId}
+          >
+            {tabs.map(t =>
+              <Tab component="div" key={t.key}
+                   value={t.value} label={
+                <div className={classes.tab}>
+                  {t.label ? t.label : 'New *'}
+                  <Box flexGrow={1}/>
+                  <IconButton onClick={() => handleCloseTab(t.key)}>
+                    <CloseIcon fontSize="small"/>
+                  </IconButton>
+                </div>
+              }/>)}
+            <Tab key={0} value={0} label={<PlusIcon/>} onClick={() => handleNewTab()}/>
+          </Tabs>
+        </Grid>
+        <Grid item>
+          <Toolbar onExecute={handleExecute} onSave={handleSave}/>
+        </Grid>
+      </Grid>
       <Box
         py={1}
         px={0.2}
@@ -61,9 +155,14 @@ function YasqeManager() {
         alignItems="center">
         {tabs.map(t => {
           const Editor = t.editor;
-          return currentTab === t.key && <Editor key={t.key}/>;
+          return currentTabId === t.key && <Editor key={t.key}/>;
         })}
       </Box>
+      <SaveQueryDialog
+        open={saveQueryDialogOpen}
+        label={currentTab && currentTab.label}
+        description={currentTab && currentTab.description}
+        onClose={() => setSaveQueryDialogOpen(false)} onSave={handleSaveConfirm}/>
     </Card>
   </>)
 }

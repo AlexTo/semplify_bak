@@ -5,6 +5,7 @@ import {cyReducer} from "./cyReducer";
 import {visualGraphReducer} from "./visualGraphReducer";
 import {webCrawlerReducer} from "./webCrawlerReducer";
 import {yasqeReducer} from "./yasqeReducer";
+import {sparqlReducer} from "./sparqlReducer";
 
 const rootReducer = combineReducers({
   form: formReducer,
@@ -12,7 +13,8 @@ const rootReducer = combineReducers({
   cyReducer,
   visualGraphReducer,
   webCrawlerReducer,
-  yasqeReducer
+  yasqeReducer,
+  sparqlReducer
 });
 
 export default rootReducer;
