@@ -41,7 +41,7 @@ class TaskServiceImpl @Inject()(projectService: ProjectService,
         val q = BSONDocument("_id" -> id, "status" -> TaskStatus.Queued.toString)
         val u = BSONDocument("$set" -> BSONDocument(
           "status" -> TaskStatus.Started.toString,
-          "modifiedDate" -> BSONDateTime(System.currentTimeMillis()),
+          "modified" -> BSONDateTime(System.currentTimeMillis()),
         ))
         coll.update.one(q, u, upsert = false, multi = false).map {
           _.n
@@ -58,14 +58,14 @@ class TaskServiceImpl @Inject()(projectService: ProjectService,
             q = BSONDocument("_id" -> id, "status" -> TaskStatus.Started.toString),
             u = BSONDocument("$set" -> BSONDocument(
               "status" -> TaskStatus.Finished.toString,
-              "modifiedDate" -> BSONDateTime(System.currentTimeMillis()),
+              "modified" -> BSONDateTime(System.currentTimeMillis()),
             )),
             upsert = false, multi = false
           ) :: updateBuilder.element(
             q = BSONDocument("_id" -> id, "status" -> TaskStatus.Stopping.toString),
             u = BSONDocument("$set" -> BSONDocument(
               "status" -> TaskStatus.Stopped.toString,
-              "modifiedDate" -> BSONDateTime(System.currentTimeMillis()),
+              "modified" -> BSONDateTime(System.currentTimeMillis()),
             )),
             upsert = false, multi = false
           ) :: Nil
@@ -84,7 +84,7 @@ class TaskServiceImpl @Inject()(projectService: ProjectService,
           "status" -> TaskStatus.Started.toString)
         val u = BSONDocument("$set" -> BSONDocument(
           "status" -> TaskStatus.Stopping.toString,
-          "modifiedDate" -> BSONDateTime(System.currentTimeMillis()),
+          "modified" -> BSONDateTime(System.currentTimeMillis()),
         ))
         coll.update.one(q, u, upsert = false, multi = false) map {
           _.n

@@ -23,10 +23,6 @@ const useStyles = makeStyles((theme) => ({
 function YasqeEditor({id, query}) {
   const classes = useStyles();
   const {projectId} = useSelector(state => state.projectReducer);
-  const [results, setResults] = useState({
-    head: {vars: []},
-    results: {bindings: []}
-  })
   const dispatch = useDispatch();
   const [keycloak] = useKeycloak();
   const [page, setPage] = useState(0);
@@ -45,7 +41,7 @@ function YasqeEditor({id, query}) {
       theme: theme,
       persistenceId: `yasqe_${id}`
     });
-    
+
     yasqe.on("queryResults", (instance, results) => {
       dispatch(sparqlActions.queryFinished(id, results));
     });
@@ -68,17 +64,6 @@ function YasqeEditor({id, query}) {
   }, [executeTab])
 
   useEffect(() => {
-    if (queryResults[id]) {
-      setResults(queryResults[id])
-    } else {
-      setResults({
-        head: {vars: []},
-        results: {bindings: []}
-      })
-    }
-  }, [queryResults])
-
-  useEffect(() => {
     if (yasqe) {
       yasqe.setOption("theme", theme)
     }
@@ -96,24 +81,24 @@ function YasqeEditor({id, query}) {
   return (
     <>
       <div id="yasqe"/>
-      <PerfectScrollbar>
+      {queryResults[id] && <PerfectScrollbar>
         <Box>
           <Table>
             <TableHead>
               <TableRow>
-                {results.head.vars.map((v, idx) => <TableCell key={idx}>{v}</TableCell>)}
+                {queryResults[id].head.vars.map((v, idx) => <TableCell key={idx}>{v}</TableCell>)}
               </TableRow>
             </TableHead>
             <TableBody>
-              {results.results.bindings.slice(page * limit, page * limit + limit).map((binding, idx) =>
+              {queryResults[id].results.bindings.slice(page * limit, page * limit + limit).map((binding, idx) =>
                 <TableRow key={idx}>
-                  {results.head.vars.map((v, idx) => <TableCell key={idx}>{binding[v]["value"]}</TableCell>)}
+                  {queryResults[id].head.vars.map((v, idx) => <TableCell key={idx}>{binding[v]["value"]}</TableCell>)}
                 </TableRow>)}
             </TableBody>
           </Table>
           <TablePagination
             component="div"
-            count={results.results.bindings.length}
+            count={queryResults[id].results.bindings.length}
             onChangePage={handlePageChange}
             onChangeRowsPerPage={handleLimitChange}
             page={page}
@@ -121,7 +106,7 @@ function YasqeEditor({id, query}) {
             rowsPerPageOptions={[5, 10, 25]}
           />
         </Box>
-      </PerfectScrollbar>
+      </PerfectScrollbar>}
     </>
   )
 }

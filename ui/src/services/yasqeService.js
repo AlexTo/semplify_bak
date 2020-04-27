@@ -1,11 +1,19 @@
 import Yasqe from "@triply/yasqe";
 
 export const yasqeService = {
-  getQuery
+  getQuery,
+  cleanup
 }
 
-
 function getQuery(id) {
-  const yasqe = localStorage.getItem(id);
+  const yasqe = JSON.parse(localStorage.getItem(`yasqe_${id}`));
   return yasqe ? yasqe.val.query : Yasqe.defaults.value;
+}
+
+function cleanup() {
+  for (const key in localStorage) {
+    if (key.startsWith("yasqe_")) {
+      localStorage.removeItem(key);
+    }
+  }
 }

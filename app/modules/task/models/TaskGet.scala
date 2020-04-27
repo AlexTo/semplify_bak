@@ -1,7 +1,7 @@
 package modules.task.models
 
 import play.api.libs.functional.syntax._
-import play.api.libs.json.{JsObject, Json, OWrites, Reads, _}
+import play.api.libs.json.{JsObject, Json, OWrites, Reads, __}
 
 case class TaskGet(id: String,
                    `type`: String,

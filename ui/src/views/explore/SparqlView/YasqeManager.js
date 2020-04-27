@@ -19,7 +19,8 @@ const useStyles = makeStyles((theme) => ({
   tab: {
     display: 'flex',
     alignItems: 'center',
-    width: '100%'
+    width: '100%',
+    textTransform: "none"
   }
 }));
 
@@ -31,11 +32,13 @@ function YasqeManager() {
   const dispatch = useDispatch();
   const {projectId} = useSelector(state => state.projectReducer);
   const [currentTabId, setCurrentTabId] = useState(0);
-  const [currentTab, setCurrentTab] = useState(null)
+  const [currentTab, setCurrentTab] = useState(null);
+
   const {enqueueSnackbar} = useSnackbar();
 
   useEffect(() => {
     if (tabs.length === 0) {
+      yasqeService.cleanup();
       handleNewTab();
     }
   }, []);
@@ -46,17 +49,10 @@ function YasqeManager() {
     if (tabs.length === 1) {
       setCurrentTabId(tabs[0].key)
     }
-    console.log(currentTabId)
-    console.log(tabs);
     if (!tabs.find(t => t.key === currentTabId)) {
       setCurrentTabId(tabs[tabs.length - 1].key);
     }
   }, [tabs])
-
-  useEffect(() => {
-    const tab = tabs.find(t => t.key === currentTabId);
-    setCurrentTab(tab);
-  }, [currentTabId])
 
   const handleTabsChange = (event, value) => {
     if (value === 0) {
@@ -83,8 +79,15 @@ function YasqeManager() {
   }
 
   const handleSave = () => {
-    if (!currentTab.serverId) {
+    const tab = tabs.find(t => t.key === currentTabId)
+    if (!tab.serverId) {
       setSaveQueryDialogOpen(true)
+    } else {
+      const query = yasqeService.getQuery(currentTabId);
+      queryService.update(tab.serverId, projectId, tab.label, tab.description, query)
+        .then(_ => enqueueSnackbar("Query saved successfully", {
+          variant: "success"
+        }));
     }
   }
 
@@ -108,7 +111,8 @@ function YasqeManager() {
       });
   }
 
-  const handleCloseTab = (key) => {
+  const handleCloseTab = (e, key) => {
+    e.stopPropagation();
     if (tabs.length === 1) {
       enqueueSnackbar("Unable to close the last tab", {
         variant: "error"
@@ -125,18 +129,16 @@ function YasqeManager() {
         <Grid item>
           <Tabs
             onChange={handleTabsChange}
-            textColor="secondary"
             variant="scrollable"
             scrollButtons="auto"
-            value={currentTabId}
-          >
+            value={tabs.map(t => t.key).includes(currentTabId) ? currentTabId : 0}>
             {tabs.map(t =>
               <Tab component="div" key={t.key}
                    value={t.value} label={
                 <div className={classes.tab}>
                   {t.label ? t.label : 'New *'}
                   <Box flexGrow={1}/>
-                  <IconButton onClick={() => handleCloseTab(t.key)}>
+                  <IconButton onClick={(e) => handleCloseTab(e, t.key)}>
                     <CloseIcon fontSize="small"/>
                   </IconButton>
                 </div>

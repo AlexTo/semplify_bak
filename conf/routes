@@ -10,6 +10,8 @@ POST        /api/sparql                       modules.sparql.controllers.SPARQLC
 
 POST        /api/queries/                     modules.sparql.controllers.QueryController.create()
 
+PUT         /api/queries/                     modules.sparql.controllers.QueryController.update()
+
 GET         /api/crawled-pages/               modules.webcrawler.controllers.WebPageController.findAll(projectId: String)
 
 POST        /api/tasks/                       modules.task.controllers.TaskController.create

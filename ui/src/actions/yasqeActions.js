@@ -1,7 +1,7 @@
 export const YASQE_SET_THEME = "YASQE/SET_THEME"
 
 export const yasqeActions = {
-  setTheme
+  setTheme,
 }
 
 function setTheme(theme) {

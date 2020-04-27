@@ -33,5 +33,4 @@ class SPARQLController @Inject()(sparqlService: SPARQLService,
     }
   }
 
-
 }

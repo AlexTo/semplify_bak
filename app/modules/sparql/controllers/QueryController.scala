@@ -2,7 +2,7 @@ package modules.sparql.controllers
 
 import javax.inject.{Inject, Singleton}
 import modules.security.services.ProfileService
-import modules.sparql.models.QueryCreate
+import modules.sparql.models.{QueryCreate, QueryUpdate}
 import modules.sparql.services.QueryService
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{AbstractController, Action, ControllerComponents, Request}
@@ -18,6 +18,14 @@ class QueryController @Inject()(profileService: ProfileService,
     val profile = profileService.getProfile(request).get
     val queryCreate = request.body.as[QueryCreate]
     queryService.create(queryCreate, profile.getUsername) map { query =>
+      Ok(Json.toJson(query))
+    }
+  }
+
+  def update(): Action[JsValue] = Action.async(parse.json) { request: Request[JsValue] =>
+    val profile = profileService.getProfile(request).get
+    val queryUpdate = request.body.as[QueryUpdate]
+    queryService.update(queryUpdate, profile.getUsername) map { query =>
       Ok(Json.toJson(query))
     }
   }
