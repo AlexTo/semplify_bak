@@ -4,6 +4,7 @@ import modules.entityhub.models._
 import modules.fileserver.models.FileInfo
 import modules.graphql.services.Repository
 import modules.project.models.ProjectGet
+import modules.sparql.models.QueryGet
 import modules.task.models.TaskGet
 import modules.webcrawler.models.PageGet
 import sangria.schema._
@@ -95,6 +96,19 @@ object SchemaDefinition {
     )
   )
 
+  val SparqlQuery: ObjectType[Repository, QueryGet] = ObjectType("SparqlQuery",
+    () => fields[Repository, QueryGet](
+      Field("id", StringType, resolve = _.value.id),
+      Field("projectId", StringType, resolve = _.value.projectId),
+      Field("title", StringType, resolve = _.value.title),
+      Field("description", OptionType(StringType), resolve = _.value.description),
+      Field("query", StringType, resolve = _.value.query),
+      Field("created", LongType, resolve = _.value.created),
+      Field("modified", LongType, resolve = _.value.modified),
+      Field("createdBy", StringType, resolve = _.value.createdBy),
+      Field("modifiedBy", StringType, resolve = _.value.modifiedBy)
+    ))
+
   val FileInfo: ObjectType[Repository, FileInfo] = ObjectType("FileInfo",
     () => fields[Repository, FileInfo](
       Field("id", StringType, resolve = _.value.id),
@@ -133,6 +147,10 @@ object SchemaDefinition {
       Field("searchNodes", ListType(SearchHit),
         arguments = ProjectId :: Graph :: Term :: Nil,
         resolve = ctx => ctx.ctx.searchNodes(ctx arg ProjectId, ctx arg Graph, ctx arg Term)
+      ),
+      Field("sparqlQueries", ListType(SparqlQuery),
+        arguments = ProjectId :: Nil,
+        resolve = ctx => ctx.ctx.sparqlQueries(ctx arg ProjectId)
       )
     ))
 

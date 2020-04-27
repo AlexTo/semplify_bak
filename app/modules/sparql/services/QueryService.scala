@@ -14,4 +14,6 @@ trait QueryService {
   def update(query: QueryUpdate, username: String): Future[QueryGet]
 
   def findById(id: String): Future[Option[QueryGet]]
+
+  def findAll(projectId: String): Future[Seq[QueryGet]]
 }

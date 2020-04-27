@@ -4,7 +4,7 @@ import play.api.libs.json.{Json, OWrites, Reads}
 
 case class QueryUpdate(id: String,
                        projectId: String,
-                       label: String,
+                       title: String,
                        description: Option[String],
                        query: String)
 

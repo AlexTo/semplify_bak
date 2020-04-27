@@ -61,12 +61,12 @@ function YasqeManager() {
     setCurrentTabId(value);
   };
 
-  const handleNewTab = (label, description, serverId, query) => {
+  const handleNewTab = (title, description, serverId, query) => {
     const key = uuidv4()
     const tab = {
       key: key,
       value: key,
-      label: label,
+      title: title,
       description: description,
       serverId: null,
       editor: () => <YasqeEditor id={key} query={query}/>
@@ -84,16 +84,16 @@ function YasqeManager() {
       setSaveQueryDialogOpen(true)
     } else {
       const query = yasqeService.getQuery(currentTabId);
-      queryService.update(tab.serverId, projectId, tab.label, tab.description, query)
+      queryService.update(tab.serverId, projectId, tab.title, tab.description, query)
         .then(_ => enqueueSnackbar("Query saved successfully", {
           variant: "success"
         }));
     }
   }
 
-  const handleSaveConfirm = (label, description) => {
+  const handleSaveConfirm = (title, description) => {
     const query = yasqeService.getQuery(currentTabId);
-    queryService.create(projectId, label, description, query)
+    queryService.create(projectId, title, description, query)
       .then(result => {
         setSaveQueryDialogOpen(false);
         enqueueSnackbar("Query saved successfully", {
@@ -103,7 +103,7 @@ function YasqeManager() {
           if (t.key !== currentTabId)
             return t;
           else return Object.assign({}, t, {
-            label: result.label,
+            title: result.title,
             description: result.description,
             serverId: result.id
           })
@@ -134,9 +134,9 @@ function YasqeManager() {
             value={tabs.map(t => t.key).includes(currentTabId) ? currentTabId : 0}>
             {tabs.map(t =>
               <Tab component="div" key={t.key}
-                   value={t.value} label={
+                   value={t.key} label={
                 <div className={classes.tab}>
-                  {t.label ? t.label : 'New *'}
+                  {t.title ? t.title : 'New *'}
                   <Box flexGrow={1}/>
                   <IconButton onClick={(e) => handleCloseTab(e, t.key)}>
                     <CloseIcon fontSize="small"/>
@@ -162,7 +162,7 @@ function YasqeManager() {
       </Box>
       <SaveQueryDialog
         open={saveQueryDialogOpen}
-        label={currentTab && currentTab.label}
+        title={currentTab && currentTab.title}
         description={currentTab && currentTab.description}
         onClose={() => setSaveQueryDialogOpen(false)} onSave={handleSaveConfirm}/>
     </Card>

@@ -5,6 +5,7 @@ import modules.entityhub.models.{IRI, Literal, Predicate, SearchHit}
 import modules.fileserver.models.FileInfo
 import modules.graphql.services.impl.RepositoryImpl
 import modules.project.models.ProjectGet
+import modules.sparql.models.QueryGet
 import modules.task.models.TaskGet
 import modules.webcrawler.models.PageGet
 
@@ -29,5 +30,7 @@ trait Repository {
   def crawledPages(projectId: String): Future[Seq[PageGet]]
 
   def files(projectId: String): Future[Seq[FileInfo]]
+
+  def sparqlQueries(projectId: String): Future[Seq[QueryGet]]
 
 }

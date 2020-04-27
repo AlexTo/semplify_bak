@@ -8,6 +8,8 @@ GET         /api/graphql/render-schema        modules.graphql.controllers.GraphQ
 
 POST        /api/sparql                       modules.sparql.controllers.SPARQLController.execute(projectId: String)
 
+GET         /api/queries/                     modules.sparql.controllers.QueryController.findAll(projectId: String)
+
 POST        /api/queries/                     modules.sparql.controllers.QueryController.create()
 
 PUT         /api/queries/                     modules.sparql.controllers.QueryController.update()

@@ -8,15 +8,15 @@ export const queryService = {
 
 const serviceUrl = '/api/queries'
 
-function create(projectId, label, description, query) {
+function create(projectId, title, description, query) {
   return axios.post(`${serviceUrl}/`, {
-    projectId, label, description, query
+    projectId, title, description, query
   }).then(handleResponse);
 }
 
 
-function update(id, projectId, label, description, query) {
+function update(id, projectId, title, description, query) {
   return axios.put(`${serviceUrl}/`, {
-    id, projectId, label, description, query
+    id, projectId, title, description, query
   }).then(handleResponse);
 }

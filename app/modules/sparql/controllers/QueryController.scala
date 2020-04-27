@@ -5,7 +5,7 @@ import modules.security.services.ProfileService
 import modules.sparql.models.{QueryCreate, QueryUpdate}
 import modules.sparql.services.QueryService
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{AbstractController, Action, ControllerComponents, Request}
+import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents, Request}
 
 import scala.concurrent.ExecutionContext
 
@@ -27,6 +27,12 @@ class QueryController @Inject()(profileService: ProfileService,
     val queryUpdate = request.body.as[QueryUpdate]
     queryService.update(queryUpdate, profile.getUsername) map { query =>
       Ok(Json.toJson(query))
+    }
+  }
+
+  def findAll(projectId: String): Action[AnyContent] = Action.async { _ =>
+    queryService.findAll(projectId) map { queries =>
+      Ok(Json.toJson(queries))
     }
   }
 }

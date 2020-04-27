@@ -6,7 +6,7 @@ import reactivemongo.play.json._
 
 case class Query(_id: BSONObjectID,
                  projectId: BSONObjectID,
-                 label: String,
+                 title: String,
                  description: Option[String],
                  query: String,
                  createdBy: String,

@@ -2,13 +2,13 @@ import React from 'react';
 import {Box, TextField, Button, Dialog, DialogActions, DialogContent, DialogTitle} from "@material-ui/core";
 import {useForm} from "react-hook-form";
 
-function SaveQueryDialog({label, description, open, onClose, onSave}) {
+function SaveQueryDialog({title, description, open, onClose, onSave}) {
 
   const {register, handleSubmit, errors} = useForm();
 
   const handleSave = (data) => {
-    const {label, description} = data;
-    onSave(label, description);
+    const {title, description} = data;
+    onSave(title, description);
   };
 
   return (
@@ -18,11 +18,11 @@ function SaveQueryDialog({label, description, open, onClose, onSave}) {
       <DialogTitle>Save query</DialogTitle>
       <DialogContent>
         <Box p={1}>
-          <TextField autoFocus name="label" label="Label" fullWidth
-                     defaultValue={label}
-                     error={Boolean(errors.label)}
-                     helperText={errors.label && errors.label.message}
-                     inputRef={register({required: "Label is required"})}/>
+          <TextField autoFocus name="title" label="Title" fullWidth
+                     defaultValue={title}
+                     error={Boolean(errors.title)}
+                     helperText={errors.title && errors.title.message}
+                     inputRef={register({required: "Title is required"})}/>
         </Box>
         <Box p={1}>
           <TextField name="description" label="Description"

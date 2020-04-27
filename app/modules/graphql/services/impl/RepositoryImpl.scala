@@ -8,6 +8,8 @@ import modules.fileserver.services.FileService
 import modules.graphql.services.Repository
 import modules.project.models.ProjectGet
 import modules.project.services.ProjectService
+import modules.sparql.models.QueryGet
+import modules.sparql.services.QueryService
 import modules.task.models.TaskGet
 import modules.task.services.TaskService
 import modules.webcrawler.models.PageGet
@@ -19,6 +21,7 @@ class RepositoryImpl @Inject()(entityService: EntityService,
                                projectService: ProjectService,
                                fileService: FileService,
                                taskService: TaskService,
+                               queryService: QueryService,
                                webCrawlerService: WebCrawlerService) extends Repository {
   override def node(projectId: String, graph: Option[String], uri: String): Future[Option[IRI]]
   = entityService.findNode(projectId, graph, uri)
@@ -43,4 +46,6 @@ class RepositoryImpl @Inject()(entityService: EntityService,
   override def crawledPages(projectId: String): Future[Seq[PageGet]] = webCrawlerService.findAllCrawledPages(projectId)
 
   override def files(projectId: String): Future[Seq[FileInfo]] = fileService.findAll(projectId)
+
+  override def sparqlQueries(projectId: String): Future[Seq[QueryGet]] = queryService.findAll(projectId)
 }
