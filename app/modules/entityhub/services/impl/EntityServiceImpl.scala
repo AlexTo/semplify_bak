@@ -1,6 +1,7 @@
 package modules.entityhub.services.impl
 
 import javax.inject.Inject
+import modules.common.vocabulary.DBO
 import modules.entityhub.models.{GraphGet, IRI, Literal, Predicate, SearchHit}
 import modules.entityhub.services.EntityService
 import modules.entityhub.utils.ValueUtils
@@ -171,7 +172,7 @@ class EntityServiceImpl @Inject()(repositoryService: RepositoryService,
         val f = repo.getValueFactory
 
         val purlTitle = f.createIRI("http://purl.org/dc/elements/1.1/title")
-        val predicates = RDFS.LABEL :: purlTitle :: SKOS.PREF_LABEL :: FOAF.NAME :: Nil
+        val predicates = DBO.birthName :: RDFS.LABEL :: purlTitle :: SKOS.PREF_LABEL :: FOAF.NAME :: Nil
 
         Using(repo.getConnection) { conn =>
           val query = Queries.SELECT()
@@ -260,5 +261,41 @@ class EntityServiceImpl @Inject()(repositoryService: RepositoryService,
         graphs.foreach(g => conn.clear(f.createIRI(g)))
       }
       graphs.map(g => GraphGet(projectId, g))
+  }
+
+  override def findDepiction(projectId: String, nodeUri: String): Future[Option[IRI]] = projectService.findById(projectId).map {
+    case Some(_) =>
+      val repo = repositoryService.getRepository(projectId)
+      val f = repo.getValueFactory
+
+      val predicates = FOAF.DEPICTION :: Nil
+
+      Using(repo.getConnection) { conn =>
+        val query = Queries.SELECT()
+        val node = f.createIRI(nodeUri)
+
+        val optionalPatterns = predicates.zipWithIndex.map { case (predicate, idx) =>
+          val label = SparqlBuilder.`var`(s"depiction$idx")
+          query.select(label)
+          GraphPatterns.optional(GraphPatterns.tp(node, predicate, label))
+        }
+
+        query.where(optionalPatterns: _*)
+
+        val tq = conn.prepareTupleQuery(QueryLanguage.SPARQL, query.getQueryString)
+        val results = tq.evaluate
+        var depiction = Option.empty[IRI]
+        while (results.hasNext) {
+          val bindings = results.next()
+          bindings.forEach(binding => {
+            val iri = binding.getValue.asInstanceOf[org.eclipse.rdf4j.model.IRI]
+            depiction = Some(ValueUtils.createValue(projectId, None, iri).asInstanceOf[IRI])
+          })
+        }
+        depiction
+      } match {
+        case Success(value) => value
+      }
+    case None => Option.empty[IRI]
   }
 }

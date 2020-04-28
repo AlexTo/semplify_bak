@@ -29,6 +29,7 @@ object SchemaDefinition {
       Field("graph", OptionType(StringType), resolve = _.value.graph),
       Field("value", StringType, resolve = _.value.value),
       Field("prefLabel", OptionType(Literal), resolve = ctx => ctx.ctx.prefLabel(ctx.value.projectId, ctx.value.value)),
+      Field("depiction", OptionType(IRI), resolve = ctx => ctx.ctx.depiction(ctx.value.projectId, ctx.value.value)),
       Field("outGoingPredicates", ListType(Predicate),
         resolve = ctx => ctx.ctx.predicatesFromNode(ctx.value.projectId, None, ctx.value.value)),
       Field("incomingPredicates", ListType(Predicate),

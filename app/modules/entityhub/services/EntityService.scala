@@ -19,6 +19,8 @@ trait EntityService {
 
   def findPrefLabel(projectId: String, nodeUri: String): Future[Option[Literal]]
 
+  def findDepiction(projectId: String, nodeUri: String): Future[Option[IRI]]
+
   def findGraphs(projectId: String): Future[Seq[GraphGet]]
 
   def deleteGraphs(projectId: String, graphs: Seq[String]): Future[Seq[GraphGet]]

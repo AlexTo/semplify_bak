@@ -4,6 +4,8 @@ export const cyThemeLight = [
     style: {
       height: 28,
       width: 28,
+      'background-fit': 'cover',
+      'background-image': "data(depiction)",
       "background-color": '#393333'
     },
   },
@@ -36,7 +38,6 @@ export const cyThemeLight = [
   {
     selector: ".autorotate",
     style: {
-      "text-valign": "top",
       "edge-text-rotation": "autorotate"
     }
   },

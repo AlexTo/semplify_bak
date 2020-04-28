@@ -36,7 +36,7 @@ function RDFImportDialog({file, open, onClose, onSave}) {
           Cancel
         </Button>
         <Button color="primary" onClick={handleSubmit(handleSave)}>
-          Save
+          Import
         </Button>
       </DialogActions>
     </Dialog>

@@ -181,9 +181,12 @@ function Results({className, ...rest}) {
 
   const handleImportConfirm = (file, baseURI, graph) => {
     taskService.importRDF(projectId, file.id, graph, baseURI, false)
-      .then(_ => enqueueSnackbar("RDF import  task has been queued.", {
-        variant: "success"
-      }));
+      .then(_ => {
+        enqueueSnackbar("RDF import  task has been queued.", {
+          variant: "success"
+        });
+        setRDFImportDialogOpen(false);
+      });
   }
 
   const filteredList = applyFilters(files, query, filters);
@@ -234,15 +237,14 @@ function Results({className, ...rest}) {
             />
             <Button
               variant="outlined"
-              className={classes.bulkAction}
-            >
+              className={classes.bulkAction}>
               Delete
             </Button>
           </div>
         </div>
       )}
       <PerfectScrollbar>
-        <Box minWidth={1200}>
+        <Box>
           <Table>
             <TableHead>
               <TableRow>

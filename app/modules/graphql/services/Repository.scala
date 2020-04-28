@@ -17,6 +17,8 @@ trait Repository {
 
   def prefLabel(projectId: String, uri: String): Future[Option[Literal]]
 
+  def depiction(projectId: String, uri: String): Future[Option[IRI]]
+
   def predicatesFromNode(projectId: String, graph: Option[String], from: String): Future[Seq[Predicate]]
 
   def predicatesToNode(projectId: String, graph: Option[String], to: String): Future[Seq[Predicate]]
@@ -36,5 +38,6 @@ trait Repository {
   def graphs(projectId: String): Future[Seq[GraphGet]]
 
   def deleteGraphs(projectId: String, graphs: Seq[String]): Future[Seq[GraphGet]]
+
 
 }

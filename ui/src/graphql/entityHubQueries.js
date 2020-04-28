@@ -11,6 +11,9 @@ export const entityHubQueries = {
           prefLabel {
             value
           }
+          depiction {
+            value
+          }
         }
         snippet
       }
@@ -18,6 +21,13 @@ export const entityHubQueries = {
   graphs: gql`
     query graphs($projectId: String!) {
       graphs(projectId: $projectId) {
+        value
+      }
+    }
+  `,
+  deleteGraphs: gql`
+    mutation deleteGraphs($projectId: String!, $graphs: [String!]!) {
+      deleteGraphs(projectId: $projectId, graphs: $graphs) {
         value
       }
     }
@@ -48,6 +58,9 @@ export const entityHubQueries = {
           graph
           ... on IRI {
             prefLabel {
+              value
+            }
+            depiction {
               value
             }
           }

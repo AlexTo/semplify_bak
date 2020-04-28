@@ -9,7 +9,6 @@ import edu.uci.ics.crawler4j.parser.HtmlParseData
 import edu.uci.ics.crawler4j.robotstxt.{RobotstxtConfig, RobotstxtServer}
 import edu.uci.ics.crawler4j.url.WebURL
 import javax.inject.Inject
-import modules.project.models.ProjectGet
 import modules.project.services.ProjectService
 import modules.webcrawler.models.{PageGet, WebCrawlParams}
 import modules.webcrawler.services.WebCrawlerService

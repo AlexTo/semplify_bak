@@ -53,4 +53,6 @@ class RepositoryImpl @Inject()(entityService: EntityService,
 
   override def deleteGraphs(projectId: String, graphs: Seq[String]): Future[Seq[GraphGet]]
   = entityService.deleteGraphs(projectId, graphs)
+
+  override def depiction(projectId: String, uri: String): Future[Option[IRI]] = entityService.findDepiction(projectId, uri)
 }

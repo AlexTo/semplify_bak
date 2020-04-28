@@ -21,13 +21,13 @@ import {
   makeStyles
 } from '@material-ui/core';
 import {
-  Edit as EditIcon,
-  ArrowRight as ArrowRightIcon,
+  Trash as TrashIcon,
   Search as SearchIcon
 } from 'react-feather';
-import {useQuery} from "@apollo/react-hooks";
+import {useMutation, useQuery} from "@apollo/react-hooks";
 import {useSelector} from "react-redux";
 import {entityHubQueries} from "../../../graphql";
+import OkCancelDialog from "../../../components/ConfirmationDialog";
 
 const sortOptions = [
   {
@@ -109,12 +109,20 @@ function Results({className, ...rest}) {
   const [selectedGraphs, setSelectedGraphs] = useState([]);
   const [page, setPage] = useState(0);
   const [graphs, setGraphs] = useState([]);
+
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteGraph, setDeleteGraph] = useState(null);
+
   const {projectId} = useSelector(state => state.projectReducer);
-  const {data} = useQuery(entityHubQueries.graphs, {
+  const {data, refetch} = useQuery(entityHubQueries.graphs, {
     variables: {
       projectId
     }
-  })
+  });
+
+  const [deleteGraphs] = useMutation(entityHubQueries.deleteGraphs)
+
+
   const [limit, setLimit] = useState(5);
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState(sortOptions[0].value);
@@ -167,6 +175,26 @@ function Results({className, ...rest}) {
   const enableBulkOperations = selectedGraphs.length > 0;
   const selectedSome = selectedGraphs.length > 0 && selectedGraphs.length < graphs.length;
   const selectedAll = selectedGraphs.length === graphs.length;
+
+
+  const handleDelete = (graphs) => {
+    setSelectedGraphs(graphs);
+    setDeleteDialogOpen(true);
+  }
+
+  const handleDeleteConfirm = () => {
+    deleteGraphs({
+      variables: {
+        projectId,
+        graphs: selectedGraphs
+      }
+    }).then(() => {
+      refetch().then(() => {
+        setSelectedGraphs([]);
+        setDeleteDialogOpen(false);
+      });
+    })
+  }
 
   return (
     <Card
@@ -228,14 +256,14 @@ function Results({className, ...rest}) {
             />
             <Button
               variant="outlined"
-              className={classes.bulkAction}>
+              className={classes.bulkAction} onClick={() => handleDelete(selectedGraphs)}>
               Delete
             </Button>
           </div>
         </div>
       )}
       <PerfectScrollbar>
-        <Box minWidth={1200}>
+        <Box>
           <Table>
             <TableHead>
               <TableRow>
@@ -274,9 +302,9 @@ function Results({className, ...rest}) {
                       {g.value}
                     </TableCell>
                     <TableCell align="right">
-                      <IconButton>
+                      <IconButton onClick={() => handleDelete([g.value])}>
                         <SvgIcon fontSize="small">
-                          <ArrowRightIcon/>
+                          <TrashIcon/>
                         </SvgIcon>
                       </IconButton>
                     </TableCell>
@@ -296,6 +324,10 @@ function Results({className, ...rest}) {
           />
         </Box>
       </PerfectScrollbar>
+      <OkCancelDialog open={deleteDialogOpen}
+                      onClose={() => setDeleteDialogOpen(false)}
+                      message="Are you sure you want to delete selected graphs?"
+                      onOk={handleDeleteConfirm}/>
     </Card>
   );
 }

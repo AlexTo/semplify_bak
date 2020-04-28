@@ -4,6 +4,8 @@ export const cyThemeDark = [
     style: {
       height: 28,
       width: 28,
+      'background-fit': 'cover',
+      'background-image': "data(depiction)",
       "background-color": '#619ed2'
     },
   },

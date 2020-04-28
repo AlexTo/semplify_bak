@@ -36,9 +36,7 @@ function Graph() {
           });
           return;
         }
-
         dispatch(visualGraphActions.addEdges(edgesToAdd));
-
       },
       fetchPolicy: 'no-cache'
     });
