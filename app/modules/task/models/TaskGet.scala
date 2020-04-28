@@ -16,7 +16,7 @@ object TaskGet {
   implicit val reads: Reads[TaskGet] = (
     (__ \ "_id" \ "$oid").read[String] and
       (__ \ "type").read[String] and
-      (__ \ "projectId").read[String] and
+      (__ \ "projectId" \ "$oid").read[String] and
       (__ \ "params").read[JsObject] and
       (__ \ "status").read[String] and
       (__ \ "created" \ "$date").read[Long] and

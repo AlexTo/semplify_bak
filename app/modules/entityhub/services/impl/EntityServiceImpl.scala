@@ -1,7 +1,7 @@
 package modules.entityhub.services.impl
 
 import javax.inject.Inject
-import modules.entityhub.models.{IRI, Literal, Predicate, SearchHit}
+import modules.entityhub.models.{GraphGet, IRI, Literal, Predicate, SearchHit}
 import modules.entityhub.services.EntityService
 import modules.entityhub.utils.ValueUtils
 import modules.project.services.ProjectService
@@ -52,7 +52,7 @@ class EntityServiceImpl @Inject()(repositoryService: RepositoryService,
 
   }
 
-  override def findPredicatesFromNode(projectId: String, graph: Option[String], from: String): Future[Seq[Predicate]] = {
+  override def findPredicatesFromNode(projectId: String, graph: Option[String], from: String): Future[Seq[Predicate]] =
     projectService.findById(projectId).map {
       case Some(_) =>
         val repo = repositoryService.getRepository(projectId)
@@ -87,7 +87,6 @@ class EntityServiceImpl @Inject()(repositoryService: RepositoryService,
           case Success(value) => value
         }
     }
-  }
 
   override def findPredicatesToNode(projectId: String, graph: Option[String], to: String): Future[Seq[Predicate]] = {
     projectService.findById(projectId).map {
@@ -125,45 +124,47 @@ class EntityServiceImpl @Inject()(repositoryService: RepositoryService,
     }
   }
 
-  override def searchNodes(projectId: String, graph: Option[String], term: String): Future[Seq[SearchHit]] = Future {
-    val q = "PREFIX search: <http://www.openrdf.org/contrib/lucenesail#> " +
-      "SELECT ?s ?score ?snippet " + (if (graph.isEmpty) "?g" else "") +
-      " WHERE { " +
-      "  GRAPH ?g { " +
-      "   ?s ?p ?o . " +
-      "   ?s search:matches [" +
-      "   search:query ?term ; " +
-      "   search:score ?score; " +
-      "   search:snippet ?snippet ] }} " +
-      "LIMIT 20 "
+  override def searchNodes(projectId: String, graph: Option[String], term: String): Future[Seq[SearchHit]] =
+    projectService.findById(projectId).map {
+      case Some(_) =>
+        val q = "PREFIX search: <http://www.openrdf.org/contrib/lucenesail#> " +
+          "SELECT ?s ?score ?snippet " + (if (graph.isEmpty) "?g" else "") +
+          " WHERE { " +
+          "  GRAPH ?g { " +
+          "   ?s ?p ?o . " +
+          "   ?s search:matches [" +
+          "   search:query ?term ; " +
+          "   search:score ?score; " +
+          "   search:snippet ?snippet ] }} " +
+          "LIMIT 20 "
 
-    val repo = repositoryService.getRepository(projectId)
-    val f = repo.getValueFactory
+        val repo = repositoryService.getRepository(projectId)
+        val f = repo.getValueFactory
 
-    Using(repo.getConnection) { conn =>
-      val searchHits = new ListBuffer[SearchHit]
-      val tq = conn.prepareTupleQuery(QueryLanguage.SPARQL, q)
-      tq.setBinding("term", f.createLiteral(term.trim + "*"))
-      val results = tq.evaluate
-      while (results.hasNext) {
-        val bindings = results.next()
-        val g = if (graph.isEmpty) bindings.getBinding("g").getValue.stringValue() else graph.get
-        val s = bindings.getValue("s")
-        if (!searchHits.map(s => s.node.value).contains(s.stringValue())) {
-          val snippet = bindings.getValue("snippet").stringValue()
-          val score = bindings.getValue("score").stringValue()
-          val node = ValueUtils.createValue(projectId, Some(g), s)
-          val searchHit = SearchHit(node.asInstanceOf[IRI], score.toDouble, snippet)
-          searchHits.addOne(searchHit)
+        Using(repo.getConnection) { conn =>
+          val searchHits = new ListBuffer[SearchHit]
+          val tq = conn.prepareTupleQuery(QueryLanguage.SPARQL, q)
+          tq.setBinding("term", f.createLiteral(term.trim + "*"))
+          val results = tq.evaluate
+          while (results.hasNext) {
+            val bindings = results.next()
+            val g = if (graph.isEmpty) bindings.getBinding("g").getValue.stringValue() else graph.get
+            val s = bindings.getValue("s")
+            if (!searchHits.map(s => s.node.value).contains(s.stringValue())) {
+              val snippet = bindings.getValue("snippet").stringValue()
+              val score = bindings.getValue("score").stringValue()
+              val node = ValueUtils.createValue(projectId, Some(g), s)
+              val searchHit = SearchHit(node.asInstanceOf[IRI], score.toDouble, snippet)
+              searchHits.addOne(searchHit)
+            }
+          }
+          searchHits.toSeq
+        } match {
+          case Success(value) => value
         }
-      }
-      searchHits.toSeq
-    } match {
-      case Success(value) => value
     }
-  }
 
-  override def getPrefLabel(projectId: String, nodeUri: String): Future[Option[Literal]] = {
+  override def findPrefLabel(projectId: String, nodeUri: String): Future[Option[Literal]] =
     projectService.findById(projectId).map {
       case Some(_) =>
         val repo = repositoryService.getRepository(projectId)
@@ -229,5 +230,35 @@ class EntityServiceImpl @Inject()(repositoryService: RepositoryService,
         }
       case None => Option.empty[Literal]
     }
+
+  override def findGraphs(projectId: String): Future[Seq[GraphGet]] = projectService.findById(projectId) map {
+    case Some(_) =>
+      val q = "SELECT DISTINCT ?g WHERE { " +
+        "GRAPH ?g { " +
+        " ?s ?p ?o " +
+        "}}"
+
+      val repo = repositoryService.getRepository(projectId)
+      val graphs = new ListBuffer[GraphGet]
+      Using(repo.getConnection) { conn =>
+        val tq = conn.prepareTupleQuery(QueryLanguage.SPARQL, q)
+        val results = tq.evaluate()
+        while (results.hasNext) {
+          val bindings = results.next()
+          val graph = GraphGet(projectId, bindings.getBinding("g").getValue.stringValue())
+          graphs.addOne(graph)
+        }
+      }
+      graphs.toSeq
+  }
+
+  override def deleteGraphs(projectId: String, graphs: Seq[String]): Future[Seq[GraphGet]] = projectService.findById(projectId) map {
+    case Some(_) =>
+      val repo = repositoryService.getRepository(projectId)
+      val f = repo.getValueFactory
+      Using(repo.getConnection) { conn =>
+        graphs.foreach(g => conn.clear(f.createIRI(g)))
+      }
+      graphs.map(g => GraphGet(projectId, g))
   }
 }

@@ -92,7 +92,8 @@ function YasqeEditor({id, query}) {
             <TableBody>
               {queryResults[id].results.bindings.slice(page * limit, page * limit + limit).map((binding, idx) =>
                 <TableRow key={idx}>
-                  {queryResults[id].head.vars.map((v, idx) => <TableCell key={idx}>{binding[v]["value"]}</TableCell>)}
+                  {queryResults[id].head.vars.map((v, idx) => <TableCell
+                    key={idx}>{binding[v] && binding[v]["value"]}</TableCell>)}
                 </TableRow>)}
             </TableBody>
           </Table>

@@ -1,7 +1,7 @@
 package modules.entityhub.services
 
 import com.google.inject.ImplementedBy
-import modules.entityhub.models.{IRI, Literal, Predicate, SearchHit}
+import modules.entityhub.models.{GraphGet, IRI, Literal, Predicate, SearchHit}
 import modules.entityhub.services.impl.EntityServiceImpl
 
 import scala.concurrent.Future
@@ -17,5 +17,9 @@ trait EntityService {
 
   def searchNodes(projectId: String, graph: Option[String], term: String): Future[Seq[SearchHit]]
 
-  def getPrefLabel(projectId: String, nodeUri: String): Future[Option[Literal]]
+  def findPrefLabel(projectId: String, nodeUri: String): Future[Option[Literal]]
+
+  def findGraphs(projectId: String): Future[Seq[GraphGet]]
+
+  def deleteGraphs(projectId: String, graphs: Seq[String]): Future[Seq[GraphGet]]
 }

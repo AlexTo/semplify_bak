@@ -21,15 +21,13 @@ import {
   makeStyles
 } from '@material-ui/core';
 import {
-  Search as SearchIcon,
-  Upload as UploadIcon
+  Edit as EditIcon,
+  ArrowRight as ArrowRightIcon,
+  Search as SearchIcon
 } from 'react-feather';
 import {useQuery} from "@apollo/react-hooks";
 import {useSelector} from "react-redux";
-import {fileQueries} from "../../../graphql";
-import RDFImportDialog from "./RDFImportDialog";
-import {taskService} from "../../../services";
-import {useSnackbar} from "notistack";
+import {entityHubQueries} from "../../../graphql";
 
 const sortOptions = [
   {
@@ -50,14 +48,14 @@ const sortOptions = [
   }
 ];
 
-function applyFilters(webPages, query, filters) {
-  return webPages.filter((p) => {
+function applyFilters(graphs, query, filters) {
+  return graphs.filter((p) => {
     return true;
   });
 }
 
-function applyPagination(webPages, page, limit) {
-  return webPages.slice(page * limit, page * limit + limit);
+function applyPagination(graphs, page, limit) {
+  return graphs.slice(page * limit, page * limit + limit);
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -108,44 +106,28 @@ const useStyles = makeStyles((theme) => ({
 
 function Results({className, ...rest}) {
   const classes = useStyles();
-
-  const [importFile, setImportFile] = useState(null);
-
-  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [selectedGraphs, setSelectedGraphs] = useState([]);
   const [page, setPage] = useState(0);
-  const [files, setFiles] = useState([]);
+  const [graphs, setGraphs] = useState([]);
   const {projectId} = useSelector(state => state.projectReducer);
-  const {enqueueSnackbar} = useSnackbar();
-  const {data} = useQuery(fileQueries.files, {
+  const {data} = useQuery(entityHubQueries.graphs, {
     variables: {
       projectId
     }
   })
-  const [rdfImportDialogOpen, setRDFImportDialogOpen] = useState(false);
   const [limit, setLimit] = useState(5);
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState(sortOptions[0].value);
   const [filters, setFilters] = useState({
-    category: null,
-    availability: null,
-    inStock: null,
-    isShippable: null
+    domain: null,
   });
 
   useEffect(() => {
-    if (importFile) {
-      setRDFImportDialogOpen(true)
-    } else {
-      setRDFImportDialogOpen(false);
-    }
-  }, [importFile])
-
-  useEffect(() => {
     if (!data) {
-      setFiles([])
+      setGraphs([])
       return;
     }
-    setFiles(data.files);
+    setGraphs(data.graphs);
   }, [data])
 
   const handleQueryChange = (event) => {
@@ -153,17 +135,22 @@ function Results({className, ...rest}) {
     setQuery(event.target.value);
   };
 
+  const handleSortChange = (event) => {
+    event.persist();
+    setSort(event.target.value);
+  };
+
   const handleSelectAll = (event) => {
-    setSelectedFiles(event.target.checked
-      ? files.map((p) => p.id)
+    setSelectedGraphs(event.target.checked
+      ? graphs.map((g) => g.value)
       : []);
   };
 
-  const handleSelectOne = (event, pageId) => {
-    if (!selectedFiles.includes(pageId)) {
-      setSelectedFiles((prevSelected) => [...prevSelected, pageId]);
+  const handleSelectOne = (event, uri) => {
+    if (!selectedGraphs.includes(uri)) {
+      setSelectedGraphs((prevSelected) => [...prevSelected, uri]);
     } else {
-      setSelectedFiles((prevSelected) => prevSelected.filter((id) => id !== pageId));
+      setSelectedGraphs((prevSelected) => prevSelected.filter((id) => id !== uri));
     }
   };
 
@@ -175,22 +162,11 @@ function Results({className, ...rest}) {
     setLimit(event.target.value);
   };
 
-  const handleImportFile = (file) => {
-    setImportFile(file);
-  }
-
-  const handleImportConfirm = (file, baseURI, graph) => {
-    taskService.importRDF(projectId, file.id, graph, baseURI, false)
-      .then(_ => enqueueSnackbar("RDF import  task has been queued.", {
-        variant: "success"
-      }));
-  }
-
-  const filteredList = applyFilters(files, query, filters);
+  const filteredList = applyFilters(graphs, query, filters);
   const paginatedList = applyPagination(filteredList, page, limit);
-  const enableBulkOperations = selectedFiles.length > 0;
-  const selectedSome = selectedFiles.length > 0 && selectedFiles.length < files.length;
-  const selectedAll = selectedFiles.length === files.length;
+  const enableBulkOperations = selectedGraphs.length > 0;
+  const selectedSome = selectedGraphs.length > 0 && selectedGraphs.length < graphs.length;
+  const selectedAll = selectedGraphs.length === graphs.length;
 
   return (
     <Card
@@ -222,6 +198,24 @@ function Results({className, ...rest}) {
             variant="outlined"
           />
           <Box flexGrow={1}/>
+          <TextField
+            label="Sort By"
+            name="sort"
+            onChange={handleSortChange}
+            select
+            SelectProps={{native: true}}
+            value={sort}
+            variant="outlined"
+          >
+            {sortOptions.map((option) => (
+              <option
+                key={option.value}
+                value={option.value}
+              >
+                {option.label}
+              </option>
+            ))}
+          </TextField>
         </Box>
       </Box>
       {enableBulkOperations && (
@@ -234,8 +228,7 @@ function Results({className, ...rest}) {
             />
             <Button
               variant="outlined"
-              className={classes.bulkAction}
-            >
+              className={classes.bulkAction}>
               Delete
             </Button>
           </div>
@@ -254,7 +247,7 @@ function Results({className, ...rest}) {
                   />
                 </TableCell>
                 <TableCell>
-                  File Name
+                  URI
                 </TableCell>
                 <TableCell align="right">
                   Actions
@@ -262,26 +255,28 @@ function Results({className, ...rest}) {
               </TableRow>
             </TableHead>
             <TableBody>
-              {paginatedList.map(f => {
-                const isSelected = selectedFiles.includes(f.id);
+              {paginatedList.map((g) => {
+                const isSelected = selectedGraphs.includes(g.value);
                 return (
                   <TableRow
                     hover
-                    key={f.id}
-                    selected={isSelected}>
+                    key={g.value}
+                    selected={isSelected}
+                  >
                     <TableCell padding="checkbox">
                       <Checkbox
                         checked={isSelected}
-                        onChange={(event) => handleSelectOne(event, f.id)}
-                        value={isSelected}/>
+                        onChange={(event) => handleSelectOne(event, g.value)}
+                        value={isSelected}
+                      />
                     </TableCell>
                     <TableCell>
-                      {f.filename}
+                      {g.value}
                     </TableCell>
                     <TableCell align="right">
-                      <IconButton onClick={() => handleImportFile(f)}>
+                      <IconButton>
                         <SvgIcon fontSize="small">
-                          <UploadIcon/>
+                          <ArrowRightIcon/>
                         </SvgIcon>
                       </IconButton>
                     </TableCell>
@@ -301,11 +296,6 @@ function Results({className, ...rest}) {
           />
         </Box>
       </PerfectScrollbar>
-      <RDFImportDialog open={rdfImportDialogOpen}
-                       file={importFile}
-                       onClose={() => setImportFile(null)}
-                       onSave={handleImportConfirm}
-      />
     </Card>
   );
 }

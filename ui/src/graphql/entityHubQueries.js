@@ -15,6 +15,13 @@ export const entityHubQueries = {
         snippet
       }
     }`,
+  graphs: gql`
+    query graphs($projectId: String!) {
+      graphs(projectId: $projectId) {
+        value
+      }
+    }
+  `,
   node: gql`
     query node($projectId: String!, $graph: String, $uri: String!) {
       node(projectId: $projectId, graph: $graph, uri: $uri) {

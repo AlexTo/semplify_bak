@@ -12,9 +12,9 @@ import scala.concurrent.Future
 trait FileService {
   def save(file: MultipartFormData.FilePart[Files.TemporaryFile], dataParts: Map[String, Seq[String]]): Future[FileInfo]
 
-  def find(id: String): Future[File]
+  def findById(id: String): Future[File]
 
-  def findInfo(id: String): Future[FileInfo]
+  def findInfoById(id: String): Future[FileInfo]
 
   def findAll(projectId: String): Future[Seq[FileInfo]]
 }

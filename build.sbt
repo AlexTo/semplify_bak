@@ -20,7 +20,6 @@ libraryDependencies ++= Seq(
   "org.reactivemongo" % "play2-reactivemongo_2.13" % "0.20.8-play28",
   "org.reactivemongo" %% "reactivemongo-play-json-compat" % "0.20.8-play28",
   "com.jayway.jsonpath" % "json-path" % "2.4.0",
-//"org.rdfhdt" % "hdt-java-core" % "1.1",
   "org.eclipse.rdf4j" % "rdf4j-storage" % "3.2.0-M2",
   "org.eclipse.rdf4j" % "rdf4j-sail-lucene" % "3.2.0-M2",
   "edu.uci.ics" % "crawler4j" % "4.4.0",

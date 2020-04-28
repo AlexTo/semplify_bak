@@ -19,7 +19,7 @@ import {
 } from 'react-feather';
 import {webCrawlerActions} from "../../../actions";
 import {useForm} from "react-hook-form";
-import {webCrawlerService} from "../../../services/webCrawlerService";
+import {taskService} from "../../../services";
 import {useSnackbar} from "notistack";
 
 const useStyles = makeStyles((theme) => ({
@@ -61,7 +61,7 @@ function CrawlNew() {
   const handleStart = (data) => {
     const {seedUrl, depth} = data;
 
-    webCrawlerService
+    taskService
       .crawl(projectId, seedUrl, depth)
       .then(_ => {
           enqueueSnackbar("Web crawl task has been queued.", {

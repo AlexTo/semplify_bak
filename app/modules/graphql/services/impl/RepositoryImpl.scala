@@ -1,7 +1,7 @@
 package modules.graphql.services.impl
 
 import javax.inject.Inject
-import modules.entityhub.models.{IRI, Literal, Predicate, SearchHit}
+import modules.entityhub.models.{GraphGet, IRI, Literal, Predicate, SearchHit}
 import modules.entityhub.services.EntityService
 import modules.fileserver.models.FileInfo
 import modules.fileserver.services.FileService
@@ -39,7 +39,7 @@ class RepositoryImpl @Inject()(entityService: EntityService,
   = entityService.searchNodes(projectId, graph, term)
 
   override def prefLabel(projectId: String, uri: String): Future[Option[Literal]]
-  = entityService.getPrefLabel(projectId, uri)
+  = entityService.findPrefLabel(projectId, uri)
 
   override def tasks(): Future[Seq[TaskGet]] = taskService.findAll
 
@@ -48,4 +48,9 @@ class RepositoryImpl @Inject()(entityService: EntityService,
   override def files(projectId: String): Future[Seq[FileInfo]] = fileService.findAll(projectId)
 
   override def sparqlQueries(projectId: String): Future[Seq[QueryGet]] = queryService.findAll(projectId)
+
+  override def graphs(projectId: String): Future[Seq[GraphGet]] = entityService.findGraphs(projectId)
+
+  override def deleteGraphs(projectId: String, graphs: Seq[String]): Future[Seq[GraphGet]]
+  = entityService.deleteGraphs(projectId, graphs)
 }

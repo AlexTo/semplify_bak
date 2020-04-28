@@ -16,16 +16,16 @@ import play.api.Configuration
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class RMLServiceImpl @Inject()(fileService: FileService, conf: Configuration)(implicit ec: ExecutionContext, m: Materializer)
-  extends RMLService {
+class RMLServiceImpl @Inject()(fileService: FileService, conf: Configuration)
+                              (implicit ec: ExecutionContext, m: Materializer) extends RMLService {
 
   override def execute(dataFileId: String, mappingFileId: String): Future[QuadStore] = {
     val tmpDir = Files.createTempDir()
     for {
-      dataFile <- fileService.find(dataFileId)
+      dataFile <- fileService.findById(dataFileId)
       dataTempFile = new File(tmpDir, dataFile.filename)
 
-      mappingFile <- fileService.find(mappingFileId)
+      mappingFile <- fileService.findById(mappingFileId)
       mappingTempFile = new File(tmpDir, mappingFile.filename)
       _ <- dataFile.content.runWith(FileIO.toPath(dataTempFile.toPath))
       _ <- mappingFile.content.runWith(FileIO.toPath(mappingTempFile.toPath))

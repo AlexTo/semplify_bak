@@ -7,7 +7,9 @@ import modules.project.models.ProjectGet
 import modules.sparql.models.QueryGet
 import modules.task.models.TaskGet
 import modules.webcrawler.models.PageGet
+import sangria.marshalling.FromInput
 import sangria.schema._
+import sangria.util.tag.@@
 
 object SchemaDefinition {
 
@@ -95,6 +97,12 @@ object SchemaDefinition {
       Field("score", FloatType, resolve = _.value.score)
     )
   )
+  val Graph: ObjectType[Repository, GraphGet] = ObjectType("Graph",
+    () => fields[Repository, GraphGet](
+      Field("projectId", StringType, resolve = _.value.projectId),
+      Field("value", StringType, resolve = _.value.value)
+    )
+  )
 
   val SparqlQuery: ObjectType[Repository, QueryGet] = ObjectType("SparqlQuery",
     () => fields[Repository, QueryGet](
@@ -117,42 +125,58 @@ object SchemaDefinition {
       Field("uploadDate", OptionType(LongType), resolve = _.value.uploadDate),
     ))
 
-  val ProjectId: Argument[String] = Argument("projectId", StringType)
-  val Graph: Argument[Option[String]] = Argument("graph", OptionInputType(StringType))
+  val ProjectIdArg: Argument[String] = Argument("projectId", StringType)
+  val GraphArg: Argument[Option[String]] = Argument("graph", OptionInputType(StringType))
+  val GraphsArg = Argument("graphs", ListInputType(StringType))
 
-  val Uri: Argument[String] = Argument("uri", StringType)
-  val Term: Argument[String] = Argument("term", StringType)
+  val UriArg: Argument[String] = Argument("uri", StringType)
+  val TermArg: Argument[String] = Argument("term", StringType)
+
 
   val Query: ObjectType[Repository, Unit] = ObjectType(
     "Query", fields[Repository, Unit](
       Field("node", OptionType(IRI),
-        arguments = ProjectId :: Graph :: Uri :: Nil,
-        resolve = ctx => ctx.ctx.node(ctx arg ProjectId, ctx arg Graph, ctx arg Uri)
+        arguments = ProjectIdArg :: GraphArg :: UriArg :: Nil,
+        resolve = ctx => ctx.ctx.node(ctx arg ProjectIdArg, ctx arg GraphArg, ctx arg UriArg)
       ),
       Field("predicatesFromNode", ListType(Predicate),
-        arguments = ProjectId :: Graph :: Uri :: Nil,
-        resolve = ctx => ctx.ctx.predicatesFromNode(ctx arg ProjectId, ctx arg Graph, ctx arg Uri)
+        arguments = ProjectIdArg :: GraphArg :: UriArg :: Nil,
+        resolve = ctx => ctx.ctx.predicatesFromNode(ctx arg ProjectIdArg, ctx arg GraphArg, ctx arg UriArg)
       ),
       Field("files", ListType(FileInfo),
-        arguments = ProjectId :: Nil,
-        resolve = ctx => ctx.ctx.files(ctx arg ProjectId)
+        arguments = ProjectIdArg :: Nil,
+        resolve = ctx => ctx.ctx.files(ctx arg ProjectIdArg)
       ),
       Field("projects", ListType(Project),
         resolve = ctx => ctx.ctx.projects()
       ),
+
+      Field("graphs", ListType(Graph),
+        arguments = ProjectIdArg :: Nil,
+        resolve = ctx => ctx.ctx.graphs(ctx arg ProjectIdArg)
+      ),
+
       Field("crawledPages", ListType(WebPage),
-        arguments = ProjectId :: Nil,
-        resolve = ctx => ctx.ctx.crawledPages(ctx arg ProjectId)
+        arguments = ProjectIdArg :: Nil,
+        resolve = ctx => ctx.ctx.crawledPages(ctx arg ProjectIdArg)
       ),
       Field("searchNodes", ListType(SearchHit),
-        arguments = ProjectId :: Graph :: Term :: Nil,
-        resolve = ctx => ctx.ctx.searchNodes(ctx arg ProjectId, ctx arg Graph, ctx arg Term)
+        arguments = ProjectIdArg :: GraphArg :: TermArg :: Nil,
+        resolve = ctx => ctx.ctx.searchNodes(ctx arg ProjectIdArg, ctx arg GraphArg, ctx arg TermArg)
       ),
       Field("sparqlQueries", ListType(SparqlQuery),
-        arguments = ProjectId :: Nil,
-        resolve = ctx => ctx.ctx.sparqlQueries(ctx arg ProjectId)
+        arguments = ProjectIdArg :: Nil,
+        resolve = ctx => ctx.ctx.sparqlQueries(ctx arg ProjectIdArg)
       )
     ))
 
-  val schema: Schema[Repository, Unit] = Schema(Query, additionalTypes = Literal :: BNode :: Nil)
+  val Mutation = ObjectType(
+    "Mutation", fields[Repository, Unit](
+      Field("deleteGraphs", ListType(Graph),
+        arguments = ProjectIdArg :: GraphsArg :: Nil,
+        resolve = ctx => ctx.ctx.deleteGraphs(ctx arg ProjectIdArg, ctx arg GraphsArg)
+      )
+    ))
+
+  val schema: Schema[Repository, Unit] = Schema(Query, Some(Mutation), additionalTypes = Literal :: BNode :: Nil)
 }

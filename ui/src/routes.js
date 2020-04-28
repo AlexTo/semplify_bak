@@ -31,13 +31,18 @@ const routesConfig = [
       },
       {
         exact: true,
-        path: '/visual-graph',
-        component: lazy(() => import('src/views/explore/GraphView'))
+        path: '/graphs',
+        component: lazy(() => import('src/views/explore/GraphListView'))
       },
       {
         exact: true,
         path: '/sparql',
         component: lazy(() => import('src/views/explore/SparqlView'))
+      },
+      {
+        exact: true,
+        path: '/visual-graph',
+        component: lazy(() => import('src/views/explore/GraphView'))
       },
       {
         exact: true,

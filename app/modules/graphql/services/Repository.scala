@@ -1,7 +1,7 @@
 package modules.graphql.services
 
 import com.google.inject.ImplementedBy
-import modules.entityhub.models.{IRI, Literal, Predicate, SearchHit}
+import modules.entityhub.models.{GraphGet, IRI, Literal, Predicate, SearchHit}
 import modules.fileserver.models.FileInfo
 import modules.graphql.services.impl.RepositoryImpl
 import modules.project.models.ProjectGet
@@ -32,5 +32,9 @@ trait Repository {
   def files(projectId: String): Future[Seq[FileInfo]]
 
   def sparqlQueries(projectId: String): Future[Seq[QueryGet]]
+
+  def graphs(projectId: String): Future[Seq[GraphGet]]
+
+  def deleteGraphs(projectId: String, graphs: Seq[String]): Future[Seq[GraphGet]]
 
 }

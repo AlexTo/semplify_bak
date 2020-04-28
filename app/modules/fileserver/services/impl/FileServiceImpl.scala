@@ -31,8 +31,8 @@ class FileServiceImpl @Inject()(projectService: ProjectService,
 
   def collection: Future[JSONCollection] = reactiveMongoApi.database.map(_.collection[JSONCollection]("fs.files"))
 
-  override def save(file: MultipartFormData.FilePart[Files.TemporaryFile], dataParts: Map[String, Seq[String]])
-  : Future[FileInfo] = database flatMap {
+  override def save(file: MultipartFormData.FilePart[Files.TemporaryFile],
+                    dataParts: Map[String, Seq[String]]): Future[FileInfo] = database flatMap {
     db => {
       val gridFS = GridFS(db)
       val filename = Paths.get(file.filename).getFileName.toString
@@ -55,22 +55,27 @@ class FileServiceImpl @Inject()(projectService: ProjectService,
     }
   }
 
-  override def find(id: String): Future[File] = database.flatMap(db => {
-    val gridFS = GridFS(db)
-    gridFS.find(BSONDocument("_id" -> BSONObjectID.parse(id).get)).head.map { f =>
-      val streams = GridFSStreams(gridFS)
-      File(f.id.asInstanceOf[BSONObjectID].stringify,
-        f.filename.get, f.contentType, f.length, f.uploadDate, streams.source(f))
-    }
-  })
+  override def findById(id: String): Future[File] = BSONObjectID.parse(id) match {
+    case Success(fileId) => database.flatMap(db => {
+      val gridFS = GridFS(db)
+      gridFS.find(BSONDocument("_id" -> fileId)).head.map { f =>
+        val streams = GridFSStreams(gridFS)
+        File(f.id.asInstanceOf[BSONObjectID].stringify,
+          f.filename.get, f.contentType, f.length, f.uploadDate, streams.source(f))
+      }
+    })
+  }
 
-  override def findInfo(id: String): Future[FileInfo] = database.flatMap(db => {
-    val gridFS = GridFS(db)
-    gridFS.find(BSONDocument("_id" -> BSONObjectID.parse(id).get)).head.map { f =>
-      FileInfo(f.id.asInstanceOf[BSONObjectID].stringify, f.filename.get, f.contentType, f.uploadDate,
-        Json.toJson(f.metadata).as[JsObject])
-    }
-  })
+  override def findInfoById(id: String): Future[FileInfo] = BSONObjectID.parse(id) match {
+    case Success(fileId) => database.flatMap(db => {
+      val gridFS = GridFS(db)
+      gridFS.find(BSONDocument("_id" -> fileId)).head.map { f =>
+        FileInfo(f.id.asInstanceOf[BSONObjectID].stringify, f.filename.get, f.contentType, f.uploadDate,
+          Json.toJson(f.metadata).as[JsObject])
+      }
+    })
+  }
+
 
   override def findAll(projectId: String): Future[Seq[FileInfo]] = collection map {
     _.find(Json.obj("metadata.projectId" -> projectId), Option.empty[JsObject]).cursor[FileInfo]()

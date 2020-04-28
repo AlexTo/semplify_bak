@@ -291,15 +291,8 @@ function Results({className, ...rest}) {
             />
             <Button
               variant="outlined"
-              className={classes.bulkAction}
-            >
+              className={classes.bulkAction}>
               Delete
-            </Button>
-            <Button
-              variant="outlined"
-              className={classes.bulkAction}
-            >
-              Edit
             </Button>
           </div>
         </div>
@@ -351,11 +344,6 @@ function Results({className, ...rest}) {
                       {p.url}
                     </TableCell>
                     <TableCell align="right">
-                      <IconButton>
-                        <SvgIcon fontSize="small">
-                          <EditIcon/>
-                        </SvgIcon>
-                      </IconButton>
                       <IconButton>
                         <SvgIcon fontSize="small">
                           <ArrowRightIcon/>

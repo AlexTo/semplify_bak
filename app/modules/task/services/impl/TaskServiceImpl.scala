@@ -28,7 +28,6 @@ class TaskServiceImpl @Inject()(projectService: ProjectService,
       val entity = Task(taskId, task.`type`, BSONObjectID.parse(task.projectId).get,
         TaskStatus.Queued, task.params,
         created, created)
-
       collection
         .flatMap(_.insert.one(entity))
         .map(_ => TaskGet(entity._id.stringify, entity.`type`, entity.projectId.stringify, entity.params,
