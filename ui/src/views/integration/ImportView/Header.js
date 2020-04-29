@@ -14,6 +14,8 @@ import {
   Upload as UploadIcon,
 } from 'react-feather';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
+import {useDispatch} from "react-redux";
+import {importActions} from "../../../actions";
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -30,6 +32,8 @@ const useStyles = makeStyles((theme) => ({
 
 function Header({className, ...rest}) {
   const classes = useStyles();
+
+  const dispatch = useDispatch();
 
   return (
     <Grid
@@ -58,11 +62,12 @@ function Header({className, ...rest}) {
           </Typography>
         </Breadcrumbs>
         <Box mt={2}>
-          <Button className={classes.action} onClick={() => {}}>
+          <Button className={classes.action} onClick={() => {
+            dispatch(importActions.openUploadForm())
+          }}>
             <SvgIcon
               fontSize="small"
-              className={classes.actionIcon}
-            >
+              className={classes.actionIcon}>
               <UploadIcon/>
             </SvgIcon>
             Upload

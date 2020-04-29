@@ -27,7 +27,7 @@ class WebCrawler @Inject()(@Named("taskManager") taskManagerActor: ActorRef,
     val params = task.params.as[WebCrawlParams]
     taskManagerActor ! TaskStarted(task.id)
     webCrawlerService.crawl(task.id, task.projectId, params) map { _ =>
-      taskManagerActor ! TaskFinished(task.id)
+      taskManagerActor ! TaskFinished(task.id, None)
     }
   }
 

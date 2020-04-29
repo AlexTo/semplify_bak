@@ -20,8 +20,8 @@ class TaskManager @Inject()(system: ActorSystem, taskService: TaskService)
     case TaskStarted(id) =>
       taskService.setTaskStarted(id)
 
-    case TaskFinished(id) =>
-      taskService.setTaskFinished(id)
+    case TaskFinished(id, error) =>
+      taskService.setTaskFinished(id, error)
 
     case task: StopTask => stop(task) pipeTo sender()
   }

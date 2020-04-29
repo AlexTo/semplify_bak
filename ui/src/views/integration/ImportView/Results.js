@@ -22,14 +22,15 @@ import {
 } from '@material-ui/core';
 import {
   Search as SearchIcon,
-  Upload as UploadIcon
+  Upload as UploadIcon,
+  Trash as TrashIcon,
 } from 'react-feather';
-import {useQuery} from "@apollo/react-hooks";
-import {useSelector} from "react-redux";
+import {useMutation, useQuery} from "@apollo/react-hooks";
+import {useDispatch, useSelector} from "react-redux";
 import {fileQueries} from "../../../graphql";
-import RDFImportDialog from "./RDFImportDialog";
-import {taskService} from "../../../services";
 import {useSnackbar} from "notistack";
+import {importActions} from "../../../actions";
+import OkCancelDialog from "../../../components/ConfirmationDialog";
 
 const sortOptions = [
   {
@@ -109,19 +110,19 @@ const useStyles = makeStyles((theme) => ({
 function Results({className, ...rest}) {
   const classes = useStyles();
 
-  const [importFile, setImportFile] = useState(null);
-
+  const dispatch = useDispatch();
   const [selectedFiles, setSelectedFiles] = useState([]);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [page, setPage] = useState(0);
   const [files, setFiles] = useState([]);
   const {projectId} = useSelector(state => state.projectReducer);
-  const {enqueueSnackbar} = useSnackbar();
-  const {data} = useQuery(fileQueries.files, {
+  const {data, refetch} = useQuery(fileQueries.files, {
     variables: {
       projectId
     }
-  })
-  const [rdfImportDialogOpen, setRDFImportDialogOpen] = useState(false);
+  });
+
+  const [deleteFiles] = useMutation(fileQueries.deleteFiles);
   const [limit, setLimit] = useState(5);
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState(sortOptions[0].value);
@@ -131,14 +132,6 @@ function Results({className, ...rest}) {
     inStock: null,
     isShippable: null
   });
-
-  useEffect(() => {
-    if (importFile) {
-      setRDFImportDialogOpen(true)
-    } else {
-      setRDFImportDialogOpen(false);
-    }
-  }, [importFile])
 
   useEffect(() => {
     if (!data) {
@@ -175,25 +168,31 @@ function Results({className, ...rest}) {
     setLimit(event.target.value);
   };
 
-  const handleImportFile = (file) => {
-    setImportFile(file);
+
+  const handleDelete = (files) => {
+    setSelectedFiles(files);
+    setDeleteDialogOpen(true);
   }
 
-  const handleImportConfirm = (file, baseURI, graph) => {
-    taskService.importRDF(projectId, file.id, graph, baseURI, false)
-      .then(_ => {
-        enqueueSnackbar("RDF import  task has been queued.", {
-          variant: "success"
-        });
-        setRDFImportDialogOpen(false);
+  const handleDeleteConfirm = () => {
+    deleteFiles({
+      variables: {
+        projectId,
+        fileIds: selectedFiles
+      }
+    }).then(() => {
+      refetch().then(() => {
+        setSelectedFiles([]);
+        setDeleteDialogOpen(false);
       });
+    })
   }
 
   const filteredList = applyFilters(files, query, filters);
   const paginatedList = applyPagination(filteredList, page, limit);
   const enableBulkOperations = selectedFiles.length > 0;
   const selectedSome = selectedFiles.length > 0 && selectedFiles.length < files.length;
-  const selectedAll = selectedFiles.length === files.length;
+  const selectedAll = selectedFiles.length > 0 && selectedFiles.length === files.length;
 
   return (
     <Card
@@ -237,7 +236,7 @@ function Results({className, ...rest}) {
             />
             <Button
               variant="outlined"
-              className={classes.bulkAction}>
+              className={classes.bulkAction} onClick={() => handleDelete(selectedFiles)}>
               Delete
             </Button>
           </div>
@@ -281,9 +280,14 @@ function Results({className, ...rest}) {
                       {f.filename}
                     </TableCell>
                     <TableCell align="right">
-                      <IconButton onClick={() => handleImportFile(f)}>
+                      <IconButton onClick={() => dispatch(importActions.openImportForm(f))}>
                         <SvgIcon fontSize="small">
                           <UploadIcon/>
+                        </SvgIcon>
+                      </IconButton>
+                      <IconButton onClick={() => handleDelete([f.id])}>
+                        <SvgIcon fontSize="small">
+                          <TrashIcon/>
                         </SvgIcon>
                       </IconButton>
                     </TableCell>
@@ -303,11 +307,10 @@ function Results({className, ...rest}) {
           />
         </Box>
       </PerfectScrollbar>
-      <RDFImportDialog open={rdfImportDialogOpen}
-                       file={importFile}
-                       onClose={() => setImportFile(null)}
-                       onSave={handleImportConfirm}
-      />
+      <OkCancelDialog open={deleteDialogOpen}
+                      onClose={() => setDeleteDialogOpen(false)}
+                      message="Are you sure you want to delete selected files?"
+                      onOk={handleDeleteConfirm}/>
     </Card>
   );
 }

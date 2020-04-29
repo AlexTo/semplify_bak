@@ -48,7 +48,7 @@ class TaskServiceImpl @Inject()(projectService: ProjectService,
       }
   }
 
-  override def setTaskFinished(taskId: String): Future[Int] = BSONObjectID.parse(taskId) match {
+  override def setTaskFinished(taskId: String, error: Option[String]): Future[Int] = BSONObjectID.parse(taskId) match {
     case Success(id) =>
       collection flatMap { coll =>
         val updateBuilder = coll.update(true)
@@ -57,6 +57,7 @@ class TaskServiceImpl @Inject()(projectService: ProjectService,
             q = BSONDocument("_id" -> id, "status" -> TaskStatus.Started.toString),
             u = BSONDocument("$set" -> BSONDocument(
               "status" -> TaskStatus.Finished.toString,
+              "error" -> error,
               "modified" -> BSONDateTime(System.currentTimeMillis()),
             )),
             upsert = false, multi = false

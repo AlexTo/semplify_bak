@@ -50,7 +50,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-function CrawlNew() {
+function CrawlDialog() {
   const classes = useStyles();
   const dispatch = useDispatch();
   const {register, handleSubmit, errors} = useForm();
@@ -140,4 +140,4 @@ function CrawlNew() {
   );
 }
 
-export default CrawlNew;
+export default CrawlDialog;

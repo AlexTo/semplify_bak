@@ -82,5 +82,20 @@ class FileServiceImpl @Inject()(projectService: ProjectService,
   } flatMap {
     _.collect[Seq](-1, Cursor.FailOnError[Seq[FileInfo]]())
   }
+
+  override def delete(projectId: String, files: Seq[String]): Future[Seq[FileInfo]] = BSONObjectID.parse(projectId) match {
+    case Success(pId) => database.flatMap { db =>
+      val gridFS = GridFS(db)
+      val ids: Seq[BSONObjectID] = files.flatMap(f => Option(BSONObjectID.parse(f).getOrElse(null)))
+      Future.sequence(ids map { id =>
+        gridFS.find(BSONDocument("_id" -> id)).head flatMap { f =>
+          gridFS.remove(f.id).map { _ =>
+            FileInfo(f.id.asInstanceOf[BSONObjectID].stringify, f.filename.get, f.contentType, f.uploadDate,
+              Json.toJson(f.metadata).as[JsObject])
+          }
+        }
+      })
+    }
+  }
 }
 

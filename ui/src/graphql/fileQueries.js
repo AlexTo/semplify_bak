@@ -8,5 +8,13 @@ export const fileQueries = {
         filename
       }
     }
+  `,
+  deleteFiles: gql`
+    mutation deleteFiles($projectId: String!, $fileIds: [String!]!) {
+      deleteFiles(projectId: $projectId, fileIds: $fileIds) {
+        id
+        filename
+      }
+    }
   `
 }

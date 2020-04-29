@@ -39,5 +39,5 @@ trait Repository {
 
   def deleteGraphs(projectId: String, graphs: Seq[String]): Future[Seq[GraphGet]]
 
-
+  def deleteFiles(projectId: String, fileIds: Seq[String]): Future[Seq[FileInfo]]
 }

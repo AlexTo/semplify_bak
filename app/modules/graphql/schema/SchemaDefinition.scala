@@ -129,6 +129,7 @@ object SchemaDefinition {
   val ProjectIdArg: Argument[String] = Argument("projectId", StringType)
   val GraphArg: Argument[Option[String]] = Argument("graph", OptionInputType(StringType))
   val GraphsArg = Argument("graphs", ListInputType(StringType))
+  val FileIdsArg = Argument("fileIds", ListInputType(StringType))
 
   val UriArg: Argument[String] = Argument("uri", StringType)
   val TermArg: Argument[String] = Argument("term", StringType)
@@ -176,6 +177,10 @@ object SchemaDefinition {
       Field("deleteGraphs", ListType(Graph),
         arguments = ProjectIdArg :: GraphsArg :: Nil,
         resolve = ctx => ctx.ctx.deleteGraphs(ctx arg ProjectIdArg, ctx arg GraphsArg)
+      ),
+      Field("deleteFiles", ListType(FileInfo),
+        arguments = ProjectIdArg :: FileIdsArg :: Nil,
+        resolve = ctx => ctx.ctx.deleteFiles(ctx arg ProjectIdArg, ctx arg FileIdsArg)
       )
     ))
 

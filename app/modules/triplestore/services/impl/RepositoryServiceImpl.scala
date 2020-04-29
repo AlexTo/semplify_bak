@@ -21,7 +21,8 @@ import play.api.inject.ApplicationLifecycle
 
 import scala.concurrent.{ExecutionContext, Future}
 import akka.stream.scaladsl.StreamConverters
-import scala.util.Using
+
+import scala.util.{Try, Using}
 
 @Singleton
 class RepositoryServiceImpl @Inject()(conf: Configuration,
@@ -55,7 +56,7 @@ class RepositoryServiceImpl @Inject()(conf: Configuration,
   override def removeRepository(repositoryId: String): Boolean = manager.removeRepository(repositoryId)
 
   override def importRDF(repositoryId: String, fileId: String, baseURI: String,
-                         graph: String, replaceGraph: Option[Boolean]): Future[Unit] =
+                         graph: String, replaceGraph: Option[Boolean]): Future[Try[Unit]] =
     fileService.findById(fileId) map { file =>
       val inputStream = new BufferedReader(new InputStreamReader(
         file.content.runWith(StreamConverters.asInputStream())))

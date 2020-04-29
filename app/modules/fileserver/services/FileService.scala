@@ -17,4 +17,6 @@ trait FileService {
   def findInfoById(id: String): Future[FileInfo]
 
   def findAll(projectId: String): Future[Seq[FileInfo]]
+
+  def delete(projectId: String, files: Seq[String]): Future[Seq[FileInfo]]
 }

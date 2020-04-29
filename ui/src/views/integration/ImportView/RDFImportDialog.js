@@ -1,26 +1,44 @@
 import React from "react";
 import {Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField} from "@material-ui/core";
 import {useForm} from "react-hook-form";
+import {useDispatch, useSelector} from "react-redux";
+import {importActions} from "../../../actions";
+import {taskService} from "../../../services";
+import {useSnackbar} from "notistack";
 
-function RDFImportDialog({file, open, onClose, onSave}) {
+function RDFImportDialog() {
   const {register, handleSubmit, errors} = useForm();
+  const dispatch = useDispatch();
+  const {enqueueSnackbar} = useSnackbar();
+  const {projectId} = useSelector(state => state.projectReducer);
+  const {importFormOpen, fileToImport} = useSelector(state => state.importReducer);
 
   const handleSave = (data) => {
     const {baseURI, graph} = data;
-    onSave(file, baseURI, graph)
+    taskService.importRDF(projectId, fileToImport.id, graph, baseURI, false)
+      .then(_ => {
+        enqueueSnackbar("RDF import  task has been queued.", {
+          variant: "success"
+        });
+        handleClose();
+      });
   }
 
-  if (!file) return null;
+  const handleClose = () => {
+    dispatch(importActions.closeImportForm());
+  }
+
+  if (!fileToImport) return null;
 
   return (
-    <Dialog open={open} onClose={onClose}
+    <Dialog open={importFormOpen} onClose={handleClose}
             aria-labelledby="form-dialog-title"
             maxWidth="md" fullWidth>
       <DialogTitle>Import file</DialogTitle>
       <DialogContent>
         <Box p={1}>
           <TextField autoFocus name="baseURI" label="Base URI" fullWidth
-                     defaultValue={`file:/uploaded/generated/${file.filename}`}
+                     defaultValue={`file:/uploaded/generated/${fileToImport.filename}`}
                      error={Boolean(errors.baseURI)}
                      helperText={errors.baseURI && errors.baseURI.message}
                      inputRef={register({required: "Base URI is required"})}/>
@@ -32,10 +50,15 @@ function RDFImportDialog({file, open, onClose, onSave}) {
 
       </DialogContent>
       <DialogActions>
-        <Button color="primary" onClick={onClose}>
+        <Button color="secondary"
+                size="small"
+                onClick={handleClose}>
           Cancel
         </Button>
-        <Button color="primary" onClick={handleSubmit(handleSave)}>
+        <Button color="primary"
+                variant="contained"
+                size="small"
+                onClick={handleSubmit(handleSave)}>
           Import
         </Button>
       </DialogActions>

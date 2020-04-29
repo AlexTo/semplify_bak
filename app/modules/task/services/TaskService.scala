@@ -15,7 +15,7 @@ trait TaskService {
 
   def setTaskStarted(taskId: String): Future[Int]
 
-  def setTaskFinished(taskId: String): Future[Int]
+  def setTaskFinished(taskId: String, error: Option[String]): Future[Int]
 
   def stop(taskId: String, `type`: String): Future[Int]
 

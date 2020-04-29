@@ -1,3 +1,4 @@
 package modules.task.models
 
-case class TaskFinished(id: String)
+case class TaskFinished(id: String,
+                        error: Option[String])

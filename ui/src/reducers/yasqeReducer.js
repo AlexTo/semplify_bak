@@ -7,7 +7,7 @@ const themeMap = {
   [THEMES.UNICORN]: "default"
 }
 const initialState = {
-  theme: themeMap[THEMES.DARK]
+  theme: themeMap[THEMES.DARK],
 }
 
 export const yasqeReducer = (state = initialState, action) => {

@@ -7,6 +7,7 @@ import modules.triplestore.models.RDFImportParams
 import modules.triplestore.services.RepositoryService
 
 import scala.concurrent.ExecutionContext
+import scala.util.{Failure, Success}
 
 class RDFImport @Inject()(@Named("taskManager") taskManagerActor: ActorRef,
                           repositoryService: RepositoryService)
@@ -20,8 +21,8 @@ class RDFImport @Inject()(@Named("taskManager") taskManagerActor: ActorRef,
     val params = task.params.as[RDFImportParams]
     taskManagerActor ! TaskStarted(task.id)
     repositoryService.importRDF(task.projectId, params.fileId, params.baseURI, params.graph, params.replaceGraph) map {
-      _ =>
-        taskManagerActor ! TaskFinished(task.id)
+      case Success(_) => taskManagerActor ! TaskFinished(task.id, None)
+      case Failure(exception) => taskManagerActor ! TaskFinished(task.id, Some(exception.getMessage))
     }
   }
 }

@@ -7,6 +7,8 @@ import {
 import Page from 'src/components/Page';
 import Header from './Header';
 import Results from "./Results";
+import RDFUploadDialog from "./RDFUploadDialog";
+import RDFImportDialog from "./RDFImportDialog";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -30,6 +32,8 @@ function ImportView() {
         <Box mt={3}>
           <Results/>
         </Box>
+        <RDFImportDialog/>
+        <RDFUploadDialog/>
       </Container>
     </Page>
   );

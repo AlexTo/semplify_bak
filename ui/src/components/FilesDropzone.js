@@ -153,8 +153,7 @@ function FilesDropzone({ className, ...rest }) {
             <Button
               color="secondary"
               size="small"
-              variant="contained"
-            >
+              variant="contained">
               Upload files
             </Button>
           </div>

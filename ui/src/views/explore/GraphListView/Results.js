@@ -111,8 +111,6 @@ function Results({className, ...rest}) {
   const [graphs, setGraphs] = useState([]);
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [deleteGraph, setDeleteGraph] = useState(null);
-
   const {projectId} = useSelector(state => state.projectReducer);
   const {data, refetch} = useQuery(entityHubQueries.graphs, {
     variables: {
@@ -121,7 +119,6 @@ function Results({className, ...rest}) {
   });
 
   const [deleteGraphs] = useMutation(entityHubQueries.deleteGraphs)
-
 
   const [limit, setLimit] = useState(5);
   const [query, setQuery] = useState('');

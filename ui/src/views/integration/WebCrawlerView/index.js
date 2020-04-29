@@ -7,7 +7,7 @@ import {
 import Page from 'src/components/Page';
 import Header from './Header';
 import Results from './Results';
-import CrawlNew from "./CrawlNew";
+import CrawlDialog from "./CrawlDialog";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -31,7 +31,7 @@ function WebCrawlerView() {
         <Box mt={3}>
           <Results/>
         </Box>
-        <CrawlNew/>
+        <CrawlDialog/>
       </Container>
     </Page>
   );
