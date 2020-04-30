@@ -107,7 +107,8 @@ function CrawlDialog() {
             error={Boolean(errors.seedUrl)}
             helperText={errors.seedUrl && errors.seedUrl.message}
             fullWidth label="Seed URL" name="seedUrl"
-            inputRef={register({required: "Seed Url is required"})}/>
+            inputRef={register({required: "Seed Url is required"})}
+          />
         </Box>
         <Box p={1}>
           <TextField

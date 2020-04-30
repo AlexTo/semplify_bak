@@ -1,8 +1,5 @@
 package modules.facebook.controllers
 
-import java.util.Collections
-
-import com.restfb.json.JsonObject
 import com.restfb.types.User
 import com.restfb.{Connection, DefaultFacebookClient, DefaultJsonMapper, Version}
 import javax.inject.{Inject, Singleton}

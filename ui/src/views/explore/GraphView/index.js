@@ -8,6 +8,7 @@ import Page from 'src/components/Page';
 import Header from './Header';
 import NodeSearch from "../../../components/NodeSearch";
 import Graph from "./Graph";
+import NodeInfoDrawer from "./NodeInfoDrawer";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -31,12 +32,10 @@ function GraphView() {
   return (
     <Page
       className={classes.root}
-      title="Dashboard"
-    >
+      title="Dashboard">
       <Container
         className={classes.container}
-        maxWidth={false}
-      >
+        maxWidth={false}>
         <Header/>
         <Box mt={3}>
           <NodeSearch/>
@@ -44,6 +43,7 @@ function GraphView() {
         <Box mt={3} className={classes.graphBox}>
           <Graph/>
         </Box>
+        <NodeInfoDrawer/>
       </Container>
     </Page>
   );

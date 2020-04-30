@@ -1,13 +1,16 @@
 import {createGraphEdge, createGraphNode} from '../utils/graph';
 import {
+  VISUAL_GRAPH_CLOSE_NODE_INFO_DRAWER,
   VISUAL_GRAPH_EDGES_ADDED,
   VISUAL_GRAPH_NODE_ADDED,
-  VISUAL_GRAPH_NODE_REMOVED
+  VISUAL_GRAPH_NODE_REMOVED, VISUAL_GRAPH_OPEN_NODE_INFO_DRAWER
 } from "../actions";
 
 const initialState = {
   nodes: [],
   edges: [],
+  nodeInfoDrawerOpen: true,
+  selectedNode: null
 }
 
 export const visualGraphReducer = (state = initialState, action) => {
@@ -21,6 +24,18 @@ export const visualGraphReducer = (state = initialState, action) => {
 
     case VISUAL_GRAPH_NODE_REMOVED:
       return removeNode(state, action);
+
+    case VISUAL_GRAPH_CLOSE_NODE_INFO_DRAWER:
+      return Object.assign({}, state, {
+        nodeInfoDrawerOpen: false,
+        selectedNode: null
+      })
+    case VISUAL_GRAPH_OPEN_NODE_INFO_DRAWER:
+      return Object.assign({}, state,
+        {
+          nodeInfoDrawerOpen: true,
+          selectedNode: action.node
+        })
 
     default:
       return state

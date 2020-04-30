@@ -31,8 +31,7 @@ function Header({className, ...rest}) {
       <Grid item>
         <Breadcrumbs
           separator={<NavigateNextIcon fontSize="small"/>}
-          aria-label="breadcrumb"
-        >
+          aria-label="breadcrumb">
           <Typography
             variant="body1"
             color="inherit">

@@ -42,9 +42,14 @@ function Graph() {
     });
 
   useEffect(() => {
-    if (cy) {
-      cy.cxtmenu(menu);
+    if (!cy) {
+      return;
     }
+    cy.on('tap', 'node', function (evt) {
+      let node = evt.target;
+      dispatch(visualGraphActions.openNodeInfoDrawer(node.id()))
+    });
+    cy.cxtmenu(menu);
   }, [cy])
 
   useEffect(() => {

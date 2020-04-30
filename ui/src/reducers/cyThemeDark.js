@@ -6,7 +6,14 @@ export const cyThemeDark = [
       width: 28,
       'background-fit': 'cover',
       'background-image': "data(depiction)",
-      "background-color": '#619ed2'
+      "background-color": '#619ed2',
+    },
+  },
+  {
+    selector: "node:selected",
+    style: {
+      'border-color': 'red',
+      'border-width': 2
     },
   },
   {

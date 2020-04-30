@@ -210,8 +210,7 @@ function Results({className, ...rest}) {
                 <InputAdornment position="start">
                   <SvgIcon
                     fontSize="small"
-                    color="action"
-                  >
+                    color="action">
                     <SearchIcon/>
                   </SvgIcon>
                 </InputAdornment>
