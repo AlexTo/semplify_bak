@@ -6,6 +6,8 @@ POST        /api/graphql                      modules.graphql.controllers.GraphQ
 
 GET         /api/graphql/render-schema        modules.graphql.controllers.GraphQLController.renderSchema
 
+GET         /api/fb                           modules.facebook.controllers.FbController.test
+
 POST        /api/sparql                       modules.sparql.controllers.SPARQLController.execute(projectId: String)
 
 GET         /api/queries/                     modules.sparql.controllers.QueryController.findAll(projectId: String)

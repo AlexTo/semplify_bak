@@ -19,6 +19,7 @@ libraryDependencies ++= Seq(
   "org.sangria-graphql" %% "sangria-play-json" % "2.0.1",
   "org.reactivemongo" % "play2-reactivemongo_2.13" % "0.20.8-play28",
   "org.reactivemongo" %% "reactivemongo-play-json-compat" % "0.20.8-play28",
+  "com.restfb" % "restfb" % "3.5.0",
   "com.jayway.jsonpath" % "json-path" % "2.4.0",
   "org.eclipse.rdf4j" % "rdf4j-storage" % "3.2.0-M2",
   "org.eclipse.rdf4j" % "rdf4j-sail-lucene" % "3.2.0-M2",

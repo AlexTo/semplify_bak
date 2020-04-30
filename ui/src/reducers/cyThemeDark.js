@@ -32,7 +32,6 @@ export const cyThemeDark = [
       width: 0.5,
       'line-color': 'white',
       'curve-style': 'bezier',
-      'target-arrow-shape': 'triangle',
       'arrow-scale': 0.5
     }
   },
@@ -41,6 +40,19 @@ export const cyThemeDark = [
     style: {
       "text-valign": "top",
       "edge-text-rotation": "autorotate"
+    }
+  },
+  {
+    selector: ".unidirectional",
+    style: {
+      'target-arrow-shape': 'triangle',
+    }
+  },
+  {
+    selector: ".bidirectional",
+    style: {
+      'target-arrow-shape': 'triangle',
+      'source-arrow-shape': 'triangle',
     }
   },
   {

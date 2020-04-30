@@ -31,7 +31,6 @@ export const cyThemeLight = [
     style: {
       width: 0.5,
       'curve-style': 'bezier',
-      'target-arrow-shape': 'triangle',
       'arrow-scale': 0.5
     }
   },
@@ -39,6 +38,19 @@ export const cyThemeLight = [
     selector: ".autorotate",
     style: {
       "edge-text-rotation": "autorotate"
+    }
+  },
+  {
+    selector: ".unidirectional",
+    style: {
+      'target-arrow-shape': 'triangle',
+    }
+  },
+  {
+    selector: ".bidirectional",
+    style: {
+      'target-arrow-shape': 'triangle',
+      'source-arrow-shape': 'triangle',
     }
   },
   {

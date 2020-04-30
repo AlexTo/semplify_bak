@@ -15,7 +15,8 @@ export const createGraphEdge = (pred) => ({
     graph: pred.graph,
     label: pred.prefLabel.value,
     source: pred.from.value,
-    target: pred.to.value
+    target: pred.to.value,
+    value: pred.value
   },
-  classes: 'autorotate'
+  classes: 'autorotate unidirectional'
 })

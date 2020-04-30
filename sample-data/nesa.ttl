@@ -422,6 +422,14 @@
   ];
 
   rr:predicateObjectMap [
+    rr:predicate asn:teachesCompetency;
+    rr:objectMap [
+      rml:reference "asn_teachesCompetency.*.uri";
+      rr:termType rr:IRI
+    ]
+  ];
+  
+  rr:predicateObjectMap [
     rr:predicate dcterms:created;
     rr:objectMap [
       rml:reference "dcterms_created.literal";

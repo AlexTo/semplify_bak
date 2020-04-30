@@ -1,7 +1,5 @@
 package modules.project.entities
 
-import java.util.Date
-
 import play.api.libs.json.{Json, OWrites, Reads}
 import reactivemongo.bson.BSONObjectID
 import reactivemongo.play.json._

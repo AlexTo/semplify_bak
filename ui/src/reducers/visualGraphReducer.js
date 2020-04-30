@@ -12,47 +12,90 @@ const initialState = {
 
 export const visualGraphReducer = (state = initialState, action) => {
 
-  const {nodes, edges} = state;
-
   switch (action.type) {
     case VISUAL_GRAPH_NODE_ADDED:
-      const newNode = createGraphNode(action.node);
-      const newNodes = [newNode, ...nodes];
-      return Object.assign({}, state, {nodes: newNodes});
+      return addNode(state, action);
 
     case VISUAL_GRAPH_EDGES_ADDED:
-      const existingNodes = nodes.map(n => n.data.id)
-      const addedNodes = action.edges
-        .filter(p => !existingNodes.includes(p.to.value))
-        .map(p => {
-          const {to} = p
-          return createGraphNode(to);
-        })
-      const addedEdges = action.edges
-        .filter(p => !edges.find(e => e.data.source === p.from.value && e.data.target === p.to.value))
-        .map(p => createGraphEdge(p))
-
-      if (addedNodes.length > 0 || addedEdges.length > 0) {
-        return Object.assign({}, state, {
-          nodes: [...addedNodes, ...nodes], edges: [...addedEdges, ...edges]
-        })
-      } else {
-        return state;
-      }
+      return addEdges(state, action);
 
     case VISUAL_GRAPH_NODE_REMOVED:
-
-      const remainingEdges = edges.filter(e => e.data.source !== action.uri && e.data.target !== action.uri);
-
-      const remainingNodes = nodes
-        .filter(n => n.data.id !== action.uri)
-        .filter(n => remainingEdges.find(e => e.data.source === n.data.id || e.data.target === n.data.id))
-
-      return Object.assign({}, state, {nodes: [...remainingNodes], edges: [...remainingEdges]});
+      return removeNode(state, action);
 
     default:
       return state
   }
 }
 
+function addNode(state, action) {
+  const {nodes} = state;
+  const newNode = createGraphNode(action.node);
+  const newNodes = [newNode, ...nodes];
+  return Object.assign({}, state, {nodes: newNodes});
+}
 
+function addEdges(state, action) {
+  const {nodes, edges} = state;
+  const existingNodes = nodes.map(n => n.data.id)
+
+  const addedNodes = action.edges
+    .filter(p => !existingNodes.includes(p.to.value))
+    .map(p => {
+      const {to} = p
+      return createGraphNode(to);
+    })
+
+  const removeDuplicateEdges = action.edges
+    .filter(p => !edges.find(e =>
+      e.data.source === p.from.value &&
+      e.data.target === p.to.value &&
+      e.data.value === p.value))
+
+  // update existing edges to be bi-directional
+  const updateBidirectionalEdges = edges.map(e => {
+    if (action.edges.find(p =>
+      p.from.value === e.data.target &&
+      p.to.value === e.data.source &&
+      p.value === e.data.value)) {
+      return toBidirectionalEdge(e);
+    } else
+      return e
+  })
+
+  console.log(updateBidirectionalEdges);
+
+  const removeAddedBidirectionalEdges = removeDuplicateEdges.filter(p =>
+    !updateBidirectionalEdges.find(e => p.from.value === e.data.target &&
+      p.to.value === e.data.source &&
+      p.value === e.data.value));
+
+  const addedEdges = removeAddedBidirectionalEdges.map(p => createGraphEdge(p))
+
+  if (addedNodes.length > 0 || addedEdges.length > 0) {
+    return Object.assign({}, state, {
+      nodes: [...addedNodes, ...nodes], edges: [...addedEdges, ...updateBidirectionalEdges]
+    })
+  } else {
+    return state;
+  }
+}
+
+function removeNode(state, action) {
+  const {nodes, edges} = state;
+  const remainingEdges = edges.filter(e => e.data.source !== action.uri && e.data.target !== action.uri);
+  const remainingNodes = nodes
+    .filter(n => n.data.id !== action.uri)
+    .filter(n => remainingEdges.find(e => e.data.source === n.data.id || e.data.target === n.data.id))
+
+  return Object.assign({}, state, {nodes: [...remainingNodes], edges: [...remainingEdges]});
+}
+
+function toBidirectionalEdge(e) {
+  const classes = e.classes.split(" ");
+  console.log(classes.filter(c => c !== "unidirectional" && c !== "bidirectional")
+    .push("bidirectional"));
+  const newClasses = classes
+    .filter(c => c !== "unidirectional" && c !== "bidirectional")
+    .concat(["bidirectional"]).join(" ");
+  return Object.assign({}, e, {classes: newClasses});
+}
