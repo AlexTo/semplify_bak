@@ -3,7 +3,7 @@ import cytoscape from 'cytoscape';
 import CytoscapeComponent from "react-cytoscapejs";
 import cola from 'cytoscape-cola';
 import cxtmenu from 'cytoscape-cxtmenu';
-import {Maximize2, MapPin, Trash} from 'react-feather';
+import {Maximize2, MapPin, Trash, ExternalLink} from 'react-feather';
 import {useDispatch, useSelector} from "react-redux";
 import {renderToString} from 'react-dom/server'
 import {useLazyQuery} from "@apollo/react-hooks";
@@ -72,6 +72,12 @@ function Graph() {
         },
       },
       {
+        content: renderToString(<ExternalLink size={16}/>),
+        select: function (ele) {
+          window.open(ele.id(), "_blank");
+        },
+      },
+      {
         content: renderToString(<Maximize2 size={16}/>),
         select: function (ele) {
           loadPredicatesFromNode({
@@ -81,7 +87,7 @@ function Graph() {
             }
           })
         },
-      },
+      }
     ]
   }
 
@@ -109,6 +115,8 @@ function Graph() {
                         cy={cy => setCy(cy)}
                         layout={layout}
                         stylesheet={theme}
+                        zoom={1}
+                        wheelSensitivity={0.25}
                         style={{width: '100%', height: '100%'}}/>
   )
 }
