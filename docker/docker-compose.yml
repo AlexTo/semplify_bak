@@ -3,6 +3,8 @@ services:
 
   mongo:
     image: mongo
+    hostname: mongo
+    container_name: mongo
     restart: always
     environment:
       MONGO_INITDB_DATABASE: semplify
@@ -28,9 +30,24 @@ services:
     networks:
       - semplify
 
+  virtuoso:
+    image: tenforce/virtuoso
+    hostname: virtuoso
+    container_name: virtuoso
+    environment:
+      SPARQL_UPDATE: "true"
+      VIRT_Parameters_NumberOfBuffers: 1360000
+      VIRT_Parameters_MaxDirtyBuffers: 1000000
+    volumes:
+      - virtuoso:/data
+    ports:
+      - 8890:8890
+      - 1111:1111
+
 volumes:
   mongo:
   keycloak:
+  virtuoso:
 
 networks:
   semplify:
