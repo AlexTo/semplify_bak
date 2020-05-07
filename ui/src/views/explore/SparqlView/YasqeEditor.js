@@ -33,9 +33,6 @@ function YasqeEditor({id, query}) {
 
   useEffect(() => {
     const yasqe = new Yasqe(document.getElementById("yasqe"), {
-      requestConfig: {
-        endpoint: `/api/sparql?projectId=${projectId}`
-      },
       createShareableLink: false,
       showQueryButton: false,
       theme: theme,
@@ -55,12 +52,12 @@ function YasqeEditor({id, query}) {
     }
     yasqe.query({
       reqMethod: "POST",
+      endpoint: `/api/sparql?projectId=${projectId}`,
       headers: {
         Authorization: `Bearer ${keycloak.token}`
       },
-      args: {projectId: projectId}
     });
-
+    dispatch(sparqlActions.tabExecuting(id));
   }, [executeTab])
 
   useEffect(() => {

@@ -1,4 +1,4 @@
-import {SPARQL_EXECUTE_TAB, SPARQL_QUERY_FINISHED} from "../actions/sparqlActions";
+import {SPARQL_EXECUTE_TAB, SPARQL_QUERY_FINISHED, SPARQL_TAB_EXECUTING} from "../actions/sparqlActions";
 
 const initialState = {
   executingQueries: [],
@@ -11,14 +11,20 @@ export const sparqlReducer = (state = initialState, action) => {
     case SPARQL_EXECUTE_TAB:
       return Object.assign({}, state, {
         executeTab: action.tabId,
+      })
+
+    case SPARQL_TAB_EXECUTING:
+      return Object.assign({}, state, {
+        executeTab: null,
         executingQueries: [action.tabId, ...state.executingQueries]
       })
 
     case SPARQL_QUERY_FINISHED:
       return Object.assign({}, state, {
-        executeTab: null,
         executingQueries: state.executingQueries.filter(q => q !== action.tabId),
-        queryResults: Object.assign({}, state.queryResults, {[action.tabId]: action.results})
+        queryResults: Object.assign({}, state.queryResults, {
+          [action.tabId]: action.results,
+        })
       })
 
     default:

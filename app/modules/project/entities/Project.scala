@@ -1,5 +1,6 @@
 package modules.project.entities
 
+import modules.project.models.Repository
 import play.api.libs.json.{Json, OWrites, Reads}
 import reactivemongo.bson.{BSONDateTime, BSONObjectID}
 import reactivemongo.play.json._

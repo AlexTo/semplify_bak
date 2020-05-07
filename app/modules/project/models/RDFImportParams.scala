@@ -1,4 +1,4 @@
-package modules.triplestore.models
+package modules.project.models
 
 import play.api.libs.json.{Json, OWrites, Reads}
 

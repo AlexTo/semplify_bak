@@ -4,7 +4,6 @@ import javax.inject.{Inject, Singleton}
 import modules.project.models.ProjectCreate
 import modules.project.services.ProjectService
 import modules.security.services.ProfileService
-import modules.triplestore.services.RepositoryService
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
 

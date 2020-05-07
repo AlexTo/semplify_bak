@@ -7,7 +7,6 @@ import akka.stream.Materializer
 import javax.inject.Inject
 import modules.fileserver.models.{File, FileInfo}
 import modules.fileserver.services.FileService
-import modules.project.services.ProjectService
 import play.api.libs.Files
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.MultipartFormData
@@ -23,8 +22,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Success
 import utils.BSONSerializationPackDocument._
 
-class FileServiceImpl @Inject()(projectService: ProjectService,
-                                reactiveMongoApi: ReactiveMongoApi)
+class FileServiceImpl @Inject()(reactiveMongoApi: ReactiveMongoApi)
                                (implicit ec: ExecutionContext, m: Materializer) extends FileService {
 
   val database: Future[DefaultDB] = reactiveMongoApi.database

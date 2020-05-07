@@ -2,29 +2,28 @@ package modules.entityhub.services.impl
 
 import javax.inject.Inject
 import modules.common.vocabulary.DBO
-import modules.entityhub.models.{GraphGet, IRI, Literal, Predicate, SearchHit}
-import modules.entityhub.services.EntityService
+import modules.entityhub.models.{GraphGet, IRI, Literal, Predicate, QueryType, SearchHit}
+import modules.entityhub.services.{EntityService, QueryFactory}
 import modules.entityhub.utils.ValueUtils
 import modules.project.services.ProjectService
-import modules.triplestore.services.RepositoryService
 import org.eclipse.rdf4j.model.vocabulary.{FOAF, RDF, RDFS, SKOS}
 import org.eclipse.rdf4j.query.QueryLanguage
 import org.eclipse.rdf4j.sparqlbuilder.core.SparqlBuilder
 import org.eclipse.rdf4j.sparqlbuilder.core.query.Queries
 import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPatterns
+import virtuoso.rdf4j.driver.VirtuosoRepository
 
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Success, Using}
 
-class EntityServiceImpl @Inject()(repositoryService: RepositoryService,
-                                  projectService: ProjectService)
+class EntityServiceImpl @Inject()(projectService: ProjectService,
+                                  queryFactory: QueryFactory)
                                  (implicit val ec: ExecutionContext) extends EntityService {
 
   override def findNode(projectId: String, graph: Option[String], uri: String): Future[Option[IRI]] = {
-    projectService.findById(projectId) map {
-      case Some(_) =>
-        val repo = repositoryService.findById(projectId)
+    projectService.findRepoById(projectId) map {
+      case Some(repo) =>
         val f = repo.getValueFactory
         val q =
           "SELECT ?s " + (if (graph.isEmpty) "?g" else "") +
@@ -54,9 +53,8 @@ class EntityServiceImpl @Inject()(repositoryService: RepositoryService,
   }
 
   override def findPredicatesFromNode(projectId: String, graph: Option[String], from: String): Future[Seq[Predicate]] =
-    projectService.findById(projectId).map {
-      case Some(_) =>
-        val repo = repositoryService.findById(projectId)
+    projectService.findRepoById(projectId).map {
+      case Some(repo) =>
         val f = repo.getValueFactory
         val q =
           "SELECT ?p ?o " + (if (graph.isEmpty) "?g" else "") +
@@ -90,9 +88,8 @@ class EntityServiceImpl @Inject()(repositoryService: RepositoryService,
     }
 
   override def findPredicatesToNode(projectId: String, graph: Option[String], to: String): Future[Seq[Predicate]] = {
-    projectService.findById(projectId).map {
-      case Some(_) =>
-        val repo = repositoryService.findById(projectId)
+    projectService.findRepoById(projectId).map {
+      case Some(repo) =>
         val f = repo.getValueFactory
         val q =
           "SELECT ?s ?p " + (if (graph.isEmpty) "?g" else "") + " WHERE { " +
@@ -126,26 +123,26 @@ class EntityServiceImpl @Inject()(repositoryService: RepositoryService,
   }
 
   override def searchNodes(projectId: String, graph: Option[String], term: String): Future[Seq[SearchHit]] =
-    projectService.findById(projectId).map {
-      case Some(_) =>
-        val q = "PREFIX search: <http://www.openrdf.org/contrib/lucenesail#> " +
-          "SELECT ?s ?score ?snippet " + (if (graph.isEmpty) "?g" else "") +
-          " WHERE { " +
-          "  GRAPH ?g { " +
-          "   ?s ?p ?o . " +
-          "   ?s search:matches [" +
-          "   search:query ?term ; " +
-          "   search:score ?score; " +
-          "   search:snippet ?snippet ] }} " +
-          "LIMIT 20 "
-
-        val repo = repositoryService.findById(projectId)
-        val f = repo.getValueFactory
+    projectService.findRepoById(projectId).map {
+      case Some(repo) =>
 
         Using(repo.getConnection) { conn =>
+
+          val q = queryFactory.getQuery(QueryType.SearchNodes, repo, graph)
+          val f = repo.getValueFactory
+
           val searchHits = new ListBuffer[SearchHit]
-          val tq = conn.prepareTupleQuery(QueryLanguage.SPARQL, q)
-          tq.setBinding("term", f.createLiteral(term.trim + "*"))
+
+          val tq = repo match {
+            case _: VirtuosoRepository =>
+              conn.prepareTupleQuery(QueryLanguage.SPARQL,
+                q.replace("?term", s"""\"\'${term.trim}*\'\""""))
+            case _ =>
+              val tq = conn.prepareTupleQuery(QueryLanguage.SPARQL, q)
+              tq.setBinding("term", f.createLiteral(s"${term.trim}*"))
+              tq
+          }
+
           val results = tq.evaluate
           while (results.hasNext) {
             val bindings = results.next()
@@ -153,7 +150,7 @@ class EntityServiceImpl @Inject()(repositoryService: RepositoryService,
             val s = bindings.getValue("s")
             if (!searchHits.map(s => s.node.value).contains(s.stringValue())) {
               val snippet = bindings.getValue("snippet").stringValue()
-              val score = bindings.getValue("score").stringValue()
+              val score = bindings.getValue("sc").stringValue()
               val node = ValueUtils.createValue(projectId, Some(g), s)
               val searchHit = SearchHit(node.asInstanceOf[IRI], score.toDouble, snippet)
               searchHits.addOne(searchHit)
@@ -166,9 +163,8 @@ class EntityServiceImpl @Inject()(repositoryService: RepositoryService,
     }
 
   override def findPrefLabel(projectId: String, nodeUri: String): Future[Option[Literal]] =
-    projectService.findById(projectId).map {
-      case Some(_) =>
-        val repo = repositoryService.findById(projectId)
+    projectService.findRepoById(projectId) map {
+      case Some(repo) =>
         val f = repo.getValueFactory
 
         val purlTitle = f.createIRI("http://purl.org/dc/elements/1.1/title")
@@ -232,14 +228,13 @@ class EntityServiceImpl @Inject()(repositoryService: RepositoryService,
       case None => Option.empty[Literal]
     }
 
-  override def findGraphs(projectId: String): Future[Seq[GraphGet]] = projectService.findById(projectId) map {
-    case Some(_) =>
+  override def findGraphs(projectId: String): Future[Seq[GraphGet]] = projectService.findRepoById(projectId) map {
+    case Some(repo) =>
       val q = "SELECT DISTINCT ?g WHERE { " +
         "GRAPH ?g { " +
         " ?s ?p ?o " +
         "}}"
 
-      val repo = repositoryService.findById(projectId)
       val graphs = new ListBuffer[GraphGet]
       Using(repo.getConnection) { conn =>
         val tq = conn.prepareTupleQuery(QueryLanguage.SPARQL, q)
@@ -253,9 +248,8 @@ class EntityServiceImpl @Inject()(repositoryService: RepositoryService,
       graphs.toSeq
   }
 
-  override def deleteGraphs(projectId: String, graphs: Seq[String]): Future[Seq[GraphGet]] = projectService.findById(projectId) map {
-    case Some(_) =>
-      val repo = repositoryService.findById(projectId)
+  override def deleteGraphs(projectId: String, graphs: Seq[String]): Future[Seq[GraphGet]] = projectService.findRepoById(projectId) map {
+    case Some(repo) =>
       val f = repo.getValueFactory
       Using(repo.getConnection) { conn =>
         graphs.foreach(g => conn.clear(f.createIRI(g)))
@@ -263,9 +257,8 @@ class EntityServiceImpl @Inject()(repositoryService: RepositoryService,
       graphs.map(g => GraphGet(projectId, g))
   }
 
-  override def findDepiction(projectId: String, nodeUri: String): Future[Option[IRI]] = projectService.findById(projectId).map {
-    case Some(_) =>
-      val repo = repositoryService.findById(projectId)
+  override def findDepiction(projectId: String, nodeUri: String): Future[Option[IRI]] = projectService.findRepoById(projectId).map {
+    case Some(repo) =>
       val f = repo.getValueFactory
 
       val predicates = FOAF.DEPICTION :: Nil
