@@ -1,4 +1,4 @@
-package modules.task.entities
+package modules.task.models
 
 import play.api.libs.json.{Reads, Writes}
 import utils.EnumUtils

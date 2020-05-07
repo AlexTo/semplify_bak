@@ -1,6 +1,6 @@
 package modules.task.entities
 
-import modules.task.entities.TaskStatus.TaskStatus
+import modules.task.models.TaskStatus.TaskStatus
 import play.api.libs.json.{JsObject, Json, OWrites, Reads}
 import reactivemongo.bson.{BSONDateTime, BSONObjectID}
 import reactivemongo.play.json._

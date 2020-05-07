@@ -2,8 +2,8 @@ package modules.task.services.impl
 
 import javax.inject.Inject
 import modules.project.services.ProjectService
-import modules.task.entities.{Task, TaskStatus}
-import modules.task.models.{TaskCreate, TaskGet}
+import modules.task.entities.Task
+import modules.task.models.{TaskCreate, TaskGet, TaskStatus}
 import modules.task.services.TaskService
 import play.api.libs.json.{JsObject, Json}
 import play.modules.reactivemongo.ReactiveMongoApi

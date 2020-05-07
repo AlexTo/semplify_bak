@@ -4,6 +4,7 @@ import be.ugent.rml.store.RDF4JStore
 import javax.inject.{Inject, Singleton}
 import modules.entityhub.models.{IRI, Predicate}
 import modules.entityhub.utils.ValueUtils
+import modules.project.services.ProjectService
 import modules.rml.services.RMLService
 import modules.triplestore.services.RepositoryService
 import play.api.libs.json.Json
@@ -16,57 +17,65 @@ import play.api.Logger
 
 @Singleton
 class EntityHubController @Inject()(rmlService: RMLService,
+                                    projectService: ProjectService,
                                     repositoryService: RepositoryService,
                                     cc: ControllerComponents)
                                    (implicit ec: ExecutionContext) extends AbstractController(cc) {
 
   val logger: Logger = Logger(this.getClass)
 
-  def test(dataFileId: String, mappingFileId: String, projectId: String, graph: String): Action[AnyContent] = Action.async { _ =>
-
-    rmlService.execute(dataFileId, mappingFileId)
-      .map(quadStore => {
-        val rdf4JStore = quadStore.asInstanceOf[RDF4JStore]
-        val model = rdf4JStore.getModel
-        val repo = repositoryService.getRepository(projectId)
-        val conn = repo.getConnection
-        val f = conn.getValueFactory
-        try {
-          conn.add(model, f.createIRI(graph))
-          Ok
-        } finally {
-          conn.close()
-        }
-      })
-  }
-
-  def test2: Action[AnyContent] = Action { request =>
-    val projectId = "5ea45125aa00005f7f9ce6f0"
-    val repo = repositoryService.getRepository(projectId)
-    Using(repo.getConnection) { conn =>
-      
+  def test(dataFileId: String, mappingFileId: String, projectId: String, graph: String): Action[AnyContent]
+  = Action.async { _ =>
+    repositoryService.findById(projectId) flatMap {
+      repo =>
+        rmlService.execute(dataFileId, mappingFileId)
+          .map(quadStore => {
+            val rdf4JStore = quadStore.asInstanceOf[RDF4JStore]
+            val model = rdf4JStore.getModel
+            val conn = repo.getConnection
+            val f = conn.getValueFactory
+            try {
+              conn.add(model, f.createIRI(graph))
+              Ok
+            } finally {
+              conn.close()
+            }
+          })
     }
-    Ok
   }
 
-  def test3: Action[AnyContent] = Action { request =>
-    val projectId = "5e8943b050040030a6ee3942"
-    val repo = repositoryService.getRepository(projectId)
-    val conn = repo.getConnection
-    try {
-      val predicates = new ListBuffer[Predicate]
-      val stmts = conn.getStatements(null, null, null)
-      while (stmts.hasNext) {
-        val stmt = stmts.next()
-        val fromNode = ValueUtils.createValue(projectId, Some(stmt.getContext.stringValue()), stmt.getSubject)
-        val toNode = ValueUtils.createValue(projectId, Some(stmt.getContext.stringValue()), stmt.getObject)
-        val pred = Predicate(projectId, Some(stmt.getContext.stringValue()), stmt.getPredicate.stringValue(),
-          fromNode.asInstanceOf[IRI], toNode)
-        predicates.addOne(pred)
+  def test2: Action[AnyContent] = Action.async { request =>
+    val repoId = "5ea45125aa00005f7f9ce6f0"
+    repositoryService.findById(repoId) map {
+      repo =>
+        Using(repo.getConnection) { conn =>
+
+        }
+        Ok
+    }
+
+  }
+
+  def test3: Action[AnyContent] = Action.async { request =>
+    val repoId = "5e8943b050040030a6ee3942"
+
+    repositoryService.findById(repoId) map { repo =>
+      val conn = repo.getConnection
+      try {
+        val predicates = new ListBuffer[Predicate]
+        val stmts = conn.getStatements(null, null, null)
+        while (stmts.hasNext) {
+          val stmt = stmts.next()
+          val fromNode = ValueUtils.createValue(repoId, Some(stmt.getContext.stringValue()), stmt.getSubject)
+          val toNode = ValueUtils.createValue(repoId, Some(stmt.getContext.stringValue()), stmt.getObject)
+          val pred = Predicate(repoId, Some(stmt.getContext.stringValue()), stmt.getPredicate.stringValue(),
+            fromNode.asInstanceOf[IRI], toNode)
+          predicates.addOne(pred)
+        }
+        Ok(Json.toJson(predicates))
+      } finally {
+        conn.close()
       }
-      Ok(Json.toJson(predicates))
-    } finally {
-      conn.close()
     }
   }
 

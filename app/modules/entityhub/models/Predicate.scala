@@ -2,9 +2,9 @@ package modules.entityhub.models
 
 import play.api.libs.json.{Json, OWrites, Reads}
 
-case class Predicate(projectId: String,
-                     graph: Option[String],
-                     value: String,
+case class Predicate(override val projectId: String,
+                     override val graph: Option[String],
+                     override val value: String,
                      from: IRI,
                      to: Value) extends Value
 

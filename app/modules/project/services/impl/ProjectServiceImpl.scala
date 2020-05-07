@@ -1,7 +1,5 @@
 package modules.project.services.impl
 
-import java.util.Calendar
-
 import javax.inject.Inject
 import modules.project.entities.Project
 import modules.project.models.{ProjectCreate, ProjectGet}
@@ -9,8 +7,7 @@ import modules.project.services.ProjectService
 import play.api.libs.json.{JsObject, Json}
 import play.modules.reactivemongo.ReactiveMongoApi
 import reactivemongo.api.Cursor
-import reactivemongo.bson._
-import reactivemongo.bson.BSONObjectID
+import reactivemongo.bson.{BSONObjectID, _}
 import reactivemongo.play.json._
 import reactivemongo.play.json.collection.JSONCollection
 
@@ -23,7 +20,7 @@ class ProjectServiceImpl @Inject()(reactiveMongoApi: ReactiveMongoApi)
   def projectCollection: Future[JSONCollection] = reactiveMongoApi.database.map(_.collection[JSONCollection]("projects"))
 
   override def create(project: ProjectCreate, username: String): Future[ProjectGet] = {
-    val created = System.currentTimeMillis()
+    val created = BSONDateTime(System.currentTimeMillis())
     val entity = Project(BSONObjectID.generate(),
       project.title, username, username,
       created, created)

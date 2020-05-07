@@ -1,6 +1,7 @@
 package modules.triplestore.services
 
 import com.google.inject.ImplementedBy
+import modules.triplestore.models.{RepositoryCreate, RepositoryGet}
 import modules.triplestore.services.impl.RepositoryServiceImpl
 import org.eclipse.rdf4j.repository.Repository
 
@@ -10,7 +11,9 @@ import scala.util.Try
 @ImplementedBy(classOf[RepositoryServiceImpl])
 trait RepositoryService {
 
-  def getRepository(repositoryId: String): Repository
+  def create(repositoryCreate: RepositoryCreate): Future[RepositoryGet]
+
+  def findById(repositoryId: String): Future[Repository]
 
   def removeRepository(repositoryId: String): Boolean
 

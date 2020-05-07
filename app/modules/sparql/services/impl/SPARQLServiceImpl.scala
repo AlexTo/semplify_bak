@@ -19,7 +19,7 @@ class SPARQLServiceImpl @Inject()(projectService: ProjectService,
   override def executeQuery(projectId: String, query: String): Future[QueryResult] =
     projectService.findById(projectId) map {
       case Some(_) =>
-        val repo = repositoryService.getRepository(projectId)
+        val repo = repositoryService.findById(projectId)
         Using(repo.getConnection) { conn =>
           val tq = conn.prepareTupleQuery(QueryLanguage.SPARQL, query)
           val result = tq.evaluate()

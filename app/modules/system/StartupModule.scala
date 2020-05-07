@@ -1,7 +1,7 @@
 package modules.system
 
 import com.google.inject.AbstractModule
-import modules.triplestore.actors.RDFImport
+import modules.project.actors.RDFImport
 import modules.task.actors.TaskManager
 import modules.webcrawler.actors.WebCrawler
 import play.api.libs.concurrent.AkkaGuiceSupport

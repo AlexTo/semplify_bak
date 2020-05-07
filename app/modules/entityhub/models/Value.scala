@@ -1,6 +1,6 @@
 package modules.entityhub.models
 
-import play.api.libs.json.{Reads, _}
+import play.api.libs.json._
 
 trait Value {
   val projectId: String

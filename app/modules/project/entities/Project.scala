@@ -1,15 +1,16 @@
 package modules.project.entities
 
 import play.api.libs.json.{Json, OWrites, Reads}
-import reactivemongo.bson.BSONObjectID
+import reactivemongo.bson.{BSONDateTime, BSONObjectID}
 import reactivemongo.play.json._
 
 case class Project(_id: BSONObjectID,
+                   repository: Repository,
                    title: String,
                    createdBy: String,
                    modifiedBy: String,
-                   created: Long,
-                   modified: Long)
+                   created: BSONDateTime,
+                   modified: BSONDateTime)
 
 object Project {
   implicit val writes: OWrites[Project] = Json.writes[Project]

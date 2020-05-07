@@ -24,7 +24,7 @@ class EntityServiceImpl @Inject()(repositoryService: RepositoryService,
   override def findNode(projectId: String, graph: Option[String], uri: String): Future[Option[IRI]] = {
     projectService.findById(projectId) map {
       case Some(_) =>
-        val repo = repositoryService.getRepository(projectId)
+        val repo = repositoryService.findById(projectId)
         val f = repo.getValueFactory
         val q =
           "SELECT ?s " + (if (graph.isEmpty) "?g" else "") +
@@ -56,7 +56,7 @@ class EntityServiceImpl @Inject()(repositoryService: RepositoryService,
   override def findPredicatesFromNode(projectId: String, graph: Option[String], from: String): Future[Seq[Predicate]] =
     projectService.findById(projectId).map {
       case Some(_) =>
-        val repo = repositoryService.getRepository(projectId)
+        val repo = repositoryService.findById(projectId)
         val f = repo.getValueFactory
         val q =
           "SELECT ?p ?o " + (if (graph.isEmpty) "?g" else "") +
@@ -92,7 +92,7 @@ class EntityServiceImpl @Inject()(repositoryService: RepositoryService,
   override def findPredicatesToNode(projectId: String, graph: Option[String], to: String): Future[Seq[Predicate]] = {
     projectService.findById(projectId).map {
       case Some(_) =>
-        val repo = repositoryService.getRepository(projectId)
+        val repo = repositoryService.findById(projectId)
         val f = repo.getValueFactory
         val q =
           "SELECT ?s ?p " + (if (graph.isEmpty) "?g" else "") + " WHERE { " +
@@ -139,7 +139,7 @@ class EntityServiceImpl @Inject()(repositoryService: RepositoryService,
           "   search:snippet ?snippet ] }} " +
           "LIMIT 20 "
 
-        val repo = repositoryService.getRepository(projectId)
+        val repo = repositoryService.findById(projectId)
         val f = repo.getValueFactory
 
         Using(repo.getConnection) { conn =>
@@ -168,7 +168,7 @@ class EntityServiceImpl @Inject()(repositoryService: RepositoryService,
   override def findPrefLabel(projectId: String, nodeUri: String): Future[Option[Literal]] =
     projectService.findById(projectId).map {
       case Some(_) =>
-        val repo = repositoryService.getRepository(projectId)
+        val repo = repositoryService.findById(projectId)
         val f = repo.getValueFactory
 
         val purlTitle = f.createIRI("http://purl.org/dc/elements/1.1/title")
@@ -239,7 +239,7 @@ class EntityServiceImpl @Inject()(repositoryService: RepositoryService,
         " ?s ?p ?o " +
         "}}"
 
-      val repo = repositoryService.getRepository(projectId)
+      val repo = repositoryService.findById(projectId)
       val graphs = new ListBuffer[GraphGet]
       Using(repo.getConnection) { conn =>
         val tq = conn.prepareTupleQuery(QueryLanguage.SPARQL, q)
@@ -255,7 +255,7 @@ class EntityServiceImpl @Inject()(repositoryService: RepositoryService,
 
   override def deleteGraphs(projectId: String, graphs: Seq[String]): Future[Seq[GraphGet]] = projectService.findById(projectId) map {
     case Some(_) =>
-      val repo = repositoryService.getRepository(projectId)
+      val repo = repositoryService.findById(projectId)
       val f = repo.getValueFactory
       Using(repo.getConnection) { conn =>
         graphs.foreach(g => conn.clear(f.createIRI(g)))
@@ -265,7 +265,7 @@ class EntityServiceImpl @Inject()(repositoryService: RepositoryService,
 
   override def findDepiction(projectId: String, nodeUri: String): Future[Option[IRI]] = projectService.findById(projectId).map {
     case Some(_) =>
-      val repo = repositoryService.getRepository(projectId)
+      val repo = repositoryService.findById(projectId)
       val f = repo.getValueFactory
 
       val predicates = FOAF.DEPICTION :: Nil

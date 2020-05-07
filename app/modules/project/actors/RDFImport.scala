@@ -1,4 +1,4 @@
-package modules.triplestore.actors
+package modules.project.actors
 
 import akka.actor.{Actor, ActorRef, Props}
 import javax.inject.{Inject, Named}
