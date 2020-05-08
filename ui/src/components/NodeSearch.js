@@ -21,7 +21,7 @@ import {visualGraphActions} from "../actions";
 
 const renderOption = (option) => <Grid container spacing={1}>
   <Grid item>
-    {option.node.thumbnailUri && <Avatar alt={option.node.prefLabel} src={option.node.thumbnailUri}/>}
+    {option.node.depiction && <Avatar src={option.node.depiction.value}/>}
   </Grid>
   <Grid item xs>
     {option.node.prefLabel.value}

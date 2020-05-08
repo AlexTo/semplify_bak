@@ -11,10 +11,11 @@ import {
   TableBody,
   TableHead,
   TableRow,
-  makeStyles, TablePagination
+  makeStyles, TablePagination, Typography
 } from "@material-ui/core";
 import {useKeycloak} from "@react-keycloak/web";
 import {sparqlActions} from "../../../actions/sparqlActions";
+import moment from "moment";
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -23,6 +24,7 @@ const useStyles = makeStyles((theme) => ({
 function YasqeEditor({id, query}) {
   const classes = useStyles();
   const {projectId} = useSelector(state => state.projectReducer);
+  const [duration, setDuration] = useState(-1);
   const dispatch = useDispatch();
   const [keycloak] = useKeycloak();
   const [page, setPage] = useState(0);
@@ -42,6 +44,14 @@ function YasqeEditor({id, query}) {
     yasqe.on("queryResults", (instance, results) => {
       dispatch(sparqlActions.queryFinished(id, results));
     });
+
+    yasqe.on("queryResponse", (instance, req, duration) => {
+      setDuration(duration);
+    });
+
+    yasqe.on("error", instance => {
+      console.log(instance)
+    })
 
     setYasqe(yasqe);
   }, [])
@@ -79,6 +89,13 @@ function YasqeEditor({id, query}) {
     <>
       <div id="yasqe"/>
       {queryResults[id] && <PerfectScrollbar>
+        <Box px={2}>
+          {duration > 0 && <Typography
+            variant="h6"
+            color="textSecondary">
+            Elapsed: {duration} ms.
+          </Typography>}
+        </Box>
         <Box>
           <Table>
             <TableHead>

@@ -78,11 +78,6 @@ const navConfig = [
         title: 'Projects',
         icon: TrelloIcon,
         href: '/projects'
-      },
-      {
-        title: 'Repositories',
-        icon: DatabaseIcon,
-        href: '/repositories'
       }
     ]
   },

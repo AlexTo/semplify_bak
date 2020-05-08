@@ -18,7 +18,7 @@ class QueryFactoryImpl extends QueryFactory {
           "   OPTION (score ?sc) " +
           " }} " +
           "ORDER BY DESC (?sc) " +
-          "LIMIT 20 "
+          "LIMIT 40 "
     }
     case _ => queryType match {
       case QueryType.SearchNodes => "PREFIX search: <http://www.openrdf.org/contrib/lucenesail#> " +
@@ -30,7 +30,7 @@ class QueryFactoryImpl extends QueryFactory {
         "   search:query ?term ; " +
         "   search:score ?sc; " +
         "   search:snippet ?snippet ] }} " +
-        "LIMIT 20 "
+        "LIMIT 40 "
     }
 
   }
