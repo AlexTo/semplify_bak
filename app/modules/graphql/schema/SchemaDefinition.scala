@@ -31,7 +31,7 @@ object SchemaDefinition {
       Field("prefLabel", OptionType(Literal), resolve = ctx => ctx.ctx.prefLabel(ctx.value.projectId, ctx.value.value)),
       Field("depiction", OptionType(IRI), resolve = ctx => ctx.ctx.depiction(ctx.value.projectId, ctx.value.value)),
       Field("outGoingPredicates", ListType(Predicate),
-        resolve = ctx => ctx.ctx.predicatesFromNode(ctx.value.projectId, None, ctx.value.value)),
+        resolve = ctx => ctx.ctx.predicatesFromNode(ctx.value.projectId, None, ctx.value.value, None)),
       Field("incomingPredicates", ListType(Predicate),
         resolve = ctx => ctx.ctx.predicatesToNode(ctx.value.projectId, None, ctx.value.value))
     ))
@@ -128,8 +128,9 @@ object SchemaDefinition {
 
   val ProjectIdArg: Argument[String] = Argument("projectId", StringType)
   val GraphArg: Argument[Option[String]] = Argument("graph", OptionInputType(StringType))
-  val GraphsArg = Argument("graphs", ListInputType(StringType))
-  val FileIdsArg = Argument("fileIds", ListInputType(StringType))
+  val NodeTypeArg: Argument[Option[String]] = Argument("nodeType", OptionInputType(StringType))
+  val GraphsArg: Argument[Seq[String @@ FromInput.CoercedScalaResult]] = Argument("graphs", ListInputType(StringType))
+  val FileIdsArg: Argument[Seq[String @@ FromInput.CoercedScalaResult]] = Argument("fileIds", ListInputType(StringType))
 
   val UriArg: Argument[String] = Argument("uri", StringType)
   val TermArg: Argument[String] = Argument("term", StringType)
@@ -142,8 +143,9 @@ object SchemaDefinition {
         resolve = ctx => ctx.ctx.node(ctx arg ProjectIdArg, ctx arg GraphArg, ctx arg UriArg)
       ),
       Field("predicatesFromNode", ListType(Predicate),
-        arguments = ProjectIdArg :: GraphArg :: UriArg :: Nil,
-        resolve = ctx => ctx.ctx.predicatesFromNode(ctx arg ProjectIdArg, ctx arg GraphArg, ctx arg UriArg)
+        arguments = ProjectIdArg :: GraphArg :: UriArg :: NodeTypeArg :: Nil,
+        resolve = ctx => ctx.ctx.predicatesFromNode(ctx arg ProjectIdArg, ctx arg GraphArg,
+          ctx arg UriArg, ctx arg NodeTypeArg)
       ),
       Field("files", ListType(FileInfo),
         arguments = ProjectIdArg :: Nil,
@@ -172,7 +174,7 @@ object SchemaDefinition {
       )
     ))
 
-  val Mutation = ObjectType(
+  val Mutation: ObjectType[Repository, Unit] = ObjectType(
     "Mutation", fields[Repository, Unit](
       Field("deleteGraphs", ListType(Graph),
         arguments = ProjectIdArg :: GraphsArg :: Nil,

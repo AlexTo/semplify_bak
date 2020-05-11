@@ -19,7 +19,7 @@ trait Repository {
 
   def depiction(projectId: String, uri: String): Future[Option[IRI]]
 
-  def predicatesFromNode(projectId: String, graph: Option[String], from: String): Future[Seq[Predicate]]
+  def predicatesFromNode(projectId: String, graph: Option[String], from: String, nodeType: Option[String]): Future[Seq[Predicate]]
 
   def predicatesToNode(projectId: String, graph: Option[String], to: String): Future[Seq[Predicate]]
 

@@ -43,8 +43,8 @@ export const entityHubQueries = {
     }
   `,
   predicatesFromNode: gql`
-    query predicatesFromNode($projectId: String!, $graph: String, $uri: String!) {
-      predicatesFromNode(projectId: $projectId, graph: $graph, uri: $uri) {
+    query predicatesFromNode($projectId: String!, $graph: String, $uri: String!, $nodeType: String) {
+      predicatesFromNode(projectId: $projectId, graph: $graph, uri: $uri, nodeType: $nodeType) {
         value
         prefLabel {
           value
@@ -63,6 +63,10 @@ export const entityHubQueries = {
             depiction {
               value
             }
+          }
+          ... on Literal {
+            dataType
+            lang
           }
         }
       }

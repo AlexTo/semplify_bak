@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import PerfectScrollbar from 'react-perfect-scrollbar';
 import {
   Box,
@@ -12,6 +12,8 @@ import {
 } from 'react-feather';
 import {useSelector, useDispatch} from "react-redux";
 import {visualGraphActions} from "../../../actions";
+import {useLazyQuery, useQuery} from "@apollo/react-hooks";
+import {entityHubQueries} from "../../../graphql";
 
 const useStyles = makeStyles(() => ({
   drawer: {
@@ -22,12 +24,35 @@ const useStyles = makeStyles(() => ({
 
 function NodeInfoDrawer() {
   const classes = useStyles();
+  const [properties, setProperties] = useState([]);
   const dispatch = useDispatch();
+  const {projectId} = useSelector(state => state.projectReducer);
   const {nodeInfoDrawerOpen, selectedNode} = useSelector(state => state.visualGraphReducer);
+
+  const [loadPredicatesFromNode] = useLazyQuery(
+    entityHubQueries.predicatesFromNode, {
+      onCompleted: data => {
+        setProperties(data.predicatesFromNode);
+      },
+      fetchPolicy: 'no-cache'
+    });
+
+  useEffect(() => {
+    if (selectedNode) {
+      loadPredicatesFromNode({
+        variables: {
+          projectId,
+          uri: selectedNode,
+          nodeType: "literal"
+        }
+      })
+    }
+  }, [selectedNode])
 
   const handleClose = () => {
     dispatch(visualGraphActions.closeNodeInfoDrawer())
   };
+
 
   if (!selectedNode) return null;
 
@@ -39,7 +64,7 @@ function NodeInfoDrawer() {
       onClose={handleClose}
       open={nodeInfoDrawerOpen}
       variant="temporary"
-      style={{pointerEvents: 'none'}}>
+      >
       <PerfectScrollbar options={{suppressScrollX: true}}
                         style={{pointerEvents: 'all'}}>
         <Box p={3}>
@@ -55,6 +80,9 @@ function NodeInfoDrawer() {
             </IconButton>
           </Box>
         </Box>
+        {properties.map(p => <Box px={2} py={1}>
+          {p.to.value}
+        </Box>)}
       </PerfectScrollbar>
     </Drawer>
   );

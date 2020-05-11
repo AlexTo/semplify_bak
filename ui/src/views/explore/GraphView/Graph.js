@@ -29,14 +29,13 @@ function Graph() {
     entityHubQueries.predicatesFromNode, {
       onCompleted: data => {
         const {predicatesFromNode} = data;
-        const edgesToAdd = predicatesFromNode.filter(p => p.to.__typename === 'IRI');
-        if (edgesToAdd.length === 0) {
+        if (predicatesFromNode.length === 0) {
           enqueueSnackbar('This node has no other connections', {
             variant: 'success'
           });
           return;
         }
-        dispatch(visualGraphActions.addEdges(edgesToAdd));
+        dispatch(visualGraphActions.addEdges(predicatesFromNode));
       },
       fetchPolicy: 'no-cache'
     });
@@ -83,7 +82,8 @@ function Graph() {
           loadPredicatesFromNode({
             variables: {
               projectId: ele.data().projectId,
-              uri: ele.id()
+              uri: ele.id(),
+              nodeType: 'iri'
             }
           })
         },

@@ -11,7 +11,7 @@ trait EntityService {
 
   def findNode(projectId: String, graph: Option[String], uri: String): Future[Option[IRI]]
 
-  def findPredicatesFromNode(projectId: String, graph: Option[String], from: String): Future[Seq[Predicate]]
+  def findPredicatesFromNode(projectId: String, graph: Option[String], from: String, nodeType: Option[String]): Future[Seq[Predicate]]
 
   def findPredicatesToNode(projectId: String, graph: Option[String], to: String): Future[Seq[Predicate]]
 

@@ -52,15 +52,21 @@ class EntityServiceImpl @Inject()(projectService: ProjectService,
 
   }
 
-  override def findPredicatesFromNode(projectId: String, graph: Option[String], from: String): Future[Seq[Predicate]] =
+  override def findPredicatesFromNode(projectId: String, graph: Option[String], from: String, nodeType: Option[String]): Future[Seq[Predicate]] =
     projectService.findRepoById(projectId).map {
       case Some(repo) =>
         val f = repo.getValueFactory
+        val nodeTypeFilter = nodeType match {
+          case Some("iri") => "FILTER isIRI(?o) "
+          case Some("literal") => "FILTER isLiteral(?o) "
+          case _ => ""
+        }
         val q =
           "SELECT ?p ?o " + (if (graph.isEmpty) "?g" else "") +
             " WHERE { " +
             "  GRAPH ?g { " +
             "   ?s ?p ?o " +
+            nodeTypeFilter +
             "}}"
         val subj = f.createIRI(from)
         val fromNode = ValueUtils.createValue(projectId, graph, subj)
