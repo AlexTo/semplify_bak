@@ -14,6 +14,8 @@ import {useSelector, useDispatch} from "react-redux";
 import {visualGraphActions} from "../../../actions";
 import {useLazyQuery, useQuery} from "@apollo/react-hooks";
 import {entityHubQueries} from "../../../graphql";
+import FieldEditor from "./FieldEditor";
+import {v4 as uuidv4} from 'uuid';
 
 const useStyles = makeStyles(() => ({
   drawer: {
@@ -60,11 +62,11 @@ function NodeInfoDrawer() {
     <Drawer
       anchor="right"
       classes={{paper: classes.drawer}}
-      ModalProps={{BackdropProps: {invisible: true}}}
+      ModalProps={{BackdropProps: {invisible: true}, onBackdropClick: handleClose}}
       onClose={handleClose}
       open={nodeInfoDrawerOpen}
       variant="temporary"
-      >
+      style={{pointerEvents: 'none'}}>
       <PerfectScrollbar options={{suppressScrollX: true}}
                         style={{pointerEvents: 'all'}}>
         <Box p={3}>
@@ -80,8 +82,8 @@ function NodeInfoDrawer() {
             </IconButton>
           </Box>
         </Box>
-        {properties.map(p => <Box px={2} py={1}>
-          {p.to.value}
+        {properties.map(p => <Box px={2} py={1} key={uuidv4()}>
+          <FieldEditor pred={p}/>
         </Box>)}
       </PerfectScrollbar>
     </Drawer>

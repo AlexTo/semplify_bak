@@ -60,26 +60,25 @@ function NodeSearch() {
   }, [projectId])
 
   useEffect(() => {
-    if (debouncedSearchTerm) {
-      if (debouncedSearchTerm.length < 3) {
-        setOptions([]);
-        return;
-      }
-
-      if (projectId === "") {
-        enqueueSnackbar('Please select a project', {
-          variant: 'warning'
-        })
-        return;
-      }
-
-      load({
-        variables: {
-          projectId,
-          term: debouncedSearchTerm,
-        }
-      })
+    if (!debouncedSearchTerm) {
+      return;
     }
+    if (debouncedSearchTerm.length < 3) {
+      setOptions([]);
+      return;
+    }
+    if (projectId === "") {
+      enqueueSnackbar('Please select a project', {
+        variant: 'warning'
+      })
+      return;
+    }
+    load({
+      variables: {
+        projectId,
+        term: debouncedSearchTerm,
+      }
+    })
   }, [debouncedSearchTerm]);
 
 
