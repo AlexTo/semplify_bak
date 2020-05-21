@@ -26,15 +26,16 @@ const useStyles = makeStyles(() => ({
 
 function NodeInfoDrawer() {
   const classes = useStyles();
-  const [properties, setProperties] = useState([]);
+  const [triples, setTriples] = useState([]);
   const dispatch = useDispatch();
   const {projectId} = useSelector((state) => state.projectReducer);
   const {nodeInfoDrawerOpen, selectedNode} = useSelector((state) => state.visualGraphReducer);
 
-  const [loadPredicatesFromNode] = useLazyQuery(
+  const [loadTriplesFromNode] = useLazyQuery(
     entityHubQueries.triplesFromNode, {
       onCompleted: (data) => {
-        setProperties(data.predicatesFromNode);
+        console.log(data.triplesFromNode)
+        setTriples(data.triplesFromNode);
       },
       fetchPolicy: 'no-cache'
     }
@@ -42,7 +43,7 @@ function NodeInfoDrawer() {
 
   useEffect(() => {
     if (selectedNode) {
-      loadPredicatesFromNode({
+      loadTriplesFromNode({
         variables: {
           projectId,
           uri: selectedNode,
@@ -87,9 +88,9 @@ function NodeInfoDrawer() {
             </IconButton>
           </Box>
         </Box>
-        {properties.map((p) => (
+        {triples.map((t) => (
           <Box px={2} py={1} key={uuidv4()}>
-            <FieldEditor pred={p}/>
+            <FieldEditor pred={t}/>
           </Box>
         ))}
       </PerfectScrollbar>

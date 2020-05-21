@@ -115,7 +115,8 @@ function Results({className, ...rest}) {
   const {data, refetch} = useQuery(entityHubQueries.graphs, {
     variables: {
       projectId
-    }
+    },
+    skip: !projectId
   });
 
   const [deleteGraphs] = useMutation(entityHubQueries.deleteGraphs)

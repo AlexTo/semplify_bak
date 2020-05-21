@@ -206,17 +206,15 @@ function NavBar({openMobile, onMobileClose,}) {
           </Box>
           <Box
             mt={2}
-            textAlign="center"
-          >
-            <Link
+            textAlign="center">
+            {token.name && <Link
               component={RouterLink}
               to="/"
               variant="h5"
               color="textPrimary"
-              underline="none"
-            >
+              underline="none">
               {token.name}
-            </Link>
+            </Link>}
           </Box>
         </Box>
         <Divider/>

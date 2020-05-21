@@ -53,7 +53,6 @@ function addTriples(state, action) {
   const {nodes, edges} = state;
   const existingNodes = nodes.map(n => n.data.id)
 
-  console.log(action.triples)
   const addedNodes = action.triples
     .filter(t => !existingNodes.includes(t.obj.value))
     .map(t => {
@@ -84,7 +83,6 @@ function addTriples(state, action) {
       t.obj.value === e.data.source));
 
   const addedEdges = removeAddedBidirectionalEdges.map(t => createGraphEdge(t))
-  console.log(addedEdges);
   if (addedNodes.length > 0 || addedEdges.length > 0) {
     return Object.assign({}, state, {
       nodes: [...addedNodes, ...nodes], edges: [...addedEdges, ...updateBidirectionalEdges]

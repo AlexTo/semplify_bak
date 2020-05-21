@@ -142,7 +142,9 @@ class EntityServiceImpl @Inject()(projectService: ProjectService,
           val tq = proj.repository.`type` match {
             case RepositoryType.Virtuoso =>
               conn.prepareTupleQuery(QueryLanguage.SPARQL,
-                q.replace("?term", s"""\"\'${term.trim}*\'\""""))
+                q.replace(
+                  "?term",
+                  s"""\"${term.split(" ").map(s => s.trim).mkString(" AND ")}\""""))
             case _ =>
               val tq = conn.prepareTupleQuery(QueryLanguage.SPARQL, q)
               tq.setBinding("term", f.createLiteral(s"${term.trim}*"))
