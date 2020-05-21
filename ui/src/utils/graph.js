@@ -9,14 +9,14 @@ export const createGraphNode = (node) => ({
   }
 })
 
-export const createGraphEdge = (pred) => ({
+export const createGraphEdge = (triple) => ({
   data: {
-    projectId: pred.projectId,
-    graph: pred.graph,
-    label: pred.prefLabel.value,
-    source: pred.from.value,
-    target: pred.to.value,
-    value: pred.value
+    projectId: triple.projectId,
+    graph: triple.graph,
+    label: triple.pred.prefLabel.value,
+    source: triple.subj.value,
+    target: triple.obj.value,
+    value: triple.pred.value
   },
   classes: 'autorotate unidirectional'
 })

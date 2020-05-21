@@ -41,7 +41,7 @@ class WebCrawlerServiceImpl @Inject()(conf: Configuration, projectService: Proje
     "|xml|txt|java|c|cpp|exe" +
     "))$")
 
-  val crawlStorageFolder = s"${conf.get[String]("app.storageDir")}/crawler"
+  val crawlStorageFolder = s"${conf.get[String]("app.tmpDir")}/crawler"
 
   class Crawler(callback: Page => Unit) extends WebCrawler {
 

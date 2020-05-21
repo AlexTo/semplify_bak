@@ -29,6 +29,17 @@ services:
       - keycloak:/opt/jboss/keycloak/standalone/data
     networks:
       - semplify
+  rdf4j:
+    image: tonhudung/rdf4j:3.2.0
+    hostname: rdf4j
+    container_name: rdf4j
+    environment:
+      JAVA_OPTS: '-Xms16g -Xmx32g'
+    ports:
+      - 8090:8080
+    volumes:
+      - rdf4j_data:/var/rdf4j
+      - rdf4j_logs:/usr/local/tomcat/logs
 
   virtuoso:
     image: tenforce/virtuoso
@@ -36,8 +47,8 @@ services:
     container_name: virtuoso
     environment:
       SPARQL_UPDATE: "true"
-      VIRT_Parameters_NumberOfBuffers: 2040000
-      VIRT_Parameters_MaxDirtyBuffers: 1500000
+      VIRT_Parameters_NumberOfBuffers: 2720000
+      VIRT_Parameters_MaxDirtyBuffers: 2000000
     volumes:
       - virtuoso:/data
     ports:
@@ -48,6 +59,8 @@ volumes:
   mongo:
   keycloak:
   virtuoso:
+  rdf4j_data:
+  rdf4j_logs:
 
 networks:
   semplify:

@@ -25,17 +25,17 @@ function Graph() {
   const dispatch = useDispatch();
 
 
-  const [loadPredicatesFromNode] = useLazyQuery(
-    entityHubQueries.predicatesFromNode, {
+  const [loadTriplesFromNode] = useLazyQuery(
+    entityHubQueries.triplesFromNode, {
       onCompleted: data => {
-        const {predicatesFromNode} = data;
-        if (predicatesFromNode.length === 0) {
+        const {triplesFromNode} = data;
+        if (triplesFromNode.length === 0) {
           enqueueSnackbar('This node has no other connections', {
             variant: 'success'
           });
           return;
         }
-        dispatch(visualGraphActions.addEdges(predicatesFromNode));
+        dispatch(visualGraphActions.addTriples(triplesFromNode));
       },
       fetchPolicy: 'no-cache'
     });
@@ -79,7 +79,7 @@ function Graph() {
       {
         content: renderToString(<Maximize2 size={16}/>),
         select: function (ele) {
-          loadPredicatesFromNode({
+          loadTriplesFromNode({
             variables: {
               projectId: ele.data().projectId,
               uri: ele.id(),

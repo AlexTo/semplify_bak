@@ -3,12 +3,11 @@ package modules.entityhub.services.impl
 import modules.entityhub.models.QueryType
 import modules.entityhub.models.QueryType.QueryType
 import modules.entityhub.services.QueryFactory
-import org.eclipse.rdf4j.repository.Repository
-import virtuoso.rdf4j.driver.VirtuosoRepository
+import modules.project.models.{ProjectGet, RepositoryType}
 
 class QueryFactoryImpl extends QueryFactory {
-  override def getQuery(queryType: QueryType, repo: Repository, graph: Option[String]): String = repo match {
-    case _: VirtuosoRepository => queryType match {
+  override def getQuery(queryType: QueryType, proj: ProjectGet, graph: Option[String]): String = proj.repository.`type` match {
+    case RepositoryType.Virtuoso => queryType match {
       case QueryType.SearchNodes =>
         "SELECT ?s ?sc (?o AS ?snippet) " + (if (graph.isEmpty) "?g" else "") +
           " WHERE { " +
@@ -20,7 +19,7 @@ class QueryFactoryImpl extends QueryFactory {
           "ORDER BY DESC (?sc) " +
           "LIMIT 40 "
     }
-    case _ => queryType match {
+    case RepositoryType.Native => queryType match {
       case QueryType.SearchNodes => "PREFIX search: <http://www.openrdf.org/contrib/lucenesail#> " +
         "SELECT ?s ?sc ?snippet " + (if (graph.isEmpty) "?g" else "") +
         " WHERE { " +

@@ -1,7 +1,7 @@
 package modules.graphql.services
 
 import com.google.inject.ImplementedBy
-import modules.entityhub.models.{GraphGet, IRI, Literal, Predicate, SearchHit}
+import modules.entityhub.models.{GraphGet, IRI, Literal, Triple, SearchHit}
 import modules.fileserver.models.FileInfo
 import modules.graphql.services.impl.RepositoryImpl
 import modules.project.models.ProjectGet
@@ -19,9 +19,9 @@ trait Repository {
 
   def depiction(projectId: String, uri: String): Future[Option[IRI]]
 
-  def predicatesFromNode(projectId: String, graph: Option[String], from: String, nodeType: Option[String]): Future[Seq[Predicate]]
+  def triplesFromNode(projectId: String, graph: Option[String], from: String, nodeType: Option[String]): Future[Seq[Triple]]
 
-  def predicatesToNode(projectId: String, graph: Option[String], to: String): Future[Seq[Predicate]]
+  def triplesToNode(projectId: String, graph: Option[String], to: String): Future[Seq[Triple]]
 
   def projects(): Future[Seq[ProjectGet]]
 

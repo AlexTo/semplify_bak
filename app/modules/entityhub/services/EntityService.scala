@@ -1,7 +1,7 @@
 package modules.entityhub.services
 
 import com.google.inject.ImplementedBy
-import modules.entityhub.models.{GraphGet, IRI, Literal, Predicate, SearchHit}
+import modules.entityhub.models.{GraphGet, IRI, Literal, Triple, SearchHit}
 import modules.entityhub.services.impl.EntityServiceImpl
 
 import scala.concurrent.Future
@@ -11,9 +11,9 @@ trait EntityService {
 
   def findNode(projectId: String, graph: Option[String], uri: String): Future[Option[IRI]]
 
-  def findPredicatesFromNode(projectId: String, graph: Option[String], from: String, nodeType: Option[String]): Future[Seq[Predicate]]
+  def findTriplesFromNode(projectId: String, graph: Option[String], subj: String, nodeType: Option[String]): Future[Seq[Triple]]
 
-  def findPredicatesToNode(projectId: String, graph: Option[String], to: String): Future[Seq[Predicate]]
+  def findTriplesToNode(projectId: String, graph: Option[String], obj: String): Future[Seq[Triple]]
 
   def searchNodes(projectId: String, graph: Option[String], term: String): Future[Seq[SearchHit]]
 

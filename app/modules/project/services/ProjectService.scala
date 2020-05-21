@@ -16,7 +16,7 @@ trait ProjectService {
 
   def findById(projectId: String): Future[Option[ProjectGet]]
 
-  def findRepoById(projectId: String): Future[Option[Repository]]
+  def findRepoById(projectId: String): Future[Option[(ProjectGet, Repository)]]
 
   def importRDF(projectId: String, fileId: String, baseURI: String,
                 graph: String, replaceGraph: Option[Boolean]): Future[Try[Unit]]

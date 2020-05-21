@@ -42,17 +42,31 @@ export const entityHubQueries = {
       }
     }
   `,
-  predicatesFromNode: gql`
-    query predicatesFromNode($projectId: String!, $graph: String, $uri: String!, $nodeType: String) {
-      predicatesFromNode(projectId: $projectId, graph: $graph, uri: $uri, nodeType: $nodeType) {
-        value
-        prefLabel {
+  triplesFromNode: gql`
+    query triplesFromNode($projectId: String!, $graph: String, $uri: String!, $nodeType: String) {
+      triplesFromNode(projectId: $projectId, graph: $graph, uri: $uri, nodeType: $nodeType) {
+        subj {
+          projectId
           value
+          ... on IRI {
+            prefLabel {
+              value
+            }
+            depiction {
+              value
+            }
+          }
         }
-        from {
+        pred {
+          projectId
           value
+          ... on IRI {
+            prefLabel {
+              value
+            }
+          }
         }
-        to {
+        obj {
           projectId
           value
           graph

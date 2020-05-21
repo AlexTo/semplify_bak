@@ -1,6 +1,6 @@
 package modules.project.services.impl
 
-import java.io.{BufferedReader, File, InputStreamReader}
+import java.io.{BufferedReader, InputStreamReader}
 
 import akka.stream.Materializer
 import akka.stream.scaladsl.StreamConverters
@@ -11,7 +11,7 @@ import modules.project.models.{NativeRepository, ProjectCreate, ProjectGet, Virt
 import modules.project.services.ProjectService
 import org.eclipse.rdf4j.repository.Repository
 import org.eclipse.rdf4j.repository.config.RepositoryConfig
-import org.eclipse.rdf4j.repository.manager.LocalRepositoryManager
+import org.eclipse.rdf4j.repository.manager.{RepositoryManager, RepositoryProvider}
 import org.eclipse.rdf4j.repository.sail.config.SailRepositoryConfig
 import org.eclipse.rdf4j.rio.{RDFFormat, Rio}
 import org.eclipse.rdf4j.sail.lucene.config.LuceneSailConfig
@@ -36,9 +36,9 @@ class ProjectServiceImpl @Inject()(reactiveMongoApi: ReactiveMongoApi,
                                    applicationLifecycle: ApplicationLifecycle)
                                   (implicit ex: ExecutionContext, m: Materializer) extends ProjectService {
 
-  var storageDir: String = conf.get[String]("app.storageDir")
-  val luceneDir: String = conf.get[String]("app.luceneDir")
-  var manager = new LocalRepositoryManager(new File(storageDir))
+  val luceneDir: String = conf.get[String]("app.rdf4jWorkBench.luceneDir")
+  var rdf4jHost: String = conf.get[String]("app.rdf4jWorkBench.host")
+  val manager: RepositoryManager = RepositoryProvider.getRepositoryManager(rdf4jHost)
   manager.init()
 
   applicationLifecycle.addStopHook(() => {
@@ -73,11 +73,9 @@ class ProjectServiceImpl @Inject()(reactiveMongoApi: ReactiveMongoApi,
     case Failure(_) => Future.successful(None)
   }
 
-  override def findRepoById(projectId: String): Future[Option[Repository]] = findById(projectId) map {
+  override def findRepoById(projectId: String): Future[Option[(ProjectGet, Repository)]] = findById(projectId) map {
     case Some(projectGet) =>
-      if (manager.hasRepositoryConfig(projectId)) {
-        Some(manager.getRepository(projectId))
-      } else {
+      if (!manager.hasRepositoryConfig(projectId)) {
         val repoConfig = projectGet.repository match {
           case _: NativeRepository =>
             val nativeStoreConfig = new NativeStoreConfig()
@@ -86,25 +84,28 @@ class ProjectServiceImpl @Inject()(reactiveMongoApi: ReactiveMongoApi,
             luceneConfig.setParameter(LuceneSail.INDEX_CLASS_KEY, classOf[LuceneIndex].getName)
             luceneConfig.setParameter(LuceneSail.LUCENE_RAMDIR_KEY, "false")
             val repositoryTypeSpec = new SailRepositoryConfig(luceneConfig)
-            new RepositoryConfig(projectId, repositoryTypeSpec)
+            val repositoryConfig = new RepositoryConfig(projectId, repositoryTypeSpec)
+            repositoryConfig.setTitle("Native store with Lucene support")
+            repositoryConfig
           case virtuoso: VirtuosoRepository =>
             val virtuosoStoreConfig = new VirtuosoRepositoryConfig()
             virtuosoStoreConfig.setHostList(virtuoso.hostList)
             virtuosoStoreConfig.setUsername(virtuoso.username)
             virtuosoStoreConfig.setPassword(virtuoso.password)
             virtuosoStoreConfig.setDefGraph(virtuoso.defGraph)
-            new RepositoryConfig(projectId, virtuosoStoreConfig)
+            val repositoryConfig = new RepositoryConfig(projectId, virtuosoStoreConfig)
+            repositoryConfig.setTitle("Virtuoso")
+            repositoryConfig
         }
         manager.addRepositoryConfig(repoConfig)
-        Some(manager.getRepository(projectId))
       }
-
+      Some((projectGet, manager.getRepository(projectId)))
     case None => None
   }
 
   override def importRDF(projectId: String, fileId: String, baseURI: String, graph: String, replaceGraph: Option[Boolean]): Future[Try[Unit]] = {
     findRepoById(projectId) flatMap {
-      case Some(repo) => fileService.findById(fileId) map { file =>
+      case Some((_, repo)) => fileService.findById(fileId) map { file =>
         val inputStream = new BufferedReader(
           new InputStreamReader(file.content.runWith(StreamConverters.asInputStream())))
         val f = repo.getValueFactory

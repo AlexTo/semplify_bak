@@ -16,7 +16,7 @@ class SPARQLServiceImpl @Inject()(projectService: ProjectService)
                                  (implicit ec: ExecutionContext) extends SPARQLService {
   override def executeQuery(projectId: String, query: String): Future[QueryResult] =
     projectService.findRepoById(projectId) map {
-      case Some(repo) =>
+      case Some((_, repo)) =>
         val r = repo
         Using(repo.getConnection) { conn =>
           val tq = conn.prepareTupleQuery(QueryLanguage.SPARQL, query)

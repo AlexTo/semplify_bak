@@ -30,10 +30,10 @@ object SchemaDefinition {
       Field("value", StringType, resolve = _.value.value),
       Field("prefLabel", OptionType(Literal), resolve = ctx => ctx.ctx.prefLabel(ctx.value.projectId, ctx.value.value)),
       Field("depiction", OptionType(IRI), resolve = ctx => ctx.ctx.depiction(ctx.value.projectId, ctx.value.value)),
-      Field("outGoingPredicates", ListType(Predicate),
-        resolve = ctx => ctx.ctx.predicatesFromNode(ctx.value.projectId, None, ctx.value.value, None)),
-      Field("incomingPredicates", ListType(Predicate),
-        resolve = ctx => ctx.ctx.predicatesToNode(ctx.value.projectId, None, ctx.value.value))
+      Field("outGoingPredicates", ListType(Triple),
+        resolve = ctx => ctx.ctx.triplesFromNode(ctx.value.projectId, None, ctx.value.value, None)),
+      Field("incomingPredicates", ListType(Triple),
+        resolve = ctx => ctx.ctx.triplesToNode(ctx.value.projectId, None, ctx.value.value))
     ))
 
   val Literal: ObjectType[Repository, Literal] = ObjectType("Literal", "An RDF Literal",
@@ -54,15 +54,13 @@ object SchemaDefinition {
       Field("value", StringType, resolve = _.value.value))
   )
 
-  val Predicate: ObjectType[Repository, Predicate] = ObjectType("Predicate", "An RDF predicate",
-    interfaces[Repository, Predicate](Value),
-    () => fields[Repository, Predicate](
+  val Triple: ObjectType[Repository, Triple] = ObjectType("Triple", "An RDF triple",
+    () => fields[Repository, Triple](
       Field("projectId", StringType, resolve = _.value.projectId),
       Field("graph", OptionType(StringType), resolve = _.value.graph),
-      Field("value", StringType, resolve = _.value.value),
-      Field("prefLabel", OptionType(Literal), resolve = ctx => ctx.ctx.prefLabel(ctx.value.projectId, ctx.value.value)),
-      Field("from", IRI, resolve = _.value.from),
-      Field("to", Value, resolve = _.value.to),
+      Field("subj", IRI, resolve = _.value.subj),
+      Field("pred", IRI, resolve = _.value.pred),
+      Field("obj", Value, resolve = _.value.obj),
     ))
 
   val WebPage: ObjectType[Repository, PageGet] = ObjectType("WebPage",
@@ -142,9 +140,9 @@ object SchemaDefinition {
         arguments = ProjectIdArg :: GraphArg :: UriArg :: Nil,
         resolve = ctx => ctx.ctx.node(ctx arg ProjectIdArg, ctx arg GraphArg, ctx arg UriArg)
       ),
-      Field("predicatesFromNode", ListType(Predicate),
+      Field("triplesFromNode", ListType(Triple),
         arguments = ProjectIdArg :: GraphArg :: UriArg :: NodeTypeArg :: Nil,
-        resolve = ctx => ctx.ctx.predicatesFromNode(ctx arg ProjectIdArg, ctx arg GraphArg,
+        resolve = ctx => ctx.ctx.triplesFromNode(ctx arg ProjectIdArg, ctx arg GraphArg,
           ctx arg UriArg, ctx arg NodeTypeArg)
       ),
       Field("files", ListType(FileInfo),

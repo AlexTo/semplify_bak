@@ -122,5 +122,5 @@
     "rimraf": "^3.0.2",
     "typescript": "^3.8.3"
   },
-  "proxy": "http://semplify:9000"
+  "proxy": "http://localhost:9000"
 }

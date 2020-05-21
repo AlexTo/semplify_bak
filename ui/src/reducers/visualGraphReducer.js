@@ -1,7 +1,7 @@
 import {createGraphEdge, createGraphNode} from '../utils/graph';
 import {
   VISUAL_GRAPH_CLOSE_NODE_INFO_DRAWER,
-  VISUAL_GRAPH_EDGES_ADDED,
+  VISUAL_GRAPH_TRIPLES_ADDED,
   VISUAL_GRAPH_NODE_ADDED,
   VISUAL_GRAPH_NODE_REMOVED, VISUAL_GRAPH_OPEN_NODE_INFO_DRAWER
 } from "../actions";
@@ -19,8 +19,8 @@ export const visualGraphReducer = (state = initialState, action) => {
     case VISUAL_GRAPH_NODE_ADDED:
       return addNode(state, action);
 
-    case VISUAL_GRAPH_EDGES_ADDED:
-      return addEdges(state, action);
+    case VISUAL_GRAPH_TRIPLES_ADDED:
+      return addTriples(state, action);
 
     case VISUAL_GRAPH_NODE_REMOVED:
       return removeNode(state, action);
@@ -49,43 +49,42 @@ function addNode(state, action) {
   return Object.assign({}, state, {nodes: newNodes});
 }
 
-function addEdges(state, action) {
+function addTriples(state, action) {
   const {nodes, edges} = state;
   const existingNodes = nodes.map(n => n.data.id)
 
-  const addedNodes = action.edges
-    .filter(p => !existingNodes.includes(p.to.value))
-    .map(p => {
-      const {to} = p
-      return createGraphNode(to);
+  console.log(action.triples)
+  const addedNodes = action.triples
+    .filter(t => !existingNodes.includes(t.obj.value))
+    .map(t => {
+      const {obj} = t
+      return createGraphNode(obj);
     })
 
-  const removeDuplicateEdges = action.edges
-    .filter(p => !edges.find(e =>
-      e.data.source === p.from.value &&
-      e.data.target === p.to.value &&
-      e.data.value === p.value))
+  const removeDuplicateEdges = action.triples
+    .filter(t => !edges.find(e =>
+      e.data.source === t.subj.value &&
+      e.data.value === t.pred.value &&
+      e.data.target === t.obj.value))
 
   // update existing edges to be bi-directional
   const updateBidirectionalEdges = edges.map(e => {
-    if (action.edges.find(p =>
-      p.from.value === e.data.target &&
-      p.to.value === e.data.source &&
-      p.value === e.data.value)) {
+    if (action.triples.find(t =>
+      t.subj.value === e.data.target &&
+      t.pred.value === e.data.value &&
+      t.obj.value === e.data.source)) {
       return toBidirectionalEdge(e);
     } else
       return e
   })
 
-  console.log(updateBidirectionalEdges);
+  const removeAddedBidirectionalEdges = removeDuplicateEdges.filter(t =>
+    !updateBidirectionalEdges.find(e => t.subj.value === e.data.target &&
+      t.pred.value === e.data.value &&
+      t.obj.value === e.data.source));
 
-  const removeAddedBidirectionalEdges = removeDuplicateEdges.filter(p =>
-    !updateBidirectionalEdges.find(e => p.from.value === e.data.target &&
-      p.to.value === e.data.source &&
-      p.value === e.data.value));
-
-  const addedEdges = removeAddedBidirectionalEdges.map(p => createGraphEdge(p))
-
+  const addedEdges = removeAddedBidirectionalEdges.map(t => createGraphEdge(t))
+  console.log(addedEdges);
   if (addedNodes.length > 0 || addedEdges.length > 0) {
     return Object.assign({}, state, {
       nodes: [...addedNodes, ...nodes], edges: [...addedEdges, ...updateBidirectionalEdges]
@@ -107,8 +106,6 @@ function removeNode(state, action) {
 
 function toBidirectionalEdge(e) {
   const classes = e.classes.split(" ");
-  console.log(classes.filter(c => c !== "unidirectional" && c !== "bidirectional")
-    .push("bidirectional"));
   const newClasses = classes
     .filter(c => c !== "unidirectional" && c !== "bidirectional")
     .concat(["bidirectional"]).join(" ");

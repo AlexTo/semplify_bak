@@ -20,19 +20,20 @@ class EntityHubController @Inject()(rmlService: RMLService,
   def test(dataFileId: String, mappingFileId: String, projectId: String, graph: String): Action[AnyContent]
   = Action.async { _ =>
     projectService.findRepoById(projectId) flatMap {
-      case Some(repo) => rmlService.execute(dataFileId, mappingFileId)
-        .map(quadStore => {
-          val rdf4JStore = quadStore.asInstanceOf[RDF4JStore]
-          val model = rdf4JStore.getModel
-          val conn = repo.getConnection
-          val f = conn.getValueFactory
-          try {
-            conn.add(model, f.createIRI(graph))
-            Ok
-          } finally {
-            conn.close()
-          }
-        })
+      case Some((_, repo)) =>
+        rmlService.execute(dataFileId, mappingFileId)
+          .map(quadStore => {
+            val rdf4JStore = quadStore.asInstanceOf[RDF4JStore]
+            val model = rdf4JStore.getModel
+            val conn = repo.getConnection
+            val f = conn.getValueFactory
+            try {
+              conn.add(model, f.createIRI(graph))
+              Ok
+            } finally {
+              conn.close()
+            }
+          })
     }
   }
 

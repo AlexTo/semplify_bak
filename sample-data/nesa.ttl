@@ -764,6 +764,14 @@
   ];
 
   rr:predicateObjectMap [
+    rr:predicate asn:exactMatch;
+    rr:objectMap [
+      rml:reference "asn_exactMatch.uri";
+  	rr:termType rr:IRI
+    ]
+  ];
+
+  rr:predicateObjectMap [
     rr:predicate asn:indexingStatus;
     rr:objectMap [
       rml:reference "asn_indexingStatus.uri";
