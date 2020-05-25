@@ -11,7 +11,7 @@ function RDFImportDialog() {
   const dispatch = useDispatch();
   const {enqueueSnackbar} = useSnackbar();
   const {projectId} = useSelector(state => state.projectReducer);
-  const {importFormOpen, fileToImport} = useSelector(state => state.importReducer);
+  const {importDialogOpen, fileToImport} = useSelector(state => state.importReducer);
 
   const handleSave = (data) => {
     const {baseURI, graph} = data;
@@ -25,13 +25,13 @@ function RDFImportDialog() {
   }
 
   const handleClose = () => {
-    dispatch(importActions.closeImportForm());
+    dispatch(importActions.closeImportDialog());
   }
 
   if (!fileToImport) return null;
 
   return (
-    <Dialog open={importFormOpen} onClose={handleClose}
+    <Dialog open={importDialogOpen} onClose={handleClose}
             aria-labelledby="form-dialog-title"
             maxWidth="md" fullWidth>
       <DialogTitle>Import file</DialogTitle>

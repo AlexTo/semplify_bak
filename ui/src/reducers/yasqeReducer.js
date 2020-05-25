@@ -1,4 +1,4 @@
-import {SESSION_LOGGED_OUT, YASQE_SET_THEME} from "../actions";
+import {YASQE_SET_THEME} from "../actions";
 import {THEMES} from "../constants";
 
 const themeMap = {

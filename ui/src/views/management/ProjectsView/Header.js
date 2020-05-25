@@ -2,15 +2,29 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import {
+  Box,
   Breadcrumbs,
+  Button,
   Grid,
+  SvgIcon,
   Typography,
   makeStyles
 } from '@material-ui/core';
+import {
+  File as FileIcon,
+} from 'react-feather';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
+import {useDispatch} from "react-redux";
+import {projectActions} from "../../../actions";
 
 const useStyles = makeStyles((theme) => ({
   root: {},
+  action: {
+    marginBottom: theme.spacing(1),
+    '& + &': {
+      marginLeft: theme.spacing(1)
+    }
+  },
   actionIcon: {
     marginRight: theme.spacing(1)
   }
@@ -18,6 +32,8 @@ const useStyles = makeStyles((theme) => ({
 
 function Header({className, ...rest}) {
   const classes = useStyles();
+
+  const dispatch = useDispatch();
 
   return (
     <Grid
@@ -34,15 +50,32 @@ function Header({className, ...rest}) {
         >
           <Typography
             variant="body1"
-            color="inherit">
-            Explore
+            color="inherit"
+          >
+            Management
           </Typography>
           <Typography
             variant="body1"
-            color="textPrimary">
-            SPARQL
+            color="textPrimary"
+          >
+            Projects
           </Typography>
         </Breadcrumbs>
+      </Grid>
+      <Grid item>
+        <Button className={classes.action}
+                color="secondary"
+                variant="contained"
+                onClick={() => {
+                  dispatch(projectActions.openNewProjectDialog())
+                }}>
+          <SvgIcon
+            fontSize="small"
+            className={classes.actionIcon}>
+            <FileIcon/>
+          </SvgIcon>
+          New project
+        </Button>
       </Grid>
     </Grid>
   );

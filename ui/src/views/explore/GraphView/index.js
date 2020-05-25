@@ -2,13 +2,14 @@ import React from 'react';
 import {
   Box,
   Container,
-  makeStyles
+  makeStyles, Typography
 } from '@material-ui/core';
 import Page from 'src/components/Page';
 import Header from './Header';
 import NodeSearch from "../../../components/NodeSearch";
 import Graph from "./Graph";
 import NodeInfoDrawer from "./NodeInfoDrawer";
+import {useSelector} from "react-redux";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -29,6 +30,7 @@ const useStyles = makeStyles((theme) => ({
 
 function GraphView() {
   const classes = useStyles();
+  const {projectId} = useSelector(state => state.projectReducer)
   return (
     <Page
       className={classes.root}
@@ -37,12 +39,19 @@ function GraphView() {
         className={classes.container}
         maxWidth={false}>
         <Header/>
-        <Box mt={3}>
-          <NodeSearch/>
-        </Box>
-        <Box mt={3} className={classes.graphBox}>
-          <Graph/>
-        </Box>
+        {projectId ?
+          <>
+            <Box mt={3}>
+              <NodeSearch/>
+            </Box>
+            <Box mt={3} className={classes.graphBox}>
+              <Graph/>
+            </Box>
+          </> : <Box mt={3}>
+            <Typography variant="h5"
+                        color="textSecondary"> Please select a project
+            </Typography>
+          </Box>}
         <NodeInfoDrawer/>
       </Container>
     </Page>

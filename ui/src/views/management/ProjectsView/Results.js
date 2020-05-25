@@ -18,38 +18,17 @@ import {
   TablePagination,
   TableRow,
   TextField,
+  Typography,
   makeStyles
 } from '@material-ui/core';
 import {
-  ArrowRight as ArrowRightIcon,
-  Search as SearchIcon
+  Search as SearchIcon,
+  Trash as TrashIcon,
 } from 'react-feather';
 import {useQuery} from "@apollo/react-hooks";
-import {webCrawlerQueries} from "../../../graphql/webCrawlerQueries";
-import {useSelector} from "react-redux";
-
-const categoryOptions = [
-  {
-    id: 'all',
-    name: 'All'
-  },
-  {
-    id: 'dress',
-    name: 'Dress'
-  },
-  {
-    id: 'jewelry',
-    name: 'Jewelry'
-  },
-  {
-    id: 'blouse',
-    name: 'Blouse'
-  },
-  {
-    id: 'beauty',
-    name: 'Beauty'
-  }
-];
+import {useDispatch, useSelector} from "react-redux";
+import {projectQueries} from "../../../graphql";
+import OkCancelDialog from "../../../components/ConfirmationDialog";
 
 const sortOptions = [
   {
@@ -128,28 +107,31 @@ const useStyles = makeStyles((theme) => ({
 
 function Results({className, ...rest}) {
   const classes = useStyles();
-  const [selectedWebPages, setSelectedWebPages] = useState([]);
+
+  const dispatch = useDispatch();
+  const [selectedProjects, setSelectedProjects] = useState([]);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [page, setPage] = useState(0);
-  const [webPages, setWebPages] = useState([]);
+  const [projects, setProjects] = useState([]);
   const {projectId} = useSelector(state => state.projectReducer);
-  const {data} = useQuery(webCrawlerQueries.crawledPages, {
-    variables: {
-      projectId
-    }
-  })
+  const {data} = useQuery(projectQueries.projects);
+
   const [limit, setLimit] = useState(5);
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState(sortOptions[0].value);
   const [filters, setFilters] = useState({
-    domain: null,
+    category: null,
+    availability: null,
+    inStock: null,
+    isShippable: null
   });
 
   useEffect(() => {
     if (!data) {
-      setWebPages([])
+      setProjects([])
       return;
     }
-    setWebPages(data.crawledPages);
+    setProjects(data.projects);
   }, [data])
 
   const handleQueryChange = (event) => {
@@ -157,37 +139,17 @@ function Results({className, ...rest}) {
     setQuery(event.target.value);
   };
 
-  const handleDomainChange = (event) => {
-    event.persist();
-
-    let value = null;
-
-    if (event.target.value !== 'all') {
-      value = event.target.value;
-    }
-
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      domain: value
-    }));
-  };
-
-  const handleSortChange = (event) => {
-    event.persist();
-    setSort(event.target.value);
-  };
-
   const handleSelectAll = (event) => {
-    setSelectedWebPages(event.target.checked
-      ? webPages.map((p) => p.id)
+    setSelectedProjects(event.target.checked
+      ? projects.map((p) => p.id)
       : []);
   };
 
   const handleSelectOne = (event, pageId) => {
-    if (!selectedWebPages.includes(pageId)) {
-      setSelectedWebPages((prevSelected) => [...prevSelected, pageId]);
+    if (!selectedProjects.includes(pageId)) {
+      setSelectedProjects((prevSelected) => [...prevSelected, pageId]);
     } else {
-      setSelectedWebPages((prevSelected) => prevSelected.filter((id) => id !== pageId));
+      setSelectedProjects((prevSelected) => prevSelected.filter((id) => id !== pageId));
     }
   };
 
@@ -199,11 +161,20 @@ function Results({className, ...rest}) {
     setLimit(event.target.value);
   };
 
-  const filteredList = applyFilters(webPages, query, filters);
+
+  const handleDelete = (files) => {
+    setSelectedProjects(files);
+    setDeleteDialogOpen(true);
+  }
+
+  const handleDeleteConfirm = () => {
+  }
+
+  const filteredList = applyFilters(projects, query, filters);
   const paginatedList = applyPagination(filteredList, page, limit);
-  const enableBulkOperations = selectedWebPages.length > 0;
-  const selectedSome = selectedWebPages.length > 0 && selectedWebPages.length < webPages.length;
-  const selectedAll = selectedWebPages.length === webPages.length;
+  const enableBulkOperations = selectedProjects.length > 0;
+  const selectedSome = selectedProjects.length > 0 && selectedProjects.length < projects.length;
+  const selectedAll = selectedProjects.length > 0 && selectedProjects.length === projects.length;
 
   return (
     <Card
@@ -235,49 +206,6 @@ function Results({className, ...rest}) {
             variant="outlined"
           />
           <Box flexGrow={1}/>
-          <TextField
-            label="Sort By"
-            name="sort"
-            onChange={handleSortChange}
-            select
-            SelectProps={{native: true}}
-            value={sort}
-            variant="outlined"
-          >
-            {sortOptions.map((option) => (
-              <option
-                key={option.value}
-                value={option.value}
-              >
-                {option.label}
-              </option>
-            ))}
-          </TextField>
-        </Box>
-        <Box
-          mt={3}
-          display="flex"
-          alignItems="center"
-        >
-          <TextField
-            className={classes.categoryField}
-            label="Domain"
-            name="domain"
-            onChange={handleDomainChange}
-            select
-            SelectProps={{native: true}}
-            value={filters.category || 'all'}
-            variant="outlined"
-          >
-            {categoryOptions.map((categoryOption) => (
-              <option
-                key={categoryOption.id}
-                value={categoryOption.id}
-              >
-                {categoryOption.name}
-              </option>
-            ))}
-          </TextField>
         </Box>
       </Box>
       {enableBulkOperations && (
@@ -290,14 +218,14 @@ function Results({className, ...rest}) {
             />
             <Button
               variant="outlined"
-              className={classes.bulkAction}>
+              className={classes.bulkAction} onClick={() => handleDelete(selectedProjects)}>
               Delete
             </Button>
           </div>
         </div>
       )}
       <PerfectScrollbar>
-        <Box minWidth={1200}>
+        <Box>
           <Table>
             <TableHead>
               <TableRow>
@@ -309,10 +237,13 @@ function Results({className, ...rest}) {
                   />
                 </TableCell>
                 <TableCell>
-                  Title
+                  Name
                 </TableCell>
                 <TableCell>
-                  Url
+                  Repository
+                </TableCell>
+                <TableCell>
+                  Created by
                 </TableCell>
                 <TableCell align="right">
                   Actions
@@ -320,32 +251,43 @@ function Results({className, ...rest}) {
               </TableRow>
             </TableHead>
             <TableBody>
-              {paginatedList.map((p) => {
-                const isSelected = selectedWebPages.includes(p.id);
-
+              {paginatedList.map(p => {
+                const isSelected = selectedProjects.includes(p.id);
                 return (
                   <TableRow
                     hover
                     key={p.id}
-                    selected={isSelected}
-                  >
+                    selected={isSelected}>
                     <TableCell padding="checkbox">
                       <Checkbox
                         checked={isSelected}
                         onChange={(event) => handleSelectOne(event, p.id)}
-                        value={isSelected}
-                      />
+                        value={isSelected}/>
                     </TableCell>
                     <TableCell>
                       {p.title}
                     </TableCell>
                     <TableCell>
-                      {p.url}
+                      <Box
+                        display="flex"
+                        alignItems="center">
+                        <Box ml={2}>
+                          {p.repository.type}
+                          <Typography
+                            variant="body2"
+                            color="textSecondary">
+                            {p.repository.hostList}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </TableCell>
+                    <TableCell>
+                      {p.createdBy}
                     </TableCell>
                     <TableCell align="right">
-                      <IconButton>
+                      <IconButton onClick={() => handleDelete([p.id])}>
                         <SvgIcon fontSize="small">
-                          <ArrowRightIcon/>
+                          <TrashIcon/>
                         </SvgIcon>
                       </IconButton>
                     </TableCell>
@@ -365,6 +307,10 @@ function Results({className, ...rest}) {
           />
         </Box>
       </PerfectScrollbar>
+      <OkCancelDialog open={deleteDialogOpen}
+                      onClose={() => setDeleteDialogOpen(false)}
+                      message="Are you sure you want to delete selected projects?"
+                      onOk={handleDeleteConfirm}/>
     </Card>
   );
 }

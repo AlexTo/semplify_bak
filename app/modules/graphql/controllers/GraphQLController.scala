@@ -2,7 +2,7 @@ package modules.graphql.controllers
 
 import javax.inject.{Inject, Singleton}
 import modules.graphql.schema.SchemaDefinition
-import modules.graphql.services.Repository
+import modules.graphql.services.GraphQLService
 import play.api.libs.json.{JsObject, JsString, JsValue, Json}
 import play.api.mvc.{Action, AnyContent, InjectedController, Request, Result}
 import sangria.execution._
@@ -15,7 +15,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
 @Singleton
-class GraphQLController @Inject()(repository: Repository)(implicit ec: ExecutionContext) extends InjectedController {
+class GraphQLController @Inject()(repository: GraphQLService)(implicit ec: ExecutionContext) extends InjectedController {
 
   def graphql(query: String, variables: Option[String], operation: Option[String]): Action[AnyContent] = Action.async { request =>
     executeQuery(query, variables map parseVariables, operation, isTracingEnabled(request))
@@ -42,8 +42,8 @@ class GraphQLController @Inject()(repository: Repository)(implicit ec: Execution
           variables = variables getOrElse Json.obj(),
           exceptionHandler = exceptionHandler,
           queryReducers = List(
-            QueryReducer.rejectMaxDepth[Repository](15),
-            QueryReducer.rejectComplexQueries[Repository](4000, (_, _) => TooComplexQueryError)),
+            QueryReducer.rejectMaxDepth[GraphQLService](15),
+            QueryReducer.rejectComplexQueries[GraphQLService](4000, (_, _) => TooComplexQueryError)),
           middleware = if (tracing) SlowLog.apolloTracing :: Nil else Nil)
           .map(Ok(_))
           .recover {

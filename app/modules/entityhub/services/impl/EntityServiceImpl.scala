@@ -1,13 +1,14 @@
 package modules.entityhub.services.impl
 
 import javax.inject.Inject
-import modules.common.vocabulary.DBO
+import modules.common.vocabulary.{ASN, DBO}
 import modules.entityhub.models.{GraphGet, IRI, Literal, QueryType, SearchHit, Triple}
 import modules.entityhub.services.{EntityService, QueryFactory}
 import modules.entityhub.utils.ValueUtils
 import modules.project.models.RepositoryType
 import modules.project.services.ProjectService
-import org.eclipse.rdf4j.model.vocabulary.{FOAF, RDF, RDFS, SKOS}
+import org.eclipse.rdf4j.model
+import org.eclipse.rdf4j.model.vocabulary.{DCTERMS, FOAF, RDF, RDFS, SKOS}
 import org.eclipse.rdf4j.query.QueryLanguage
 import org.eclipse.rdf4j.sparqlbuilder.core.SparqlBuilder
 import org.eclipse.rdf4j.sparqlbuilder.core.query.Queries
@@ -176,7 +177,7 @@ class EntityServiceImpl @Inject()(projectService: ProjectService,
         val f = repo.getValueFactory
 
         val purlTitle = f.createIRI("http://purl.org/dc/elements/1.1/title")
-        val predicates = DBO.birthName :: RDFS.LABEL :: purlTitle :: SKOS.PREF_LABEL :: FOAF.NAME :: Nil
+        val predicates = DBO.birthName :: RDFS.LABEL :: purlTitle :: DCTERMS.TITLE :: SKOS.PREF_LABEL :: FOAF.NAME :: ASN.statementNotation :: ASN.statementLabel :: Nil
 
         Using(repo.getConnection) { conn =>
           val query = Queries.SELECT()
@@ -193,27 +194,16 @@ class EntityServiceImpl @Inject()(projectService: ProjectService,
           val tq = conn.prepareTupleQuery(QueryLanguage.SPARQL, query.getQueryString)
           val results = tq.evaluate
           var prefLabel = Option.empty[Literal]
-          while (results.hasNext) {
-            val bindings = results.next()
-            bindings.forEach(binding => {
-              val literal = binding.getValue.asInstanceOf[org.eclipse.rdf4j.model.Literal]
-              val lang = literal.getLanguage.orElse(null)
-              if (lang == null) {
-                prefLabel = Some(ValueUtils.createValue(projectId, None, literal).asInstanceOf[Literal])
-              } else if (lang.equalsIgnoreCase("en")) {
-                if (prefLabel.isEmpty || (prefLabel.get.lang.isDefined && !"en".equalsIgnoreCase(prefLabel.get.lang.get))) {
+          while (prefLabel.isEmpty && results.hasNext) {
+            val bindings = results.next().iterator()
+            while (prefLabel.isEmpty && bindings.hasNext) {
+              val value = bindings.next().getValue
+              value match {
+                case literal: model.Literal =>
                   prefLabel = Some(ValueUtils.createValue(projectId, None, literal).asInstanceOf[Literal])
-                }
-              } else if (lang.toLowerCase().startsWith("en")) {
-                if (prefLabel.isEmpty || (prefLabel.get.lang.isDefined && !"en".equalsIgnoreCase(prefLabel.get.lang.get))) {
-                  prefLabel = Some(ValueUtils.createValue(projectId, None, literal).asInstanceOf[Literal])
-                }
-              } else {
-                if (prefLabel.isEmpty || (prefLabel.get.lang.isDefined && !prefLabel.get.lang.get.toLowerCase().startsWith("en"))) {
-                  prefLabel = Some(ValueUtils.createValue(projectId, None, literal).asInstanceOf[Literal])
-                }
+                case _ =>
               }
-            })
+            }
           }
 
           if (prefLabel.isEmpty) {
@@ -256,7 +246,9 @@ class EntityServiceImpl @Inject()(projectService: ProjectService,
       graphs.toSeq
   }
 
-  override def deleteGraphs(projectId: String, graphs: Seq[String]): Future[Seq[GraphGet]] = projectService.findRepoById(projectId) map {
+  override def deleteGraphs(projectId: String, graphs: Seq[String]): Future[Seq[GraphGet]]
+
+  = projectService.findRepoById(projectId) map {
     case Some((_, repo)) =>
       val f = repo.getValueFactory
       Using(repo.getConnection) { conn =>
@@ -265,7 +257,9 @@ class EntityServiceImpl @Inject()(projectService: ProjectService,
       graphs.map(g => GraphGet(projectId, g))
   }
 
-  override def findDepiction(projectId: String, nodeUri: String): Future[Option[IRI]] = projectService.findRepoById(projectId).map {
+  override def findDepiction(projectId: String, nodeUri: String): Future[Option[IRI]]
+
+  = projectService.findRepoById(projectId).map {
     case Some((_, repo)) =>
       val f = repo.getValueFactory
 

@@ -55,7 +55,7 @@ class ProjectServiceImpl @Inject()(reactiveMongoApi: ReactiveMongoApi,
       created, created)
     projectCollection
       .flatMap(_.insert.one(entity))
-      .map(_ => ProjectGet(entity._id.stringify, entity.title, project.repository))
+      .map(_ => ProjectGet(entity._id.stringify, entity.title, project.repository, username))
   }
 
   override def findAll: Future[Seq[ProjectGet]] = projectCollection map {
@@ -85,7 +85,6 @@ class ProjectServiceImpl @Inject()(reactiveMongoApi: ReactiveMongoApi,
             luceneConfig.setParameter(LuceneSail.LUCENE_RAMDIR_KEY, "false")
             val repositoryTypeSpec = new SailRepositoryConfig(luceneConfig)
             val repositoryConfig = new RepositoryConfig(projectId, repositoryTypeSpec)
-            repositoryConfig.setTitle("Native store with Lucene support")
             repositoryConfig
           case virtuoso: VirtuosoRepository =>
             val virtuosoStoreConfig = new VirtuosoRepositoryConfig()
@@ -94,9 +93,9 @@ class ProjectServiceImpl @Inject()(reactiveMongoApi: ReactiveMongoApi,
             virtuosoStoreConfig.setPassword(virtuoso.password)
             virtuosoStoreConfig.setDefGraph(virtuoso.defGraph)
             val repositoryConfig = new RepositoryConfig(projectId, virtuosoStoreConfig)
-            repositoryConfig.setTitle("Virtuoso")
             repositoryConfig
         }
+        repoConfig.setTitle(projectGet.title)
         manager.addRepositoryConfig(repoConfig)
       }
       Some((projectGet, manager.getRepository(projectId)))

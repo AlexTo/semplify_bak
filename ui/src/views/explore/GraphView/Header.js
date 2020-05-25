@@ -8,7 +8,6 @@ import {
   makeStyles
 } from '@material-ui/core';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
-import NodeSearch from "../../../components/NodeSearch";
 
 const useStyles = makeStyles((theme) => ({
   root: {},

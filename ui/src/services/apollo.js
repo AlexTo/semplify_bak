@@ -5,6 +5,13 @@ import {ApolloClient} from "apollo-client";
 import {InMemoryCache} from "apollo-cache-inmemory";
 import {createHttpLink} from "apollo-link-http";
 
+import {IntrospectionFragmentMatcher} from 'apollo-cache-inmemory';
+import introspectionQueryResultData from './fragmentTypes.json';
+
+const fragmentMatcher = new IntrospectionFragmentMatcher({
+  introspectionQueryResultData
+});
+
 const httpLink = createHttpLink({
   uri: '/api/graphql',
 });
@@ -23,7 +30,7 @@ const link = ApolloLink.from([authLink, httpLink]);
 
 const apolloClient = new ApolloClient({
   link: link,
-  cache: new InMemoryCache()
+  cache: new InMemoryCache({fragmentMatcher})
 });
 
 export default apolloClient;

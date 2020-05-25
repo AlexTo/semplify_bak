@@ -3,7 +3,7 @@ package modules.graphql.services
 import com.google.inject.ImplementedBy
 import modules.entityhub.models.{GraphGet, IRI, Literal, Triple, SearchHit}
 import modules.fileserver.models.FileInfo
-import modules.graphql.services.impl.RepositoryImpl
+import modules.graphql.services.impl.GraphQLServiceImpl
 import modules.project.models.ProjectGet
 import modules.sparql.models.QueryGet
 import modules.task.models.TaskGet
@@ -11,8 +11,8 @@ import modules.webcrawler.models.PageGet
 
 import scala.concurrent.Future
 
-@ImplementedBy(classOf[RepositoryImpl])
-trait Repository {
+@ImplementedBy(classOf[GraphQLServiceImpl])
+trait GraphQLService {
   def node(projectId: String, graph: Option[String], uri: String): Future[Option[IRI]]
 
   def prefLabel(projectId: String, uri: String): Future[Option[Literal]]

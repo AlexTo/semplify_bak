@@ -1,0 +1,163 @@
+{
+  "__schema": {
+    "types": [
+      {
+        "kind": "OBJECT",
+        "name": "BNode",
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "Mutation",
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "NativeRepository",
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "VirtuosoRepository",
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "FileInfo",
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "Graph",
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "IRI",
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "Literal",
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "Project",
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "Query",
+        "possibleTypes": null
+      },
+      {
+        "kind": "INTERFACE",
+        "name": "Repository",
+        "possibleTypes": [
+          {
+            "name": "NativeRepository"
+          },
+          {
+            "name": "VirtuosoRepository"
+          }
+        ]
+      },
+      {
+        "kind": "OBJECT",
+        "name": "SearchHit",
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "SparqlQuery",
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "Triple",
+        "possibleTypes": null
+      },
+      {
+        "kind": "INTERFACE",
+        "name": "Value",
+        "possibleTypes": [
+          {
+            "name": "BNode"
+          },
+          {
+            "name": "IRI"
+          },
+          {
+            "name": "Literal"
+          }
+        ]
+      },
+      {
+        "kind": "OBJECT",
+        "name": "WebPage",
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "__Directive",
+        "possibleTypes": null
+      },
+      {
+        "kind": "ENUM",
+        "name": "__DirectiveLocation",
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "__EnumValue",
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "__Field",
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "__InputValue",
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "__Schema",
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "__Type",
+        "possibleTypes": null
+      },
+      {
+        "kind": "ENUM",
+        "name": "__TypeKind",
+        "possibleTypes": null
+      },
+      {
+        "kind": "SCALAR",
+        "name": "Boolean",
+        "possibleTypes": null
+      },
+      {
+        "kind": "SCALAR",
+        "name": "Float",
+        "possibleTypes": null
+      },
+      {
+        "kind": "SCALAR",
+        "name": "Long",
+        "possibleTypes": null
+      },
+      {
+        "kind": "SCALAR",
+        "name": "String",
+        "possibleTypes": null
+      }
+    ]
+  }
+}

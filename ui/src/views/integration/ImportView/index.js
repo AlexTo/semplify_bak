@@ -2,13 +2,14 @@ import React from 'react';
 import {
   Box,
   Container,
-  makeStyles
+  makeStyles, Typography
 } from '@material-ui/core';
 import Page from 'src/components/Page';
 import Header from './Header';
 import Results from "./Results";
 import RDFUploadDialog from "./RDFUploadDialog";
 import RDFImportDialog from "./RDFImportDialog";
+import {useSelector} from "react-redux";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -21,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
 
 function ImportView() {
   const classes = useStyles();
-
+  const {projectId} = useSelector(state => state.projectReducer)
   return (
     <Page
       className={classes.root}
@@ -30,7 +31,8 @@ function ImportView() {
       <Container maxWidth={false}>
         <Header/>
         <Box mt={3}>
-          <Results/>
+          {projectId ? <Results/> : <Typography variant="h5"
+                                                color="textSecondary"> Please select a project </Typography>}
         </Box>
         <RDFImportDialog/>
         <RDFUploadDialog/>

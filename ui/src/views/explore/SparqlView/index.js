@@ -1,8 +1,10 @@
 import React from "react";
 import Page from "../../../components/Page";
-import {Box, Container, makeStyles} from "@material-ui/core";
+import {Box, Container, makeStyles, Typography} from "@material-ui/core";
 import Header from "./Header";
 import YasqeManager from "./YasqeManager";
+import Results from "../../integration/ImportView/Results";
+import {useSelector} from "react-redux";
 
 
 const useStyles = makeStyles((theme) => ({
@@ -20,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
 
 function SparqlView() {
   const classes = useStyles();
-
+  const {projectId} = useSelector(state => state.projectReducer);
   return (
     <Page
       className={classes.root}
@@ -29,7 +31,8 @@ function SparqlView() {
       <Container maxWidth={false}>
         <Header/>
         <Box mt={3} className={classes.editorBox}>
-          <YasqeManager/>
+          {projectId ? <YasqeManager/> : <Typography variant="h5"
+                                                     color="textSecondary"> Please select a project </Typography>}
         </Box>
       </Container>
     </Page>

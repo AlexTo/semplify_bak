@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import {
-  Box,
   Breadcrumbs,
   Button,
   Grid,
@@ -11,10 +10,10 @@ import {
   makeStyles
 } from '@material-ui/core';
 import {
-  Target as TargetIcon,
+  Compass as CompassIcon,
 } from 'react-feather';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {webCrawlerActions} from "../../../actions";
 
 const useStyles = makeStyles((theme) => ({
@@ -32,7 +31,7 @@ const useStyles = makeStyles((theme) => ({
 
 function Header({className, ...rest}) {
   const classes = useStyles();
-
+  const {projectId} = useSelector(state => state.projectReducer);
   const dispatch = useDispatch();
 
   return (
@@ -61,18 +60,17 @@ function Header({className, ...rest}) {
             Web Crawler
           </Typography>
         </Breadcrumbs>
-        <Box mt={2}>
-          <Button className={classes.action} onClick={() => dispatch(webCrawlerActions.openNewCrawl())}>
-            <SvgIcon
-              fontSize="small"
-              className={classes.actionIcon}
-            >
-              <TargetIcon/>
-            </SvgIcon>
-            Crawl
-          </Button>
-        </Box>
       </Grid>
+      {projectId && <Grid item>
+        <Button className={classes.action} onClick={() => dispatch(webCrawlerActions.openNewCrawl())}>
+          <SvgIcon
+            fontSize="small"
+            className={classes.actionIcon}>
+            <CompassIcon/>
+          </SvgIcon>
+          Crawl
+        </Button>
+      </Grid>}
     </Grid>
   );
 }

@@ -12,7 +12,7 @@ import {
 } from 'react-feather';
 import {useSelector, useDispatch} from 'react-redux';
 import {v4 as uuidv4} from 'uuid';
-import {useLazyQuery, useQuery} from '@apollo/react-hooks';
+import {useLazyQuery} from '@apollo/react-hooks';
 import {visualGraphActions} from '../../../actions';
 import {entityHubQueries} from '../../../graphql';
 import FieldEditor from './FieldEditor';

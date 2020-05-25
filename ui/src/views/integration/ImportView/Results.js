@@ -18,7 +18,7 @@ import {
   TablePagination,
   TableRow,
   TextField,
-  makeStyles
+  makeStyles, Typography
 } from '@material-ui/core';
 import {
   Search as SearchIcon,
@@ -280,7 +280,7 @@ function Results({className, ...rest}) {
                       {f.filename}
                     </TableCell>
                     <TableCell align="right">
-                      <IconButton onClick={() => dispatch(importActions.openImportForm(f))}>
+                      <IconButton onClick={() => dispatch(importActions.openImportDialog(f))}>
                         <SvgIcon fontSize="small">
                           <UploadIcon/>
                         </SvgIcon>

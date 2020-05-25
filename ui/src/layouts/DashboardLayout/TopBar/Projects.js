@@ -50,7 +50,7 @@ function Projects() {
         ref={actionRef}
         onClick={() => setMenuOpen(true)}
       >
-        {projectTitle ? projectTitle : "Select project"}
+        {projectTitle ? projectTitle : "Select Project"}
       </Button>
       <Menu
         anchorEl={actionRef.current}

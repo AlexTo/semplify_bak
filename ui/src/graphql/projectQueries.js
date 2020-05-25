@@ -6,6 +6,13 @@ export const projectQueries = {
       projects {
         id
         title
+        repository {
+          type
+          ... on VirtuosoRepository {
+            hostList
+          }
+        }
+        createdBy
       }
     }
   `

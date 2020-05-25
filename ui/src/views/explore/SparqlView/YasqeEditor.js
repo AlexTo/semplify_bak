@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useState} from "react";
 import Yasqe from "@triply/yasqe";
 import "@triply/yasqe/build/yasqe.min.css";
 import "codemirror/theme/darcula.css";
@@ -11,18 +11,13 @@ import {
   TableBody,
   TableHead,
   TableRow,
-  makeStyles, TablePagination, Typography
+  TablePagination, Typography
 } from "@material-ui/core";
 import {useKeycloak} from "@react-keycloak/web";
 import {sparqlActions} from "../../../actions/sparqlActions";
-import moment from "moment";
 
-const useStyles = makeStyles((theme) => ({
-  root: {},
-}));
 
-function YasqeEditor({id, query}) {
-  const classes = useStyles();
+function YasqeEditor({id}) {
   const {projectId} = useSelector(state => state.projectReducer);
   const [duration, setDuration] = useState(-1);
   const dispatch = useDispatch();

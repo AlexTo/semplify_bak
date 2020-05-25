@@ -9,7 +9,7 @@ import {
   IconButton,
   Toolbar,
   makeStyles,
-  SvgIcon, Paper
+  SvgIcon
 } from '@material-ui/core';
 import {
   Menu as MenuIcon,
@@ -20,7 +20,6 @@ import {THEMES} from 'src/constants';
 import Account from './Account';
 import Settings from './Settings';
 import Projects from "./Projects";
-import NodeSearch from "../../../components/NodeSearch";
 import Search from "./Search";
 
 const useStyles = makeStyles((theme) => ({

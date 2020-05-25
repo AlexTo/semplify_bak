@@ -5,7 +5,7 @@ import modules.entityhub.models.{GraphGet, IRI, Literal, Triple, SearchHit}
 import modules.entityhub.services.EntityService
 import modules.fileserver.models.FileInfo
 import modules.fileserver.services.FileService
-import modules.graphql.services.Repository
+import modules.graphql.services.GraphQLService
 import modules.project.models.ProjectGet
 import modules.project.services.ProjectService
 import modules.sparql.models.QueryGet
@@ -17,12 +17,12 @@ import modules.webcrawler.services.WebCrawlerService
 
 import scala.concurrent.Future
 
-class RepositoryImpl @Inject()(entityService: EntityService,
-                               projectService: ProjectService,
-                               fileService: FileService,
-                               taskService: TaskService,
-                               queryService: QueryService,
-                               webCrawlerService: WebCrawlerService) extends Repository {
+class GraphQLServiceImpl @Inject()(entityService: EntityService,
+                                   projectService: ProjectService,
+                                   fileService: FileService,
+                                   taskService: TaskService,
+                                   queryService: QueryService,
+                                   webCrawlerService: WebCrawlerService) extends GraphQLService {
   override def node(projectId: String, graph: Option[String], uri: String): Future[Option[IRI]]
   = entityService.findNode(projectId, graph, uri)
 

@@ -18,7 +18,7 @@ import {
   TablePagination,
   TableRow,
   TextField,
-  makeStyles
+  makeStyles, Typography
 } from '@material-ui/core';
 import {
   Trash as TrashIcon,
@@ -115,8 +115,7 @@ function Results({className, ...rest}) {
   const {data, refetch} = useQuery(entityHubQueries.graphs, {
     variables: {
       projectId
-    },
-    skip: !projectId
+    }
   });
 
   const [deleteGraphs] = useMutation(entityHubQueries.deleteGraphs)

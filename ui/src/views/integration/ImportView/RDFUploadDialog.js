@@ -66,7 +66,7 @@ const useStyles = makeStyles((theme) => ({
 
 function RDFUploadDialog() {
   const classes = useStyles();
-  const {uploadFormOpen} = useSelector(state => state.importReducer);
+  const {uploadDialogOpen} = useSelector(state => state.importReducer);
   const dispatch = useDispatch();
   const [files, setFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
@@ -80,10 +80,10 @@ function RDFUploadDialog() {
   });
 
   useEffect(() => {
-    if (!uploadFormOpen) {
+    if (!uploadDialogOpen) {
       setFiles([]);
     }
-  }, [uploadFormOpen])
+  }, [uploadDialogOpen])
 
   const handleDrop = useCallback((acceptedFiles) => {
     setFiles((prevFiles) => [...prevFiles].concat(acceptedFiles));
@@ -99,7 +99,7 @@ function RDFUploadDialog() {
   });
 
   const handleClose = () => {
-    dispatch(importActions.closeUploadForm());
+    dispatch(importActions.closeUploadDialog());
   }
 
   const handleUpload = async () => {
@@ -111,12 +111,12 @@ function RDFUploadDialog() {
       i++
     }
     setUploading(false);
-    refetch().then(() => dispatch(importActions.closeUploadForm()));
+    refetch().then(() => dispatch(importActions.closeUploadDialog()));
   }
 
   return (
     <>
-      <Dialog open={uploadFormOpen}
+      <Dialog open={uploadDialogOpen}
               onClose={handleClose}
               aria-labelledby="form-dialog-title"
               maxWidth="md" fullWidth>

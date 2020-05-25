@@ -1,36 +1,36 @@
-export const IMPORT_OPEN_UPLOAD_FORM = "IMPORT/OPEN_UPLOAD_FORM";
-export const IMPORT_CLOSE_UPLOAD_FORM = "IMPORT/CLOSE_UPLOAD_FORM";
-export const IMPORT_OPEN_IMPORT_FORM = "IMPORT/OPEN_IMPORT_FORM";
-export const IMPORT_CLOSE_IMPORT_FORM = "IMPORT/CLOSE_IMPORT_FORM";
+export const IMPORT_OPEN_UPLOAD_DIALOG = "IMPORT/OPEN_UPLOAD_DIALOG";
+export const IMPORT_CLOSE_UPLOAD_DIALOG = "IMPORT/CLOSE_UPLOAD_DIALOG";
+export const IMPORT_OPEN_IMPORT_DIALOG = "IMPORT/OPEN_IMPORT_DIALOG";
+export const IMPORT_CLOSE_IMPORT_DIALOG = "IMPORT/CLOSE_IMPORT_DIALOG";
 
 export const importActions = {
-    openUploadForm,
-    closeUploadForm,
-    openImportForm,
-    closeImportForm
+  openUploadDialog,
+  closeUploadDialog,
+  openImportDialog,
+  closeImportDialog
 }
 
-function openUploadForm() {
-    return dispatch => dispatch({
-        type: IMPORT_OPEN_UPLOAD_FORM
-    })
+function openUploadDialog() {
+  return dispatch => dispatch({
+    type: IMPORT_OPEN_UPLOAD_DIALOG
+  })
 }
 
-function closeUploadForm() {
-    return dispatch => dispatch({
-        type: IMPORT_CLOSE_UPLOAD_FORM
-    })
+function closeUploadDialog() {
+  return dispatch => dispatch({
+    type: IMPORT_CLOSE_UPLOAD_DIALOG
+  })
 }
 
-function openImportForm(file) {
-    return dispatch => dispatch({
-        type: IMPORT_OPEN_IMPORT_FORM,
-        file
-    })
+function openImportDialog(file) {
+  return dispatch => dispatch({
+    type: IMPORT_OPEN_IMPORT_DIALOG,
+    file
+  })
 }
 
-function closeImportForm() {
-    return dispatch => dispatch({
-        type: IMPORT_CLOSE_IMPORT_FORM
-    })
+function closeImportDialog() {
+  return dispatch => dispatch({
+    type: IMPORT_CLOSE_IMPORT_DIALOG
+  })
 }
