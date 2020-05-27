@@ -8,4 +8,6 @@ object ASN {
   val factory: SimpleValueFactory = SimpleValueFactory.getInstance
   val statementNotation: IRI = factory.createIRI(NAMESPACE, "statementNotation")
   val statementLabel: IRI = factory.createIRI(NAMESPACE, "statementLabel")
+  val indexingStatus: IRI = factory.createIRI(NAMESPACE, "indexingStatus")
+  val teachesCompetency: IRI = factory.createIRI(NAMESPACE, "teachesCompetency")
 }

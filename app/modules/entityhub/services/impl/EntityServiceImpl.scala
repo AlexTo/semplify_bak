@@ -57,16 +57,22 @@ class EntityServiceImpl @Inject()(projectService: ProjectService,
     projectService.findRepoById(projectId).map {
       case Some((_, repo)) =>
         val f = repo.getValueFactory
+
         val nodeTypeFilter = nodeType match {
           case Some("iri") => "FILTER isIRI(?o) "
           case Some("literal") => "FILTER isLiteral(?o) "
           case _ => ""
         }
+
+        val excludePreds = Seq(RDF.TYPE, ASN.indexingStatus, ASN.teachesCompetency)
+        val predFilter = excludePreds.map { p => s"FILTER (?p != <${p.stringValue()}>) " } mkString ("")
+
         val q =
           "SELECT ?p ?o " + (if (graph.isEmpty) "?g" else "") +
             " WHERE { " +
             "  GRAPH ?g { " +
             "   ?s ?p ?o " +
+            predFilter +
             nodeTypeFilter +
             "}}"
         val subjIri = f.createIRI(subj)
@@ -74,6 +80,7 @@ class EntityServiceImpl @Inject()(projectService: ProjectService,
         Using(repo.getConnection) { conn =>
           val tq = conn.prepareTupleQuery(QueryLanguage.SPARQL, q)
           tq.setBinding("s", subjIri)
+          // excludePreds.zipWithIndex foreach { case (pred, i) => tq.setBinding(s"p${i}", pred) }
           graph match {
             case Some(iri) => tq.setBinding("g", f.createIRI(iri))
             case _ =>
