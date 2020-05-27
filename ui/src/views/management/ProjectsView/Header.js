@@ -16,6 +16,7 @@ import {
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import {useDispatch} from "react-redux";
 import {projectActions} from "../../../actions";
+import Tooltip from "@material-ui/core/Tooltip";
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -24,9 +25,6 @@ const useStyles = makeStyles((theme) => ({
     '& + &': {
       marginLeft: theme.spacing(1)
     }
-  },
-  actionIcon: {
-    marginRight: theme.spacing(1)
   }
 }));
 
@@ -63,19 +61,19 @@ function Header({className, ...rest}) {
         </Breadcrumbs>
       </Grid>
       <Grid item>
-        <Button className={classes.action}
-                color="secondary"
-                variant="contained"
-                onClick={() => {
-                  dispatch(projectActions.openNewProjectDialog())
-                }}>
-          <SvgIcon
-            fontSize="small"
-            className={classes.actionIcon}>
-            <FileIcon/>
-          </SvgIcon>
-          New project
-        </Button>
+        <Tooltip title="New Project" placement="top">
+          <Button className={classes.action}
+                  color="secondary"
+                  variant="contained"
+                  onClick={() => {
+                    dispatch(projectActions.openNewProjectDialog())
+                  }}>
+            <SvgIcon
+              fontSize="small">
+              <FileIcon/>
+            </SvgIcon>
+          </Button>
+        </Tooltip>
       </Grid>
     </Grid>
   );

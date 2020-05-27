@@ -8,6 +8,7 @@ import {
   Grid,
   SvgIcon,
   Typography,
+  Tooltip,
   makeStyles
 } from '@material-ui/core';
 import {
@@ -16,7 +17,6 @@ import {
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import {useDispatch, useSelector} from "react-redux";
 import {importActions} from "../../../actions";
-import {projectReducer} from "../../../reducers/projectReducer";
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -61,16 +61,19 @@ function Header({className, ...rest}) {
         </Breadcrumbs>
       </Grid>
       {projectId && <Grid item>
-        <Button className={classes.action}
-                color="secondary"
-                variant="contained"
-                onClick={() => {
-                  dispatch(importActions.openUploadDialog())
-                }}>
-          <SvgIcon>
-            <UploadIcon/>
-          </SvgIcon>
-        </Button></Grid>}
+        <Tooltip title="Upload" placement="top">
+          <Button className={classes.action}
+                  color="secondary"
+                  variant="contained"
+                  onClick={() => {
+                    dispatch(importActions.openUploadDialog())
+                  }}>
+            <SvgIcon>
+              <UploadIcon/>
+            </SvgIcon>
+          </Button>
+        </Tooltip>
+      </Grid>}
     </Grid>
   );
 }

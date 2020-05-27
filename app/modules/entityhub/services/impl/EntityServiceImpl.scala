@@ -65,6 +65,7 @@ class EntityServiceImpl @Inject()(projectService: ProjectService,
         }
 
         val excludePreds = Seq(RDF.TYPE, ASN.indexingStatus, ASN.teachesCompetency)
+
         val predFilter = excludePreds.map { p => s"FILTER (?p != <${p.stringValue()}>) " } mkString ("")
 
         val q =
@@ -80,7 +81,6 @@ class EntityServiceImpl @Inject()(projectService: ProjectService,
         Using(repo.getConnection) { conn =>
           val tq = conn.prepareTupleQuery(QueryLanguage.SPARQL, q)
           tq.setBinding("s", subjIri)
-          // excludePreds.zipWithIndex foreach { case (pred, i) => tq.setBinding(s"p${i}", pred) }
           graph match {
             case Some(iri) => tq.setBinding("g", f.createIRI(iri))
             case _ =>

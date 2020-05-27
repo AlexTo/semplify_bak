@@ -11,7 +11,7 @@ trait TaskService {
 
   def findAll: Future[Seq[TaskGet]]
 
-  def create(taskCreate: TaskCreate): Future[TaskGet]
+  def create(task: TaskCreate): Future[TaskGet]
 
   def setTaskStarted(taskId: String): Future[Int]
 

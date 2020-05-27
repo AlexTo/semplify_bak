@@ -68,7 +68,6 @@ function NodeInfoDrawer() {
       onClose={handleClose}
       open={nodeInfoDrawerOpen}
       variant="temporary"
-      style={{pointerEvents: 'none'}}
     >
       <PerfectScrollbar
         options={{suppressScrollX: true}}

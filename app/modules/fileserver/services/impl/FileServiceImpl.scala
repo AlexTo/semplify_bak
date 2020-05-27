@@ -93,7 +93,7 @@ class FileServiceImpl @Inject()(reactiveMongoApi: ReactiveMongoApi)
   }
 
   override def delete(projectId: String, files: Seq[String]): Future[Seq[FileInfo]] = BSONObjectID.parse(projectId) match {
-    case Success(pId) => database.flatMap { db =>
+    case Success(_) => database.flatMap { db =>
       val gridFS = GridFS(db)
       val ids: Seq[BSONObjectID] = files.flatMap(f => Option(BSONObjectID.parse(f).getOrElse(null)))
       Future.sequence(ids map { id =>

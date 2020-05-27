@@ -69,8 +69,7 @@ class ProjectServiceImpl @Inject()(reactiveMongoApi: ReactiveMongoApi,
   override def findById(projectId: String): Future[Option[ProjectGet]] = BSONObjectID.parse(projectId) match {
     case Success(id) => projectCollection.flatMap {
       val query = BSONDocument("_id" -> id)
-      _.find(query, Option.empty[JsObject])
-        .one[ProjectGet]
+      _.find(query, Option.empty[JsObject]).one[ProjectGet]
     }
     case Failure(_) => Future.successful(None)
   }
