@@ -94,7 +94,7 @@ function RDFUploadDialog() {
   };
 
   const {getRootProps, getInputProps, isDragActive} = useDropzone({
-    accept: [".rdf", ".ttl", ".gz"],
+    accept: [".rdf", ".ttl", ".gz", ".bz2"],
     onDrop: handleDrop
   });
 

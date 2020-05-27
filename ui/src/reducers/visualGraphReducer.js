@@ -97,7 +97,10 @@ function removeNode(state, action) {
   const remainingEdges = edges.filter(e => e.data.source !== action.uri && e.data.target !== action.uri);
   const remainingNodes = nodes
     .filter(n => n.data.id !== action.uri)
-    .filter(n => remainingEdges.find(e => e.data.source === n.data.id || e.data.target === n.data.id))
+    .filter(n => (remainingEdges.find(e => e.data.source === n.data.id || e.data.target === n.data.id)) ||
+      (!remainingEdges.find(e => e.data.source === n.data.id || e.data.target === n.data.id)
+        && (!edges.find(e => (e.data.source === n.data.id && e.data.target === action.uri)
+          || (e.data.source === action.uri && e.data.target === n.data.id)))))
 
   return Object.assign({}, state, {nodes: [...remainingNodes], edges: [...remainingEdges]});
 }

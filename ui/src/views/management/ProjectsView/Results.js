@@ -29,6 +29,7 @@ import {useQuery} from "@apollo/react-hooks";
 import {useDispatch, useSelector} from "react-redux";
 import {projectQueries} from "../../../graphql";
 import OkCancelDialog from "../../../components/ConfirmationDialog";
+import moment from "moment";
 
 const sortOptions = [
   {
@@ -245,6 +246,9 @@ function Results({className, ...rest}) {
                 <TableCell>
                   Created by
                 </TableCell>
+                <TableCell>
+                  Created
+                </TableCell>
                 <TableCell align="right">
                   Actions
                 </TableCell>
@@ -283,6 +287,9 @@ function Results({className, ...rest}) {
                     </TableCell>
                     <TableCell>
                       {p.createdBy}
+                    </TableCell>
+                    <TableCell>
+                      {moment(p.created).fromNow()}
                     </TableCell>
                     <TableCell align="right">
                       <IconButton onClick={() => handleDelete([p.id])}>

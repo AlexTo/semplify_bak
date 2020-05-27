@@ -6,6 +6,9 @@ export const fileQueries = {
       files(projectId: $projectId) {
         id
         filename
+        length
+        uploadDate
+        uploadedBy
       }
     }
   `,

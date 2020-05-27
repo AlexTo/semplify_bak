@@ -13,6 +13,7 @@ export const projectQueries = {
           }
         }
         createdBy
+        created
       }
     }
   `

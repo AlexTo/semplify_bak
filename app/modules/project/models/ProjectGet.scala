@@ -6,7 +6,8 @@ import play.api.libs.json.{Json, OWrites, Reads, __}
 case class ProjectGet(id: String,
                       title: String,
                       repository: Repository,
-                      createdBy: String)
+                      createdBy: String,
+                      created: Long)
 
 object ProjectGet {
   implicit val writes: OWrites[ProjectGet] = Json.writes[ProjectGet]
@@ -14,6 +15,7 @@ object ProjectGet {
     (__ \ "_id" \ "$oid").read[String] and
       (__ \ "title").read[String] and
       (__ \ "repository").read[Repository] and
-      (__ \ "createdBy").read[String]
+      (__ \ "createdBy").read[String] and
+      (__ \ "created" \ "$date").read[Long]
     ) (ProjectGet.apply _)
 }

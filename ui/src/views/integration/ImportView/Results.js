@@ -18,7 +18,7 @@ import {
   TablePagination,
   TableRow,
   TextField,
-  makeStyles, Typography
+  makeStyles
 } from '@material-ui/core';
 import {
   Search as SearchIcon,
@@ -28,9 +28,10 @@ import {
 import {useMutation, useQuery} from "@apollo/react-hooks";
 import {useDispatch, useSelector} from "react-redux";
 import {fileQueries} from "../../../graphql";
-import {useSnackbar} from "notistack";
 import {importActions} from "../../../actions";
 import OkCancelDialog from "../../../components/ConfirmationDialog";
+import Bytes from "../../../components/Bytes";
+import moment from 'moment';
 
 const sortOptions = [
   {
@@ -257,6 +258,15 @@ function Results({className, ...rest}) {
                 <TableCell>
                   File Name
                 </TableCell>
+                <TableCell>
+                  Length
+                </TableCell>
+                <TableCell>
+                  Uploaded by
+                </TableCell>
+                <TableCell>
+                  Uploaded
+                </TableCell>
                 <TableCell align="right">
                   Actions
                 </TableCell>
@@ -278,6 +288,15 @@ function Results({className, ...rest}) {
                     </TableCell>
                     <TableCell>
                       {f.filename}
+                    </TableCell>
+                    <TableCell>
+                      <Bytes bytes={f.length}/>
+                    </TableCell>
+                    <TableCell>
+                      {f.uploadedBy}
+                    </TableCell>
+                    <TableCell>
+                      {moment(f.uploadDate).fromNow()}
                     </TableCell>
                     <TableCell align="right">
                       <IconButton onClick={() => dispatch(importActions.openImportDialog(f))}>

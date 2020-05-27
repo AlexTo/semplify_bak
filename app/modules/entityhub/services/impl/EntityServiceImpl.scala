@@ -177,7 +177,7 @@ class EntityServiceImpl @Inject()(projectService: ProjectService,
         val f = repo.getValueFactory
 
         val purlTitle = f.createIRI("http://purl.org/dc/elements/1.1/title")
-        val predicates = DBO.birthName :: RDFS.LABEL :: purlTitle :: DCTERMS.TITLE :: SKOS.PREF_LABEL :: FOAF.NAME :: ASN.statementNotation :: ASN.statementLabel :: Nil
+        val predicates = ASN.statementNotation :: DCTERMS.TITLE :: ASN.statementLabel :: DBO.birthName :: RDFS.LABEL :: purlTitle :: SKOS.PREF_LABEL :: FOAF.NAME :: Nil
 
         Using(repo.getConnection) { conn =>
           val query = Queries.SELECT()

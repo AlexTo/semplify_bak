@@ -1,6 +1,6 @@
 package modules.project.services.impl
 
-import java.io.{BufferedReader, InputStreamReader}
+import java.io.BufferedInputStream
 
 import akka.stream.Materializer
 import akka.stream.scaladsl.StreamConverters
@@ -9,6 +9,8 @@ import modules.fileserver.services.FileService
 import modules.project.entities.Project
 import modules.project.models.{NativeRepository, ProjectCreate, ProjectGet, VirtuosoRepository}
 import modules.project.services.ProjectService
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream
+import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
 import org.eclipse.rdf4j.repository.Repository
 import org.eclipse.rdf4j.repository.config.RepositoryConfig
 import org.eclipse.rdf4j.repository.manager.{RepositoryManager, RepositoryProvider}
@@ -55,7 +57,7 @@ class ProjectServiceImpl @Inject()(reactiveMongoApi: ReactiveMongoApi,
       created, created)
     projectCollection
       .flatMap(_.insert.one(entity))
-      .map(_ => ProjectGet(entity._id.stringify, entity.title, project.repository, username))
+      .map(_ => ProjectGet(entity._id.stringify, entity.title, project.repository, username, created.value))
   }
 
   override def findAll: Future[Seq[ProjectGet]] = projectCollection map {
@@ -79,6 +81,7 @@ class ProjectServiceImpl @Inject()(reactiveMongoApi: ReactiveMongoApi,
         val repoConfig = projectGet.repository match {
           case _: NativeRepository =>
             val nativeStoreConfig = new NativeStoreConfig()
+            nativeStoreConfig.setTripleIndexes("spoc,posc,cosp")
             val luceneConfig = new LuceneSailConfig(nativeStoreConfig)
             luceneConfig.setIndexDir(luceneDir)
             luceneConfig.setParameter(LuceneSail.INDEX_CLASS_KEY, classOf[LuceneIndex].getName)
@@ -92,6 +95,7 @@ class ProjectServiceImpl @Inject()(reactiveMongoApi: ReactiveMongoApi,
             virtuosoStoreConfig.setUsername(virtuoso.username)
             virtuosoStoreConfig.setPassword(virtuoso.password)
             virtuosoStoreConfig.setDefGraph(virtuoso.defGraph)
+            virtuosoStoreConfig.setBatchSize(30000)
             val repositoryConfig = new RepositoryConfig(projectId, virtuosoStoreConfig)
             repositoryConfig
         }
@@ -105,8 +109,14 @@ class ProjectServiceImpl @Inject()(reactiveMongoApi: ReactiveMongoApi,
   override def importRDF(projectId: String, fileId: String, baseURI: String, graph: String, replaceGraph: Option[Boolean]): Future[Try[Unit]] = {
     findRepoById(projectId) flatMap {
       case Some((_, repo)) => fileService.findById(fileId) map { file =>
-        val inputStream = new BufferedReader(
-          new InputStreamReader(file.content.runWith(StreamConverters.asInputStream())))
+        val fileInputStream = new BufferedInputStream(file.content.runWith(StreamConverters.asInputStream()), 32768)
+        val inputStream =
+          if (file.filename.endsWith(".gz"))
+            new GzipCompressorInputStream(fileInputStream)
+          else if (file.filename.endsWith(".bz2"))
+            new BZip2CompressorInputStream(fileInputStream)
+          else
+            fileInputStream
         val f = repo.getValueFactory
         Using(repo.getConnection) { conn =>
           conn.add(inputStream, baseURI,

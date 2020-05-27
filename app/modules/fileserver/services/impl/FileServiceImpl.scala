@@ -15,30 +15,41 @@ import reactivemongo.akkastream.GridFSStreams
 import reactivemongo.api.{Cursor, DefaultDB}
 import reactivemongo.api.bson.{BSON, BSONDocument, BSONObjectID}
 import reactivemongo.api.gridfs.GridFS
+import reactivemongo.api.indexes.IndexType
 import reactivemongo.bson.{BSONArray, BSONString, BSONValue}
 import reactivemongo.play.json.collection.JSONCollection
 import reactivemongo.play.json._
+
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Success
-import utils.BSONSerializationPackDocument._
+import utils.MongoUtils._
 
 class FileServiceImpl @Inject()(reactiveMongoApi: ReactiveMongoApi)
                                (implicit ec: ExecutionContext, m: Materializer) extends FileService {
+
 
   val database: Future[DefaultDB] = reactiveMongoApi.database
 
   def collection: Future[JSONCollection] = reactiveMongoApi.database.map(_.collection[JSONCollection]("fs.files"))
 
+  def chunkCollection: Future[JSONCollection] = reactiveMongoApi.database.map(_.collection[JSONCollection]("fs.chunks"))
+
+  chunkCollection.map(c => {
+    c.indexesManager.ensure(
+      index(key = Seq("files_id" -> IndexType.Ascending, "n" -> IndexType.Ascending))
+    )
+  })
+
   override def save(file: MultipartFormData.FilePart[Files.TemporaryFile],
-                    dataParts: Map[String, Seq[String]]): Future[FileInfo] = database flatMap {
+                    dataParts: Map[String, Seq[String]], username: String): Future[FileInfo] = database flatMap {
     db => {
       val gridFS = GridFS(db)
       val filename = Paths.get(file.filename).getFileName.toString
       val contentType = file.contentType
-
-      val metadataElems: Map[String, BSONValue] = dataParts map { f =>
+      val length = file.fileSize
+      val metadataElems: Map[String, BSONValue] = (dataParts map { f =>
         f._1 -> (if (f._2.size > 1) BSONArray(f._2.map(BSONString)) else BSONString(f._2.head))
-      }
+      }) + ("uploadedBy" -> BSONString(username))
 
       val uploadDate = Some(System.currentTimeMillis())
       val fileToSave = BSON.writeDocument(metadataElems) match {
@@ -49,7 +60,7 @@ class FileServiceImpl @Inject()(reactiveMongoApi: ReactiveMongoApi)
       val inputStream = new BufferedInputStream(new FileInputStream(file.ref.toFile))
       gridFS.writeFromInputStream(fileToSave, inputStream)
         .map(f => FileInfo(f.id.asInstanceOf[BSONObjectID].stringify,
-          filename, contentType, uploadDate, Json.toJson(metadataElems).as[JsObject]))
+          filename, length, contentType, uploadDate, Json.toJson(metadataElems).as[JsObject]))
     }
   }
 
@@ -68,7 +79,7 @@ class FileServiceImpl @Inject()(reactiveMongoApi: ReactiveMongoApi)
     case Success(fileId) => database.flatMap(db => {
       val gridFS = GridFS(db)
       gridFS.find(BSONDocument("_id" -> fileId)).head.map { f =>
-        FileInfo(f.id.asInstanceOf[BSONObjectID].stringify, f.filename.get, f.contentType, f.uploadDate,
+        FileInfo(f.id.asInstanceOf[BSONObjectID].stringify, f.filename.get, f.length, f.contentType, f.uploadDate,
           Json.toJson(f.metadata).as[JsObject])
       }
     })
@@ -88,12 +99,14 @@ class FileServiceImpl @Inject()(reactiveMongoApi: ReactiveMongoApi)
       Future.sequence(ids map { id =>
         gridFS.find(BSONDocument("_id" -> id)).head flatMap { f =>
           gridFS.remove(f.id).map { _ =>
-            FileInfo(f.id.asInstanceOf[BSONObjectID].stringify, f.filename.get, f.contentType, f.uploadDate,
+            FileInfo(f.id.asInstanceOf[BSONObjectID].stringify, f.filename.get, f.length, f.contentType, f.uploadDate,
               Json.toJson(f.metadata).as[JsObject])
           }
         }
       })
     }
   }
+
+
 }
 

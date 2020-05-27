@@ -17,8 +17,8 @@ libraryDependencies ++= Seq(
   "org.sangria-graphql" %% "sangria" % "2.0.0-RC2",
   "org.sangria-graphql" %% "sangria-slowlog" % "2.0.0-M1",
   "org.sangria-graphql" %% "sangria-play-json" % "2.0.1",
-  "org.reactivemongo" % "play2-reactivemongo_2.13" % "0.20.8-play28",
-  "org.reactivemongo" %% "reactivemongo-play-json-compat" % "0.20.8-play28",
+  "org.reactivemongo" % "play2-reactivemongo_2.13" % "0.20.9-play28",
+  "org.reactivemongo" %% "reactivemongo-play-json-compat" % "0.20.9-play28",
   "com.restfb" % "restfb" % "3.5.0",
   "com.jayway.jsonpath" % "json-path" % "2.4.0",
   "org.eclipse.rdf4j" % "rdf4j-storage" % "3.2.1",
@@ -27,7 +27,7 @@ libraryDependencies ++= Seq(
   "org.apache.tika" % "tika-core" % "1.24",
   "org.apache.tika" % "tika-parsers" % "1.24",
   "com.google.guava" % "guava" % "28.2-jre",
-  "com.typesafe.play" % "play-cache_2.13" % "2.8.1",
+  "com.typesafe.play" % "play-cache_2.13" % "2.8.2",
   "org.scalatestplus.play" %% "scalatestplus-play" % "5.0.0" % Test).map(_.excludeAll(ExclusionRule("org.slf4j")))
 
 resolvers ++= Seq(

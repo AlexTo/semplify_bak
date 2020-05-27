@@ -10,7 +10,8 @@ import scala.concurrent.Future
 
 @ImplementedBy(classOf[FileServiceImpl])
 trait FileService {
-  def save(file: MultipartFormData.FilePart[Files.TemporaryFile], dataParts: Map[String, Seq[String]]): Future[FileInfo]
+  def save(file: MultipartFormData.FilePart[Files.TemporaryFile],
+           dataParts: Map[String, Seq[String]], username: String): Future[FileInfo]
 
   def findById(id: String): Future[File]
 

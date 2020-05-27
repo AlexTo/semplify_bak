@@ -1,18 +1,16 @@
 package modules.sparql.services.impl
 
 import javax.inject.Inject
-import modules.project.models.ProjectGet
 import modules.project.services.ProjectService
 import modules.sparql.entities.Query
 import modules.sparql.models.{QueryCreate, QueryGet, QueryUpdate}
 import modules.sparql.services.QueryService
-import modules.task.models.TaskGet
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.JsObject
 import play.modules.reactivemongo.ReactiveMongoApi
 import reactivemongo.api.Cursor
 import reactivemongo.bson.{BSONDateTime, BSONDocument, BSONObjectID}
-import reactivemongo.play.json.collection.JSONCollection
 import reactivemongo.play.json._
+import reactivemongo.play.json.collection.JSONCollection
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}

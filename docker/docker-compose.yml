@@ -54,11 +54,25 @@ services:
     ports:
       - 8890:8890
       - 1111:1111
+  virtuoso-det:
+    image: tenforce/virtuoso
+    hostname: virtuoso-det
+    container_name: virtuoso-det
+    environment:
+      SPARQL_UPDATE: "true"
+      VIRT_Parameters_NumberOfBuffers: 340000
+      VIRT_Parameters_MaxDirtyBuffers: 250000
+    volumes:
+      - virtuoso-det:/data
+    ports:
+      - 8891:8890
+      - 1112:1111
 
 volumes:
   mongo:
   keycloak:
   virtuoso:
+  virtuoso-det:
   rdf4j_data:
   rdf4j_logs:
 

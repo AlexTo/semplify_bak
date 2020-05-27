@@ -110,7 +110,8 @@ object SchemaDefinition {
       Field("id", StringType, resolve = _.value.id),
       Field("title", StringType, resolve = _.value.title),
       Field("repository", Repository, resolve = _.value.repository),
-      Field("createdBy", StringType, resolve = _.value.createdBy)
+      Field("createdBy", StringType, resolve = _.value.createdBy),
+      Field("created", LongType, resolve = _.value.created)
     ))
 
   val SearchHit: ObjectType[GraphQLService, SearchHit] = ObjectType("SearchHit",
@@ -144,8 +145,10 @@ object SchemaDefinition {
     () => fields[GraphQLService, FileInfo](
       Field("id", StringType, resolve = _.value.id),
       Field("filename", StringType, resolve = _.value.filename),
+      Field("length", LongType, resolve = _.value.length),
       Field("contentType", OptionType(StringType), resolve = _.value.contentType),
       Field("uploadDate", OptionType(LongType), resolve = _.value.uploadDate),
+      Field("uploadedBy", StringType, resolve = f => (f.value.metadata \ "uploadedBy").as[String]),
     ))
 
   val ProjectIdArg: Argument[String] = Argument("projectId", StringType)

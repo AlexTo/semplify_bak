@@ -25,9 +25,6 @@ const useStyles = makeStyles((theme) => ({
     '& + &': {
       marginLeft: theme.spacing(1)
     }
-  },
-  actionIcon: {
-    marginRight: theme.spacing(1)
   }
 }));
 
@@ -63,19 +60,17 @@ function Header({className, ...rest}) {
           </Typography>
         </Breadcrumbs>
       </Grid>
-      {projectId && <Grid item><Button className={classes.action}
-                                       color="secondary"
-                                       variant="contained"
-                                       onClick={() => {
-                                         dispatch(importActions.openUploadDialog())
-                                       }}>
-        <SvgIcon
-          fontSize="small"
-          className={classes.actionIcon}>
-          <UploadIcon/>
-        </SvgIcon>
-        Upload
-      </Button></Grid>}
+      {projectId && <Grid item>
+        <Button className={classes.action}
+                color="secondary"
+                variant="contained"
+                onClick={() => {
+                  dispatch(importActions.openUploadDialog())
+                }}>
+          <SvgIcon>
+            <UploadIcon/>
+          </SvgIcon>
+        </Button></Grid>}
     </Grid>
   );
 }

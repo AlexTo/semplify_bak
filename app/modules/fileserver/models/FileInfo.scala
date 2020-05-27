@@ -5,6 +5,7 @@ import play.api.libs.json.{JsObject, Json, OWrites, Reads, __}
 
 case class FileInfo(id: String,
                     filename: String,
+                    length: Long,
                     contentType: Option[String],
                     uploadDate: Option[Long],
                     metadata: JsObject)
@@ -14,6 +15,7 @@ object FileInfo {
   implicit val reads: Reads[FileInfo] = (
     (__ \ "_id" \ "$oid").read[String] and
       (__ \ "filename").read[String] and
+      (__ \ "length" \ "$long").read[Long] and
       (__ \ "contentType").readNullable[String] and
       (__ \ "uploadDate" \ "$date").readNullable[Long] and
       (__ \ "metadata").read[JsObject]

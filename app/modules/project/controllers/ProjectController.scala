@@ -10,8 +10,7 @@ import play.api.mvc._
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class ProjectController @Inject()(projectService: ProjectService,
-                                  profileService: ProfileService,
+class ProjectController @Inject()(projectService: ProjectService, profileService: ProfileService,
                                   cc: ControllerComponents)
                                  (implicit ec: ExecutionContext) extends AbstractController(cc) {
 
