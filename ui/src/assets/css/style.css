@@ -1,0 +1,12 @@
+.MuiCollapse-container {
+    width: 0;
+    transition-property: width;
+}
+
+.MuiCollapse-entered {
+    width: 100%
+}
+
+.MuiCollapse-hidden {
+    width: 0
+}

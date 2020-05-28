@@ -1,15 +1,15 @@
 import {createGraphEdge, createGraphNode} from '../utils/graph';
 import {
-  VISUAL_GRAPH_CLOSE_NODE_INFO_DRAWER,
   VISUAL_GRAPH_TRIPLES_ADDED,
   VISUAL_GRAPH_NODE_ADDED,
-  VISUAL_GRAPH_NODE_REMOVED, VISUAL_GRAPH_OPEN_NODE_INFO_DRAWER, VISUAL_GRAPH_CLEAR
+  VISUAL_GRAPH_NODE_REMOVED, VISUAL_GRAPH_CLEAR, VISUAL_GRAPH_TOGGLE_AUTOSHOW_NODE_DETAILS, VISUAL_GRAPH_NODE_SELECTED
 } from "../actions";
 
 const initialState = {
   nodes: [],
   edges: [],
-  nodeInfoDrawerOpen: true,
+  autoshowNodeDetails: true,
+  nodeDetailsPanelOpen: false,
   selectedNode: null
 }
 
@@ -20,6 +20,11 @@ export const visualGraphReducer = (state = initialState, action) => {
       return Object.assign({}, state, {nodes: [], edges: []})
     case VISUAL_GRAPH_NODE_ADDED:
       return addNode(state, action);
+    case VISUAL_GRAPH_NODE_SELECTED:
+      return Object.assign({}, state, {
+        selectedNode: action.node,
+        nodeDetailsPanelOpen: state.autoshowNodeDetails
+      });
 
     case VISUAL_GRAPH_TRIPLES_ADDED:
       return addTriples(state, action);
@@ -27,17 +32,11 @@ export const visualGraphReducer = (state = initialState, action) => {
     case VISUAL_GRAPH_NODE_REMOVED:
       return removeNode(state, action);
 
-    case VISUAL_GRAPH_CLOSE_NODE_INFO_DRAWER:
+    case VISUAL_GRAPH_TOGGLE_AUTOSHOW_NODE_DETAILS:
       return Object.assign({}, state, {
-        nodeInfoDrawerOpen: false,
-        selectedNode: null
-      })
-    case VISUAL_GRAPH_OPEN_NODE_INFO_DRAWER:
-      return Object.assign({}, state,
-        {
-          nodeInfoDrawerOpen: true,
-          selectedNode: action.node
-        })
+        autoshowNodeDetails: !state.autoshowNodeDetails,
+        nodeDetailsPanelOpen: state.autoshowNodeDetails ? false : state.nodeDetailsPanelOpen
+      });
 
     default:
       return state

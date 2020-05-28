@@ -46,7 +46,7 @@ function Graph() {
     }
     cy.on('tap', 'node', function (evt) {
       let node = evt.target;
-      dispatch(visualGraphActions.openNodeInfoDrawer(node.id()))
+      dispatch(visualGraphActions.selectNode(node.id()))
     });
     cy.cxtmenu(menu);
   }, [cy])

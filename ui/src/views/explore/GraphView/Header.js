@@ -5,21 +5,30 @@ import {
   Breadcrumbs,
   Grid,
   Typography,
-  makeStyles, IconButton, SvgIcon
+  makeStyles, IconButton
 } from '@material-ui/core';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import Tooltip from "@material-ui/core/Tooltip";
-import {Autorenew as AutorenewIcon, Save as SaveIcon} from "@material-ui/icons";
+import {
+  Autorenew as AutorenewIcon,
+  Save as SaveIcon,
+  Menu as MenuIcon
+} from "@material-ui/icons";
 import {useDispatch, useSelector} from "react-redux";
 import {visualGraphActions} from "../../../actions";
+import {ToggleButton} from "@material-ui/lab";
 
 const useStyles = makeStyles((theme) => ({
   root: {},
+  toggleButton: {
+    border: "none"
+  }
 }));
 
 function Header({className, ...rest}) {
   const classes = useStyles();
-  const {projectId} = useSelector(state => state.projectReducer)
+  const {projectId} = useSelector(state => state.projectReducer);
+  const {autoshowNodeDetails} = useSelector(state => state.visualGraphReducer);
   const dispatch = useDispatch();
   return (
     <Grid
@@ -58,6 +67,14 @@ function Header({className, ...rest}) {
             onClick={() => dispatch(visualGraphActions.clear())}>
             <AutorenewIcon/>
           </IconButton>
+        </Tooltip>
+        <Tooltip title="Autoshow Node Details" placement="top">
+          <ToggleButton
+            className={classes.toggleButton}
+            selected={autoshowNodeDetails}
+            onChange={() => dispatch(visualGraphActions.toggleAutoshowNodeDetails())}>
+            <MenuIcon/>
+          </ToggleButton>
         </Tooltip>
       </Grid>}
     </Grid>

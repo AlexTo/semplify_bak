@@ -1,6 +1,6 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
-  Box,
+  Box, Grid, Collapse,
   Container,
   makeStyles, Typography
 } from '@material-ui/core';
@@ -8,8 +8,8 @@ import Page from 'src/components/Page';
 import Header from './Header';
 import NodeSearch from "../../../components/NodeSearch";
 import Graph from "./Graph";
-import NodeInfoDrawer from "./NodeInfoDrawer";
 import {useSelector} from "react-redux";
+import NodeDetailsPanel from "./NodeDetailsPanel";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -30,7 +30,9 @@ const useStyles = makeStyles((theme) => ({
 
 function GraphView() {
   const classes = useStyles();
-  const {projectId} = useSelector(state => state.projectReducer)
+  const {projectId} = useSelector(state => state.projectReducer);
+  const {nodeDetailsPanelOpen} = useSelector(state => state.visualGraphReducer);
+
   return (
     <Page
       className={classes.root}
@@ -45,14 +47,22 @@ function GraphView() {
               <NodeSearch/>
             </Box>
             <Box mt={3} className={classes.graphBox}>
-              <Graph/>
+              <Grid container className={classes.graphBox}>
+                <Grid item md={nodeDetailsPanelOpen ? 10 : 12}>
+                  <Graph/>
+                </Grid>
+                <Grid item>
+                  <Collapse in={nodeDetailsPanelOpen} timeout="auto" unmountOnExit>
+                    <NodeDetailsPanel/>
+                  </Collapse>
+                </Grid>
+              </Grid>
             </Box>
           </> : <Box mt={3}>
             <Typography variant="h5"
                         color="textSecondary"> Please select a project
             </Typography>
           </Box>}
-        <NodeInfoDrawer/>
       </Container>
     </Page>
   );

@@ -3,7 +3,6 @@ import Page from "../../../components/Page";
 import {Box, Container, makeStyles, Typography} from "@material-ui/core";
 import Header from "./Header";
 import YasqeManager from "./YasqeManager";
-import Results from "../../integration/ImportView/Results";
 import {useSelector} from "react-redux";
 
 

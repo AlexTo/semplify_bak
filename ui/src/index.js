@@ -5,6 +5,7 @@ import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import 'react-quill/dist/quill.snow.css';
 import 'nprogress/nprogress.css';
 import 'src/assets/css/prism.css';
+import 'src/assets/css/style.css';
 import 'src/mixins/chartjs';
 import 'src/mixins/prismjs';
 import {enableES5} from 'immer';

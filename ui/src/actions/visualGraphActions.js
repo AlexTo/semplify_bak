@@ -1,17 +1,17 @@
 export const VISUAL_GRAPH_CLEAR = 'VISUAL_GRAPH/CLEAR';
 export const VISUAL_GRAPH_NODE_ADDED = 'VISUAL_GRAPH/NODE_ADDED';
+export const VISUAL_GRAPH_NODE_SELECTED = 'VISUAL_GRAPH/NODE_SELECTED';
 export const VISUAL_GRAPH_TRIPLES_ADDED = 'VISUAL_GRAPH/TRIPLES_ADDED';
 export const VISUAL_GRAPH_NODE_REMOVED = 'VISUAL_GRAPH/NODE_REMOVED';
-export const VISUAL_GRAPH_CLOSE_NODE_INFO_DRAWER = 'VISUAL_GRAPH/CLOSE_NODE_INFO_DRAWER';
-export const VISUAL_GRAPH_OPEN_NODE_INFO_DRAWER = 'VISUAL_GRAPH/OPEN_NODE_INFO_DRAWER';
+export const VISUAL_GRAPH_TOGGLE_AUTOSHOW_NODE_DETAILS = 'VISUAL_GRAPH/TOGGLE_AUTOSHOW_NODE_DETAILS';
 
 export const visualGraphActions = {
   clear,
+  selectNode,
   addNode,
   removeNode,
   addTriples,
-  closeNodeInfoDrawer,
-  openNodeInfoDrawer
+  toggleAutoshowNodeDetails,
 }
 
 function clear() {
@@ -20,16 +20,9 @@ function clear() {
   })
 }
 
-function closeNodeInfoDrawer() {
+function toggleAutoshowNodeDetails() {
   return dispatch => dispatch({
-    type: VISUAL_GRAPH_CLOSE_NODE_INFO_DRAWER
-  })
-}
-
-function openNodeInfoDrawer(node) {
-  return dispatch => dispatch({
-    type: VISUAL_GRAPH_OPEN_NODE_INFO_DRAWER,
-    node
+    type: VISUAL_GRAPH_TOGGLE_AUTOSHOW_NODE_DETAILS
   })
 }
 
@@ -37,6 +30,13 @@ function removeNode(uri) {
   return dispatch => dispatch({
     type: VISUAL_GRAPH_NODE_REMOVED,
     uri
+  })
+}
+
+function selectNode(node) {
+  return dispatch => dispatch({
+    type: VISUAL_GRAPH_NODE_SELECTED,
+    node
   })
 }
 
