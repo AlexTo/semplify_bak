@@ -18,7 +18,7 @@ object SettingsGet {
   implicit val reads: Reads[SettingsGet] = (
     (__ \ "_id" \ "$oid").read[String] and
       (__ \ "projectId" \ "$oid").read[String] and
-      (__ \ "user").readNullable[String] and
+      (__ \ "username").readNullable[String] and
       (__ \ "scope").read[SettingScope] and
       (__ \ "visualGraph").read[VisualGraph] and
       (__ \ "created" \ "$date").read[Long] and

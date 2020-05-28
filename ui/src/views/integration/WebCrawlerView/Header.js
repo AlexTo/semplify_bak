@@ -3,30 +3,22 @@ import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import {
   Breadcrumbs,
-  Button,
+  IconButton,
   Grid,
   SvgIcon,
   Typography,
+  Tooltip,
   makeStyles
 } from '@material-ui/core';
 import {
-  Compass as CompassIcon,
-} from 'react-feather';
+  Public as PublicIcon,
+} from '@material-ui/icons';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import {useDispatch, useSelector} from "react-redux";
 import {webCrawlerActions} from "../../../actions";
 
 const useStyles = makeStyles((theme) => ({
   root: {},
-  action: {
-    marginBottom: theme.spacing(1),
-    '& + &': {
-      marginLeft: theme.spacing(1)
-    }
-  },
-  actionIcon: {
-    marginRight: theme.spacing(1)
-  }
 }));
 
 function Header({className, ...rest}) {
@@ -62,14 +54,12 @@ function Header({className, ...rest}) {
         </Breadcrumbs>
       </Grid>
       {projectId && <Grid item>
-        <Button className={classes.action} onClick={() => dispatch(webCrawlerActions.openNewCrawl())}>
-          <SvgIcon
-            fontSize="small"
-            className={classes.actionIcon}>
-            <CompassIcon/>
-          </SvgIcon>
-          Crawl
-        </Button>
+        <Tooltip title="Crawl" placement="top">
+          <IconButton
+            onClick={() => dispatch(webCrawlerActions.openNewCrawl())}>
+            <PublicIcon/>
+          </IconButton>
+        </Tooltip>
       </Grid>}
     </Grid>
   );

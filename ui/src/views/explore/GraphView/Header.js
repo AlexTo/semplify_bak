@@ -5,20 +5,22 @@ import {
   Breadcrumbs,
   Grid,
   Typography,
-  makeStyles
+  makeStyles, IconButton, SvgIcon
 } from '@material-ui/core';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
+import Tooltip from "@material-ui/core/Tooltip";
+import {Autorenew as AutorenewIcon, Save as SaveIcon} from "@material-ui/icons";
+import {useDispatch, useSelector} from "react-redux";
+import {visualGraphActions} from "../../../actions";
 
 const useStyles = makeStyles((theme) => ({
   root: {},
-  actionIcon: {
-    marginRight: theme.spacing(1)
-  }
 }));
 
 function Header({className, ...rest}) {
   const classes = useStyles();
-
+  const {projectId} = useSelector(state => state.projectReducer)
+  const dispatch = useDispatch();
   return (
     <Grid
       container
@@ -43,6 +45,21 @@ function Header({className, ...rest}) {
           </Typography>
         </Breadcrumbs>
       </Grid>
+      {projectId && <Grid item>
+        <Tooltip title="Save Graph" placement="top">
+          <IconButton
+            onClick={() => {
+            }}>
+            <SaveIcon/>
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="Clear Graph" placement="top">
+          <IconButton
+            onClick={() => dispatch(visualGraphActions.clear())}>
+            <AutorenewIcon/>
+          </IconButton>
+        </Tooltip>
+      </Grid>}
     </Grid>
   );
 }

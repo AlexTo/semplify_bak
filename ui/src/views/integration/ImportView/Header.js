@@ -2,9 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import {
-  Box,
   Breadcrumbs,
-  Button,
+  IconButton,
   Grid,
   SvgIcon,
   Typography,
@@ -12,20 +11,14 @@ import {
   makeStyles
 } from '@material-ui/core';
 import {
-  Upload as UploadIcon,
-} from 'react-feather';
+  CloudUpload as UploadIcon,
+} from '@material-ui/icons';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import {useDispatch, useSelector} from "react-redux";
 import {importActions} from "../../../actions";
 
 const useStyles = makeStyles((theme) => ({
   root: {},
-  action: {
-    marginBottom: theme.spacing(1),
-    '& + &': {
-      marginLeft: theme.spacing(1)
-    }
-  }
 }));
 
 function Header({className, ...rest}) {
@@ -62,16 +55,11 @@ function Header({className, ...rest}) {
       </Grid>
       {projectId && <Grid item>
         <Tooltip title="Upload" placement="top">
-          <Button className={classes.action}
-                  color="secondary"
-                  variant="contained"
-                  onClick={() => {
-                    dispatch(importActions.openUploadDialog())
-                  }}>
-            <SvgIcon>
-              <UploadIcon/>
-            </SvgIcon>
-          </Button>
+          <IconButton onClick={() => {
+            dispatch(importActions.openUploadDialog())
+          }}>
+            <UploadIcon/>
+          </IconButton>
         </Tooltip>
       </Grid>}
     </Grid>

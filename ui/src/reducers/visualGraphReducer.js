@@ -3,7 +3,7 @@ import {
   VISUAL_GRAPH_CLOSE_NODE_INFO_DRAWER,
   VISUAL_GRAPH_TRIPLES_ADDED,
   VISUAL_GRAPH_NODE_ADDED,
-  VISUAL_GRAPH_NODE_REMOVED, VISUAL_GRAPH_OPEN_NODE_INFO_DRAWER
+  VISUAL_GRAPH_NODE_REMOVED, VISUAL_GRAPH_OPEN_NODE_INFO_DRAWER, VISUAL_GRAPH_CLEAR
 } from "../actions";
 
 const initialState = {
@@ -16,6 +16,8 @@ const initialState = {
 export const visualGraphReducer = (state = initialState, action) => {
 
   switch (action.type) {
+    case VISUAL_GRAPH_CLEAR:
+      return Object.assign({}, state, {nodes: [], edges: []})
     case VISUAL_GRAPH_NODE_ADDED:
       return addNode(state, action);
 

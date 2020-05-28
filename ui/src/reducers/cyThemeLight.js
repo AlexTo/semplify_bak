@@ -10,6 +10,13 @@ export const cyThemeLight = [
     },
   },
   {
+    selector: "node:selected",
+    style: {
+      'border-color': 'red',
+      'border-width': 2
+    },
+  },
+  {
     selector: "node[label]",
     style: {
       color: '#131111',

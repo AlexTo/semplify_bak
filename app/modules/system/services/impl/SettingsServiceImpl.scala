@@ -26,7 +26,7 @@ class SettingsServiceImpl @Inject()(projectService: ProjectService,
 
   override def findProjectSettings(projectId: String): Future[SettingsGet] = BSONObjectID.parse(projectId) match {
     case Success(id) => collection flatMap {
-      val query = BSONDocument("_id" -> id,
+      val query = BSONDocument("projectId" -> id,
         "scope" -> SettingsScope.Project.toString)
       _.find(query, Option.empty[JsObject]).one[SettingsGet] flatMap {
         case Some(value) => Future(value)
@@ -37,7 +37,7 @@ class SettingsServiceImpl @Inject()(projectService: ProjectService,
 
   override def findUserSettings(projectId: String, username: String): Future[SettingsGet] = BSONObjectID.parse(projectId) match {
     case Success(id) => collection flatMap {
-      val query = BSONDocument("_id" -> id,
+      val query = BSONDocument("projectId" -> id,
         "scope" -> SettingsScope.Project.toString, "username" -> username, "scope" -> SettingsScope.User.toString)
       _.find(query, Option.empty[JsObject]).one[SettingsGet] flatMap {
         case Some(value) => Future(value)

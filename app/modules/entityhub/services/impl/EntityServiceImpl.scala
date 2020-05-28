@@ -2,13 +2,15 @@ package modules.entityhub.services.impl
 
 import javax.inject.Inject
 import modules.common.vocabulary.{ASN, DBO}
-import modules.entityhub.models.{GraphGet, IRI, Literal, QueryType, SearchHit, Triple}
+import modules.entityhub.models._
 import modules.entityhub.services.{EntityService, QueryFactory}
 import modules.entityhub.utils.ValueUtils
 import modules.project.models.RepositoryType
 import modules.project.services.ProjectService
+import modules.system.entities.EdgeFilterMode
+import modules.system.services.SettingsService
 import org.eclipse.rdf4j.model
-import org.eclipse.rdf4j.model.vocabulary.{DCTERMS, FOAF, RDF, RDFS, SKOS}
+import org.eclipse.rdf4j.model.vocabulary._
 import org.eclipse.rdf4j.query.QueryLanguage
 import org.eclipse.rdf4j.sparqlbuilder.core.SparqlBuilder
 import org.eclipse.rdf4j.sparqlbuilder.core.query.Queries
@@ -19,6 +21,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Success, Using}
 
 class EntityServiceImpl @Inject()(projectService: ProjectService,
+                                  settingsService: SettingsService,
                                   queryFactory: QueryFactory)
                                  (implicit val ec: ExecutionContext) extends EntityService {
 
@@ -53,56 +56,72 @@ class EntityServiceImpl @Inject()(projectService: ProjectService,
 
   }
 
-  override def findTriplesFromNode(projectId: String, graph: Option[String], subj: String, nodeType: Option[String]): Future[Seq[Triple]] =
-    projectService.findRepoById(projectId).map {
-      case Some((_, repo)) =>
-        val f = repo.getValueFactory
+  override def findTriplesFromNode(projectId: String, graph: Option[String],
+                                   subj: String, nodeType: Option[String], currentUser: String): Future[Seq[Triple]] = {
+    val futureProjRepo = projectService.findRepoById(projectId)
+    val futureUserSettings = settingsService.findUserSettings(projectId, currentUser)
+    for {
+      projRepo <- futureProjRepo
+      userSettings <- futureUserSettings
+    } yield {
+      projRepo match {
+        case Some((_, repo)) =>
+          val f = repo.getValueFactory
 
-        val nodeTypeFilter = nodeType match {
-          case Some("iri") => "FILTER isIRI(?o) "
-          case Some("literal") => "FILTER isLiteral(?o) "
-          case _ => ""
-        }
+          // here we use user settings to apply filters on nodes and edges
+          val edgeRenderer = userSettings.visualGraph.edgeRenderer
 
-        val excludePreds = Seq(RDF.TYPE, ASN.indexingStatus, ASN.teachesCompetency)
+          val excludePreds = edgeRenderer.excludePreds.map(s => f.createIRI(s))
+          val includePreds = edgeRenderer.includePreds.map(s => f.createIRI(s))
 
-        val predFilter = excludePreds.map { p => s"FILTER (?p != <${p.stringValue()}>) " } mkString ("")
+          val excludePredsFilter = excludePreds map { p => s"FILTER (?p != <${p.stringValue()}>) " } mkString ("")
+          val includePredsFilter = s"FILTER (${includePreds map { p => s"?p = <${p.stringValue()}>" } mkString (" OR ")}) "
 
-        val q =
-          "SELECT ?p ?o " + (if (graph.isEmpty) "?g" else "") +
-            " WHERE { " +
-            "  GRAPH ?g { " +
-            "   ?s ?p ?o " +
-            predFilter +
-            nodeTypeFilter +
-            "}}"
-        val subjIri = f.createIRI(subj)
-        val s = ValueUtils.createValue(projectId, graph, subjIri)
-        Using(repo.getConnection) { conn =>
-          val tq = conn.prepareTupleQuery(QueryLanguage.SPARQL, q)
-          tq.setBinding("s", subjIri)
-          graph match {
-            case Some(iri) => tq.setBinding("g", f.createIRI(iri))
-            case _ =>
+          val filter = nodeType match {
+            case Some("iri") => "FILTER isIRI(?o) " +
+              (if (edgeRenderer.filterMode == EdgeFilterMode.Inclusive)
+                includePredsFilter else excludePredsFilter)
+            case Some("literal") => "FILTER isLiteral(?o) "
+            case _ => ""
           }
-          val results = tq.evaluate
-          val triples = new ListBuffer[Triple]
-          while (results.hasNext) {
-            val bindings = results.next()
-            val g = if (graph.isEmpty) bindings.getBinding("g").getValue.stringValue() else graph.get
-            val p = ValueUtils.createValue(projectId, Some(g), bindings.getBinding("p").getValue)
-            val o = ValueUtils.createValue(projectId, Some(g), bindings.getBinding("o").getValue)
-            val triple = Triple(projectId, Some(g), s.asInstanceOf[IRI], p.asInstanceOf[IRI], o)
-            triples.addOne(triple)
+
+          val q =
+            "SELECT ?p ?o " + (if (graph.isEmpty) "?g" else "") +
+              " WHERE { " +
+              "  GRAPH ?g { " +
+              "   ?s ?p ?o " +
+              filter +
+              "}}"
+
+          val subjIri = f.createIRI(subj)
+          val s = ValueUtils.createValue(projectId, graph, subjIri)
+          Using(repo.getConnection) { conn =>
+            val tq = conn.prepareTupleQuery(QueryLanguage.SPARQL, q)
+            tq.setBinding("s", subjIri)
+            graph match {
+              case Some(iri) => tq.setBinding("g", f.createIRI(iri))
+              case _ =>
+            }
+            val results = tq.evaluate
+            val triples = new ListBuffer[Triple]
+            while (results.hasNext) {
+              val bindings = results.next()
+              val g = if (graph.isEmpty) bindings.getBinding("g").getValue.stringValue() else graph.get
+              val p = ValueUtils.createValue(projectId, Some(g), bindings.getBinding("p").getValue)
+              val o = ValueUtils.createValue(projectId, Some(g), bindings.getBinding("o").getValue)
+              val triple = Triple(projectId, Some(g), s.asInstanceOf[IRI], p.asInstanceOf[IRI], o)
+              triples.addOne(triple)
+            }
+            triples.toSeq
+          } match {
+            case Success(value) => value
           }
-          triples.toSeq
-        } match {
-          case Success(value) => value
-        }
+      }
     }
+  }
 
   override def findTriplesToNode(projectId: String, graph: Option[String], obj: String): Future[Seq[Triple]] = {
-    projectService.findRepoById(projectId).map {
+    projectService.findRepoById(projectId) map {
       case Some((_, repo)) =>
         val f = repo.getValueFactory
         val q =
@@ -139,9 +158,7 @@ class EntityServiceImpl @Inject()(projectService: ProjectService,
   override def searchNodes(projectId: String, graph: Option[String], term: String): Future[Seq[SearchHit]] =
     projectService.findRepoById(projectId).map {
       case Some((proj, repo)) =>
-
         Using(repo.getConnection) { conn =>
-
           val q = queryFactory.getQuery(QueryType.SearchNodes, proj, graph)
           val f = repo.getValueFactory
 

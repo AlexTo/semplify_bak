@@ -19,7 +19,8 @@ trait GraphQLService {
 
   def depiction(projectId: String, uri: String): Future[Option[IRI]]
 
-  def triplesFromNode(projectId: String, graph: Option[String], from: String, nodeType: Option[String]): Future[Seq[Triple]]
+  def triplesFromNode(projectId: String, graph: Option[String],
+                      from: String, nodeType: Option[String], currentUser: String): Future[Seq[Triple]]
 
   def triplesToNode(projectId: String, graph: Option[String], to: String): Future[Seq[Triple]]
 

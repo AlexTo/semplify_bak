@@ -11,7 +11,8 @@ trait EntityService {
 
   def findNode(projectId: String, graph: Option[String], uri: String): Future[Option[IRI]]
 
-  def findTriplesFromNode(projectId: String, graph: Option[String], subj: String, nodeType: Option[String]): Future[Seq[Triple]]
+  def findTriplesFromNode(projectId: String, graph: Option[String],
+                          subj: String, nodeType: Option[String], currentUser: String): Future[Seq[Triple]]
 
   def findTriplesToNode(projectId: String, graph: Option[String], obj: String): Future[Seq[Triple]]
 

@@ -2,7 +2,7 @@ package modules.graphql.schema
 
 import modules.entityhub.models._
 import modules.fileserver.models.FileInfo
-import modules.graphql.services.GraphQLService
+import modules.graphql.models.GraphQLContext
 import modules.project.models.{NativeRepository, ProjectGet, Repository, VirtuosoRepository}
 import modules.sparql.models.QueryGet
 import modules.task.models.TaskGet
@@ -13,54 +13,54 @@ import sangria.util.tag.@@
 
 object SchemaDefinition {
 
-  val Repository: InterfaceType[GraphQLService, Repository] =
+  val Repository: InterfaceType[GraphQLContext, Repository] =
     InterfaceType("Repository", "An interface that represent a generic repository",
-      () => fields[GraphQLService, Repository](
+      () => fields[GraphQLContext, Repository](
         Field("type", StringType, resolve = _.value.`type`.toString)
       )
     )
 
-  val NativeRepository: ObjectType[GraphQLService, NativeRepository] = ObjectType("NativeRepository",
-    "An RDF4J repository", interfaces[GraphQLService, NativeRepository](Repository),
-    () => fields[GraphQLService, NativeRepository](
+  val NativeRepository: ObjectType[GraphQLContext, NativeRepository] = ObjectType("NativeRepository",
+    "An RDF4J repository", interfaces[GraphQLContext, NativeRepository](Repository),
+    () => fields[GraphQLContext, NativeRepository](
       Field("type", StringType, resolve = _.value.`type`.toString),
     )
   )
 
-  val VirtuosoRepository: ObjectType[GraphQLService, VirtuosoRepository] = ObjectType("VirtuosoRepository",
-    "An Virtuoso repository", interfaces[GraphQLService, VirtuosoRepository](Repository),
-    () => fields[GraphQLService, VirtuosoRepository](
+  val VirtuosoRepository: ObjectType[GraphQLContext, VirtuosoRepository] = ObjectType("VirtuosoRepository",
+    "An Virtuoso repository", interfaces[GraphQLContext, VirtuosoRepository](Repository),
+    () => fields[GraphQLContext, VirtuosoRepository](
       Field("type", StringType, resolve = _.value.`type`.toString),
       Field("hostList", StringType, resolve = _.value.hostList),
     )
   )
 
-  val Value: InterfaceType[GraphQLService, modules.entityhub.models.Value] =
+  val Value: InterfaceType[GraphQLContext, modules.entityhub.models.Value] =
     InterfaceType("Value", "An interface that represents a generic value in an RDF graph",
-      () => fields[GraphQLService, modules.entityhub.models.Value](
+      () => fields[GraphQLContext, modules.entityhub.models.Value](
         Field("projectId", StringType, resolve = _.value.projectId),
         Field("graph", OptionType(StringType), resolve = _.value.graph),
         Field("value", StringType, resolve = _.value.value),
       )
     )
 
-  val IRI: ObjectType[GraphQLService, IRI] = ObjectType("IRI", "An RDF IRI",
-    interfaces[GraphQLService, IRI](Value),
-    () => fields[GraphQLService, IRI](
+  val IRI: ObjectType[GraphQLContext, IRI] = ObjectType("IRI", "An RDF IRI",
+    interfaces[GraphQLContext, IRI](Value),
+    () => fields[GraphQLContext, IRI](
       Field("projectId", StringType, resolve = _.value.projectId),
       Field("graph", OptionType(StringType), resolve = _.value.graph),
       Field("value", StringType, resolve = _.value.value),
-      Field("prefLabel", OptionType(Literal), resolve = ctx => ctx.ctx.prefLabel(ctx.value.projectId, ctx.value.value)),
-      Field("depiction", OptionType(IRI), resolve = ctx => ctx.ctx.depiction(ctx.value.projectId, ctx.value.value)),
+      Field("prefLabel", OptionType(Literal), resolve = ctx => ctx.ctx.svc.prefLabel(ctx.value.projectId, ctx.value.value)),
+      Field("depiction", OptionType(IRI), resolve = ctx => ctx.ctx.svc.depiction(ctx.value.projectId, ctx.value.value)),
       Field("outGoingPredicates", ListType(Triple),
-        resolve = ctx => ctx.ctx.triplesFromNode(ctx.value.projectId, None, ctx.value.value, None)),
+        resolve = ctx => ctx.ctx.svc.triplesFromNode(ctx.value.projectId, None, ctx.value.value, None, ctx.ctx.username)),
       Field("incomingPredicates", ListType(Triple),
-        resolve = ctx => ctx.ctx.triplesToNode(ctx.value.projectId, None, ctx.value.value))
+        resolve = ctx => ctx.ctx.svc.triplesToNode(ctx.value.projectId, None, ctx.value.value))
     ))
 
-  val Literal: ObjectType[GraphQLService, Literal] = ObjectType("Literal", "An RDF Literal",
-    interfaces[GraphQLService, Literal](Value),
-    () => fields[GraphQLService, Literal](
+  val Literal: ObjectType[GraphQLContext, Literal] = ObjectType("Literal", "An RDF Literal",
+    interfaces[GraphQLContext, Literal](Value),
+    () => fields[GraphQLContext, Literal](
       Field("projectId", StringType, resolve = _.value.projectId),
       Field("graph", OptionType(StringType), resolve = _.value.graph),
       Field("value", StringType, resolve = _.value.value),
@@ -68,16 +68,16 @@ object SchemaDefinition {
       Field("dataType", StringType, resolve = _.value.dataType),
     ))
 
-  val BNode: ObjectType[GraphQLService, BNode] = ObjectType("BNode", "An RDF BNode",
-    interfaces[GraphQLService, BNode](Value),
-    () => fields[GraphQLService, BNode](
+  val BNode: ObjectType[GraphQLContext, BNode] = ObjectType("BNode", "An RDF BNode",
+    interfaces[GraphQLContext, BNode](Value),
+    () => fields[GraphQLContext, BNode](
       Field("projectId", StringType, resolve = _.value.projectId),
       Field("graph", OptionType(StringType), resolve = _.value.graph),
       Field("value", StringType, resolve = _.value.value))
   )
 
-  val Triple: ObjectType[GraphQLService, Triple] = ObjectType("Triple", "An RDF triple",
-    () => fields[GraphQLService, Triple](
+  val Triple: ObjectType[GraphQLContext, Triple] = ObjectType("Triple", "An RDF triple",
+    () => fields[GraphQLContext, Triple](
       Field("projectId", StringType, resolve = _.value.projectId),
       Field("graph", OptionType(StringType), resolve = _.value.graph),
       Field("subj", IRI, resolve = _.value.subj),
@@ -85,8 +85,8 @@ object SchemaDefinition {
       Field("obj", Value, resolve = _.value.obj),
     ))
 
-  val WebPage: ObjectType[GraphQLService, PageGet] = ObjectType("WebPage",
-    () => fields[GraphQLService, PageGet](
+  val WebPage: ObjectType[GraphQLContext, PageGet] = ObjectType("WebPage",
+    () => fields[GraphQLContext, PageGet](
       Field("id", StringType, resolve = _.value.id),
       Field("projectId", StringType, resolve = _.value.projectId),
       Field("url", StringType, resolve = _.value.url),
@@ -97,16 +97,16 @@ object SchemaDefinition {
     )
   )
 
-  val Task: ObjectType[GraphQLService, TaskGet] = ObjectType("Task",
-    () => fields[GraphQLService, TaskGet](
+  val Task: ObjectType[GraphQLContext, TaskGet] = ObjectType("Task",
+    () => fields[GraphQLContext, TaskGet](
       Field("id", StringType, resolve = _.value.id),
       Field("projectId", StringType, resolve = _.value.projectId),
       Field("type", StringType, resolve = _.value.`type`),
       Field("status", StringType, resolve = _.value.status),
     ))
 
-  val Project: ObjectType[GraphQLService, ProjectGet] = ObjectType("Project",
-    () => fields[GraphQLService, ProjectGet](
+  val Project: ObjectType[GraphQLContext, ProjectGet] = ObjectType("Project",
+    () => fields[GraphQLContext, ProjectGet](
       Field("id", StringType, resolve = _.value.id),
       Field("title", StringType, resolve = _.value.title),
       Field("repository", Repository, resolve = _.value.repository),
@@ -114,22 +114,22 @@ object SchemaDefinition {
       Field("created", LongType, resolve = _.value.created)
     ))
 
-  val SearchHit: ObjectType[GraphQLService, SearchHit] = ObjectType("SearchHit",
-    () => fields[GraphQLService, SearchHit](
+  val SearchHit: ObjectType[GraphQLContext, SearchHit] = ObjectType("SearchHit",
+    () => fields[GraphQLContext, SearchHit](
       Field("node", IRI, resolve = _.value.node),
       Field("snippet", StringType, resolve = _.value.snippet),
       Field("score", FloatType, resolve = _.value.score)
     )
   )
-  val Graph: ObjectType[GraphQLService, GraphGet] = ObjectType("Graph",
-    () => fields[GraphQLService, GraphGet](
+  val Graph: ObjectType[GraphQLContext, GraphGet] = ObjectType("Graph",
+    () => fields[GraphQLContext, GraphGet](
       Field("projectId", StringType, resolve = _.value.projectId),
       Field("value", StringType, resolve = _.value.value)
     )
   )
 
-  val SparqlQuery: ObjectType[GraphQLService, QueryGet] = ObjectType("SparqlQuery",
-    () => fields[GraphQLService, QueryGet](
+  val SparqlQuery: ObjectType[GraphQLContext, QueryGet] = ObjectType("SparqlQuery",
+    () => fields[GraphQLContext, QueryGet](
       Field("id", StringType, resolve = _.value.id),
       Field("projectId", StringType, resolve = _.value.projectId),
       Field("title", StringType, resolve = _.value.title),
@@ -141,8 +141,8 @@ object SchemaDefinition {
       Field("modifiedBy", StringType, resolve = _.value.modifiedBy)
     ))
 
-  val FileInfo: ObjectType[GraphQLService, FileInfo] = ObjectType("FileInfo",
-    () => fields[GraphQLService, FileInfo](
+  val FileInfo: ObjectType[GraphQLContext, FileInfo] = ObjectType("FileInfo",
+    () => fields[GraphQLContext, FileInfo](
       Field("id", StringType, resolve = _.value.id),
       Field("filename", StringType, resolve = _.value.filename),
       Field("length", LongType, resolve = _.value.length),
@@ -161,56 +161,56 @@ object SchemaDefinition {
   val TermArg: Argument[String] = Argument("term", StringType)
 
 
-  val Query: ObjectType[GraphQLService, Unit] = ObjectType(
-    "Query", fields[GraphQLService, Unit](
+  val Query: ObjectType[GraphQLContext, Unit] = ObjectType(
+    "Query", fields[GraphQLContext, Unit](
       Field("node", OptionType(IRI),
         arguments = ProjectIdArg :: GraphArg :: UriArg :: Nil,
-        resolve = ctx => ctx.ctx.node(ctx arg ProjectIdArg, ctx arg GraphArg, ctx arg UriArg)
+        resolve = ctx => ctx.ctx.svc.node(ctx arg ProjectIdArg, ctx arg GraphArg, ctx arg UriArg)
       ),
       Field("triplesFromNode", ListType(Triple),
         arguments = ProjectIdArg :: GraphArg :: UriArg :: NodeTypeArg :: Nil,
-        resolve = ctx => ctx.ctx.triplesFromNode(ctx arg ProjectIdArg, ctx arg GraphArg,
-          ctx arg UriArg, ctx arg NodeTypeArg)
+        resolve = ctx => ctx.ctx.svc.triplesFromNode(ctx arg ProjectIdArg, ctx arg GraphArg,
+          ctx arg UriArg, ctx arg NodeTypeArg, ctx.ctx.username)
       ),
       Field("files", ListType(FileInfo),
         arguments = ProjectIdArg :: Nil,
-        resolve = ctx => ctx.ctx.files(ctx arg ProjectIdArg)
+        resolve = ctx => ctx.ctx.svc.files(ctx arg ProjectIdArg)
       ),
       Field("projects", ListType(Project),
-        resolve = ctx => ctx.ctx.projects()
+        resolve = ctx => ctx.ctx.svc.projects()
       ),
 
       Field("graphs", ListType(Graph),
         arguments = ProjectIdArg :: Nil,
-        resolve = ctx => ctx.ctx.graphs(ctx arg ProjectIdArg)
+        resolve = ctx => ctx.ctx.svc.graphs(ctx arg ProjectIdArg)
       ),
 
       Field("crawledPages", ListType(WebPage),
         arguments = ProjectIdArg :: Nil,
-        resolve = ctx => ctx.ctx.crawledPages(ctx arg ProjectIdArg)
+        resolve = ctx => ctx.ctx.svc.crawledPages(ctx arg ProjectIdArg)
       ),
       Field("searchNodes", ListType(SearchHit),
         arguments = ProjectIdArg :: GraphArg :: TermArg :: Nil,
-        resolve = ctx => ctx.ctx.searchNodes(ctx arg ProjectIdArg, ctx arg GraphArg, ctx arg TermArg)
+        resolve = ctx => ctx.ctx.svc.searchNodes(ctx arg ProjectIdArg, ctx arg GraphArg, ctx arg TermArg)
       ),
       Field("sparqlQueries", ListType(SparqlQuery),
         arguments = ProjectIdArg :: Nil,
-        resolve = ctx => ctx.ctx.sparqlQueries(ctx arg ProjectIdArg)
+        resolve = ctx => ctx.ctx.svc.sparqlQueries(ctx arg ProjectIdArg)
       )
     ))
 
-  val Mutation: ObjectType[GraphQLService, Unit] = ObjectType(
-    "Mutation", fields[GraphQLService, Unit](
+  val Mutation: ObjectType[GraphQLContext, Unit] = ObjectType(
+    "Mutation", fields[GraphQLContext, Unit](
       Field("deleteGraphs", ListType(Graph),
         arguments = ProjectIdArg :: GraphsArg :: Nil,
-        resolve = ctx => ctx.ctx.deleteGraphs(ctx arg ProjectIdArg, ctx arg GraphsArg)
+        resolve = ctx => ctx.ctx.svc.deleteGraphs(ctx arg ProjectIdArg, ctx arg GraphsArg)
       ),
       Field("deleteFiles", ListType(FileInfo),
         arguments = ProjectIdArg :: FileIdsArg :: Nil,
-        resolve = ctx => ctx.ctx.deleteFiles(ctx arg ProjectIdArg, ctx arg FileIdsArg)
+        resolve = ctx => ctx.ctx.svc.deleteFiles(ctx arg ProjectIdArg, ctx arg FileIdsArg)
       )
     ))
 
-  val schema: Schema[GraphQLService, Unit] = Schema(Query, Some(Mutation),
+  val schema: Schema[GraphQLContext, Unit] = Schema(Query, Some(Mutation),
     additionalTypes = NativeRepository :: VirtuosoRepository :: Literal :: BNode :: Nil)
 }

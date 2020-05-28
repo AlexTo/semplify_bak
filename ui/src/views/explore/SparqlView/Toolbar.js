@@ -4,8 +4,10 @@ import {
   IconButton,
   Tooltip
 } from '@material-ui/core';
-import SaveIcon from '@material-ui/icons/Save';
-import PlayArrowIcon from '@material-ui/icons/PlayArrow';
+import {
+  Save as SaveIcon,
+  PlayArrow as PlayArrowIcon
+} from '@material-ui/icons';
 
 function Toolbar({onExecute, onSave}) {
 
@@ -13,13 +15,13 @@ function Toolbar({onExecute, onSave}) {
     <Grid alignItems="center" container justify="space-between">
       <Grid item/>
       <Grid item>
-        <Tooltip title="Execute">
+        <Tooltip title="Execute" placement="top">
           <IconButton
             onClick={onExecute}>
             <PlayArrowIcon/>
           </IconButton>
         </Tooltip>
-        <Tooltip title="Save">
+        <Tooltip title="Save" placement="top">
           <IconButton
             onClick={onSave}>
             <SaveIcon/>

@@ -1,3 +1,4 @@
+export const VISUAL_GRAPH_CLEAR = 'VISUAL_GRAPH/CLEAR';
 export const VISUAL_GRAPH_NODE_ADDED = 'VISUAL_GRAPH/NODE_ADDED';
 export const VISUAL_GRAPH_TRIPLES_ADDED = 'VISUAL_GRAPH/TRIPLES_ADDED';
 export const VISUAL_GRAPH_NODE_REMOVED = 'VISUAL_GRAPH/NODE_REMOVED';
@@ -5,11 +6,18 @@ export const VISUAL_GRAPH_CLOSE_NODE_INFO_DRAWER = 'VISUAL_GRAPH/CLOSE_NODE_INFO
 export const VISUAL_GRAPH_OPEN_NODE_INFO_DRAWER = 'VISUAL_GRAPH/OPEN_NODE_INFO_DRAWER';
 
 export const visualGraphActions = {
+  clear,
   addNode,
   removeNode,
   addTriples,
   closeNodeInfoDrawer,
   openNodeInfoDrawer
+}
+
+function clear() {
+  return dispatch => dispatch({
+    type: VISUAL_GRAPH_CLEAR
+  })
 }
 
 function closeNodeInfoDrawer() {

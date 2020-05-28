@@ -26,8 +26,9 @@ class GraphQLServiceImpl @Inject()(entityService: EntityService,
   override def node(projectId: String, graph: Option[String], uri: String): Future[Option[IRI]]
   = entityService.findNode(projectId, graph, uri)
 
-  override def triplesFromNode(projectId: String, graph: Option[String], from: String, nodeType: Option[String]): Future[Seq[Triple]]
-  = entityService.findTriplesFromNode(projectId, graph, from, nodeType)
+  override def triplesFromNode(projectId: String, graph: Option[String],
+                               from: String, nodeType: Option[String], currentUser: String): Future[Seq[Triple]]
+  = entityService.findTriplesFromNode(projectId, graph, from, nodeType, currentUser: String)
 
   override def triplesToNode(projectId: String, graph: Option[String], to: String): Future[Seq[Triple]]
   = entityService.findTriplesToNode(projectId, graph, to)
