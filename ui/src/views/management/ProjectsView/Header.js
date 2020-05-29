@@ -2,9 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import {
-  Box,
   Breadcrumbs,
-  Button,
+  IconButton,
   Grid,
   SvgIcon,
   Typography,
@@ -19,13 +18,7 @@ import {projectActions} from "../../../actions";
 import Tooltip from "@material-ui/core/Tooltip";
 
 const useStyles = makeStyles((theme) => ({
-  root: {},
-  action: {
-    marginBottom: theme.spacing(1),
-    '& + &': {
-      marginLeft: theme.spacing(1)
-    }
-  }
+  root: {}
 }));
 
 function Header({className, ...rest}) {
@@ -62,17 +55,15 @@ function Header({className, ...rest}) {
       </Grid>
       <Grid item>
         <Tooltip title="New Project" placement="top">
-          <Button className={classes.action}
-                  color="secondary"
-                  variant="contained"
-                  onClick={() => {
-                    dispatch(projectActions.openNewProjectDialog())
-                  }}>
+          <IconButton
+            onClick={() => {
+              dispatch(projectActions.openNewProjectDialog())
+            }}>
             <SvgIcon
               fontSize="small">
               <FileIcon/>
             </SvgIcon>
-          </Button>
+          </IconButton>
         </Tooltip>
       </Grid>
     </Grid>

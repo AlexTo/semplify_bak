@@ -5,6 +5,8 @@ import modules.fileserver.models.FileInfo
 import modules.graphql.models.GraphQLContext
 import modules.project.models.{NativeRepository, ProjectGet, Repository, VirtuosoRepository}
 import modules.sparql.models.QueryGet
+import modules.system.entities.{ColorMap, EdgeRenderer, NodeRenderer, VisualGraph}
+import modules.system.models.SettingsGet
 import modules.task.models.TaskGet
 import modules.webcrawler.models.PageGet
 import sangria.marshalling.FromInput
@@ -16,33 +18,25 @@ object SchemaDefinition {
   val Repository: InterfaceType[GraphQLContext, Repository] =
     InterfaceType("Repository", "An interface that represent a generic repository",
       () => fields[GraphQLContext, Repository](
-        Field("type", StringType, resolve = _.value.`type`.toString)
-      )
-    )
+        Field("type", StringType, resolve = _.value.`type`.toString)))
 
   val NativeRepository: ObjectType[GraphQLContext, NativeRepository] = ObjectType("NativeRepository",
     "An RDF4J repository", interfaces[GraphQLContext, NativeRepository](Repository),
     () => fields[GraphQLContext, NativeRepository](
-      Field("type", StringType, resolve = _.value.`type`.toString),
-    )
-  )
+      Field("type", StringType, resolve = _.value.`type`.toString)))
 
   val VirtuosoRepository: ObjectType[GraphQLContext, VirtuosoRepository] = ObjectType("VirtuosoRepository",
     "An Virtuoso repository", interfaces[GraphQLContext, VirtuosoRepository](Repository),
     () => fields[GraphQLContext, VirtuosoRepository](
       Field("type", StringType, resolve = _.value.`type`.toString),
-      Field("hostList", StringType, resolve = _.value.hostList),
-    )
-  )
+      Field("hostList", StringType, resolve = _.value.hostList)))
 
   val Value: InterfaceType[GraphQLContext, modules.entityhub.models.Value] =
     InterfaceType("Value", "An interface that represents a generic value in an RDF graph",
       () => fields[GraphQLContext, modules.entityhub.models.Value](
         Field("projectId", StringType, resolve = _.value.projectId),
         Field("graph", OptionType(StringType), resolve = _.value.graph),
-        Field("value", StringType, resolve = _.value.value),
-      )
-    )
+        Field("value", StringType, resolve = _.value.value)))
 
   val IRI: ObjectType[GraphQLContext, IRI] = ObjectType("IRI", "An RDF IRI",
     interfaces[GraphQLContext, IRI](Value),
@@ -55,8 +49,7 @@ object SchemaDefinition {
       Field("outGoingPredicates", ListType(Triple),
         resolve = ctx => ctx.ctx.svc.triplesFromNode(ctx.value.projectId, None, ctx.value.value, None, ctx.ctx.username)),
       Field("incomingPredicates", ListType(Triple),
-        resolve = ctx => ctx.ctx.svc.triplesToNode(ctx.value.projectId, None, ctx.value.value))
-    ))
+        resolve = ctx => ctx.ctx.svc.triplesToNode(ctx.value.projectId, None, ctx.value.value))))
 
   val Literal: ObjectType[GraphQLContext, Literal] = ObjectType("Literal", "An RDF Literal",
     interfaces[GraphQLContext, Literal](Value),
@@ -65,16 +58,14 @@ object SchemaDefinition {
       Field("graph", OptionType(StringType), resolve = _.value.graph),
       Field("value", StringType, resolve = _.value.value),
       Field("lang", OptionType(StringType), resolve = _.value.lang),
-      Field("dataType", StringType, resolve = _.value.dataType),
-    ))
+      Field("dataType", StringType, resolve = _.value.dataType)))
 
   val BNode: ObjectType[GraphQLContext, BNode] = ObjectType("BNode", "An RDF BNode",
     interfaces[GraphQLContext, BNode](Value),
     () => fields[GraphQLContext, BNode](
       Field("projectId", StringType, resolve = _.value.projectId),
       Field("graph", OptionType(StringType), resolve = _.value.graph),
-      Field("value", StringType, resolve = _.value.value))
-  )
+      Field("value", StringType, resolve = _.value.value)))
 
   val Triple: ObjectType[GraphQLContext, Triple] = ObjectType("Triple", "An RDF triple",
     () => fields[GraphQLContext, Triple](
@@ -82,8 +73,7 @@ object SchemaDefinition {
       Field("graph", OptionType(StringType), resolve = _.value.graph),
       Field("subj", IRI, resolve = _.value.subj),
       Field("pred", IRI, resolve = _.value.pred),
-      Field("obj", Value, resolve = _.value.obj),
-    ))
+      Field("obj", Value, resolve = _.value.obj)))
 
   val WebPage: ObjectType[GraphQLContext, PageGet] = ObjectType("WebPage",
     () => fields[GraphQLContext, PageGet](
@@ -93,17 +83,14 @@ object SchemaDefinition {
       Field("title", OptionType(StringType), resolve = _.value.title),
       Field("content", StringType, resolve = _.value.content),
       Field("contentType", OptionType(StringType), resolve = _.value.contentType),
-      Field("domain", OptionType(StringType), resolve = _.value.domain)
-    )
-  )
+      Field("domain", OptionType(StringType), resolve = _.value.domain)))
 
   val Task: ObjectType[GraphQLContext, TaskGet] = ObjectType("Task",
     () => fields[GraphQLContext, TaskGet](
       Field("id", StringType, resolve = _.value.id),
       Field("projectId", StringType, resolve = _.value.projectId),
       Field("type", StringType, resolve = _.value.`type`),
-      Field("status", StringType, resolve = _.value.status),
-    ))
+      Field("status", StringType, resolve = _.value.status)))
 
   val Project: ObjectType[GraphQLContext, ProjectGet] = ObjectType("Project",
     () => fields[GraphQLContext, ProjectGet](
@@ -111,7 +98,42 @@ object SchemaDefinition {
       Field("title", StringType, resolve = _.value.title),
       Field("repository", Repository, resolve = _.value.repository),
       Field("createdBy", StringType, resolve = _.value.createdBy),
-      Field("created", LongType, resolve = _.value.created)
+      Field("created", LongType, resolve = _.value.created)))
+
+
+  val ColorMapSettings: ObjectType[GraphQLContext, ColorMap] = ObjectType("ColorMapSettings",
+    () => fields[GraphQLContext, ColorMap](
+      Field("key", StringType, resolve = _.value.key),
+      Field("color", StringType, resolve = _.value.color)))
+
+  val NodeRendererSettings: ObjectType[GraphQLContext, NodeRenderer] = ObjectType("NodeRendererSettings",
+    () => fields[GraphQLContext, NodeRenderer](
+      Field("colorMaps", ListType(ColorMapSettings), resolve = _.value.colorMaps)
+    ))
+
+  val EdgeRendererSettings: ObjectType[GraphQLContext, EdgeRenderer] = ObjectType("EdgeRendererSettings",
+    () => fields[GraphQLContext, EdgeRenderer](
+      Field("includePreds", ListType(StringType), resolve = _.value.includePreds),
+      Field("excludePreds", ListType(StringType), resolve = _.value.excludePreds),
+      Field("filterMode", StringType, resolve = _.value.filterMode.toString)
+    )
+  )
+
+  val VisualGraphSettings: ObjectType[GraphQLContext, VisualGraph] = ObjectType("VisualGraphSettings",
+    () => fields[GraphQLContext, VisualGraph](
+      Field("nodeRenderer", NodeRendererSettings, resolve = _.value.nodeRenderer),
+      Field("edgeRenderer", EdgeRendererSettings, resolve = _.value.edgeRenderer)
+    ))
+
+  val Settings: ObjectType[GraphQLContext, SettingsGet] = ObjectType("Settings",
+    () => fields[GraphQLContext, SettingsGet](
+      Field("id", StringType, resolve = _.value.id),
+      Field("projectId", StringType, resolve = _.value.projectId),
+      Field("username", OptionType(StringType), resolve = _.value.username),
+      Field("scope", StringType, resolve = _.value.scope.toString),
+      Field("visualGraph", VisualGraphSettings, resolve = _.value.visualGraph),
+      Field("created", LongType, resolve = _.value.created),
+      Field("modified", LongType, resolve = _.value.modified),
     ))
 
   val SearchHit: ObjectType[GraphQLContext, SearchHit] = ObjectType("SearchHit",
@@ -119,14 +141,12 @@ object SchemaDefinition {
       Field("node", IRI, resolve = _.value.node),
       Field("snippet", StringType, resolve = _.value.snippet),
       Field("score", FloatType, resolve = _.value.score)
-    )
-  )
+    ))
   val Graph: ObjectType[GraphQLContext, GraphGet] = ObjectType("Graph",
     () => fields[GraphQLContext, GraphGet](
       Field("projectId", StringType, resolve = _.value.projectId),
       Field("value", StringType, resolve = _.value.value)
-    )
-  )
+    ))
 
   val SparqlQuery: ObjectType[GraphQLContext, QueryGet] = ObjectType("SparqlQuery",
     () => fields[GraphQLContext, QueryGet](
@@ -152,6 +172,7 @@ object SchemaDefinition {
     ))
 
   val ProjectIdArg: Argument[String] = Argument("projectId", StringType)
+  val UsernameArg: Argument[Option[String]] = Argument("username", OptionInputType(StringType))
   val GraphArg: Argument[Option[String]] = Argument("graph", OptionInputType(StringType))
   val NodeTypeArg: Argument[Option[String]] = Argument("nodeType", OptionInputType(StringType))
   val GraphsArg: Argument[Seq[String @@ FromInput.CoercedScalaResult]] = Argument("graphs", ListInputType(StringType))
@@ -171,6 +192,10 @@ object SchemaDefinition {
         arguments = ProjectIdArg :: GraphArg :: UriArg :: NodeTypeArg :: Nil,
         resolve = ctx => ctx.ctx.svc.triplesFromNode(ctx arg ProjectIdArg, ctx arg GraphArg,
           ctx arg UriArg, ctx arg NodeTypeArg, ctx.ctx.username)
+      ),
+      Field("settings", Settings,
+        arguments = ProjectIdArg :: UsernameArg :: Nil,
+        resolve = ctx => ctx.ctx.svc.settings(ctx arg ProjectIdArg, ctx arg UsernameArg)
       ),
       Field("files", ListType(FileInfo),
         arguments = ProjectIdArg :: Nil,

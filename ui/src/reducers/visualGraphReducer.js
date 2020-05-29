@@ -2,7 +2,11 @@ import {createGraphEdge, createGraphNode} from '../utils/graph';
 import {
   VISUAL_GRAPH_TRIPLES_ADDED,
   VISUAL_GRAPH_NODE_ADDED,
-  VISUAL_GRAPH_NODE_REMOVED, VISUAL_GRAPH_CLEAR, VISUAL_GRAPH_TOGGLE_AUTOSHOW_NODE_DETAILS, VISUAL_GRAPH_NODE_SELECTED
+  VISUAL_GRAPH_NODE_REMOVED,
+  VISUAL_GRAPH_CLEAR,
+  VISUAL_GRAPH_TOGGLE_AUTOSHOW_NODE_DETAILS,
+  VISUAL_GRAPH_NODE_SELECTED,
+  VISUAL_GRAPH_CENTER_FOCUS, VISUAL_GRAPH_FIT, VISUAL_GRAPH_OPEN_SETTINGS_DRAWER, VISUAL_GRAPH_CLOSE_SETTINGS_DRAWER
 } from "../actions";
 
 const initialState = {
@@ -10,20 +14,37 @@ const initialState = {
   edges: [],
   autoshowNodeDetails: true,
   nodeDetailsPanelOpen: false,
-  selectedNode: null
+  settingsDrawerOpen: false,
+  selectedNode: null,
+  centerFocus: 1,
+  fit: 1
 }
 
 export const visualGraphReducer = (state = initialState, action) => {
 
   switch (action.type) {
     case VISUAL_GRAPH_CLEAR:
-      return Object.assign({}, state, {nodes: [], edges: []})
+      return Object.assign({}, state, {nodes: [], edges: []});
+
+    case VISUAL_GRAPH_OPEN_SETTINGS_DRAWER:
+      return Object.assign({}, state, {settingsDrawerOpen: true});
+
+    case VISUAL_GRAPH_CLOSE_SETTINGS_DRAWER:
+      return Object.assign({}, state, {settingsDrawerOpen: false});
+
+    case VISUAL_GRAPH_CENTER_FOCUS:
+      return Object.assign({}, state, {centerFocus: state.centerFocus * -1});
+
+    case VISUAL_GRAPH_FIT:
+      return Object.assign({}, state, {fit: state.fit * -1});
+
     case VISUAL_GRAPH_NODE_ADDED:
       return addNode(state, action);
+
     case VISUAL_GRAPH_NODE_SELECTED:
       return Object.assign({}, state, {
         selectedNode: action.node,
-        nodeDetailsPanelOpen: state.autoshowNodeDetails
+        nodeDetailsPanelOpen: !action.node ? false : state.autoshowNodeDetails
       });
 
     case VISUAL_GRAPH_TRIPLES_ADDED:

@@ -66,8 +66,13 @@ class SettingsServiceImpl @Inject()(projectService: ProjectService,
   }
 
   def defaultSettings(projectId: String, username: Option[String]): SettingsCreate =
-    SettingsCreate(projectId, username = username, VisualGraph(
-      NodeRenderer(Map.empty),
-      EdgeRenderer(includePreds = Seq.empty, excludePreds = Seq.empty, EdgeFilterMode.Exclusive)))
-
+    SettingsCreate(
+      projectId,
+      username,
+      VisualGraph(
+        NodeRenderer(Seq.empty),
+        EdgeRenderer(
+          includePreds = Seq.empty,
+          excludePreds = Seq.empty,
+          EdgeFilterMode.Exclusive)))
 }

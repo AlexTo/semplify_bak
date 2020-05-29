@@ -1,7 +1,7 @@
 package modules.graphql.services.impl
 
 import javax.inject.Inject
-import modules.entityhub.models.{GraphGet, IRI, Literal, Triple, SearchHit}
+import modules.entityhub.models.{GraphGet, IRI, Literal, SearchHit, Triple}
 import modules.entityhub.services.EntityService
 import modules.fileserver.models.FileInfo
 import modules.fileserver.services.FileService
@@ -10,6 +10,8 @@ import modules.project.models.ProjectGet
 import modules.project.services.ProjectService
 import modules.sparql.models.QueryGet
 import modules.sparql.services.QueryService
+import modules.system.models.SettingsGet
+import modules.system.services.SettingsService
 import modules.task.models.TaskGet
 import modules.task.services.TaskService
 import modules.webcrawler.models.PageGet
@@ -22,7 +24,8 @@ class GraphQLServiceImpl @Inject()(entityService: EntityService,
                                    fileService: FileService,
                                    taskService: TaskService,
                                    queryService: QueryService,
-                                   webCrawlerService: WebCrawlerService) extends GraphQLService {
+                                   webCrawlerService: WebCrawlerService,
+                                   settingsService: SettingsService) extends GraphQLService {
   override def node(projectId: String, graph: Option[String], uri: String): Future[Option[IRI]]
   = entityService.findNode(projectId, graph, uri)
 
@@ -58,4 +61,9 @@ class GraphQLServiceImpl @Inject()(entityService: EntityService,
   override def depiction(projectId: String, uri: String): Future[Option[IRI]] = entityService.findDepiction(projectId, uri)
 
   override def deleteFiles(projectId: String, fileIds: Seq[String]): Future[Seq[FileInfo]] = fileService.delete(projectId, fileIds)
+
+  override def settings(projectId: String, username: Option[String]): Future[SettingsGet] = username match {
+    case Some(u) => settingsService.findUserSettings(projectId, u)
+    case None => settingsService.findProjectSettings(projectId)
+  }
 }

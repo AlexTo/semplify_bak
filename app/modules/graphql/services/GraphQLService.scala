@@ -1,11 +1,12 @@
 package modules.graphql.services
 
 import com.google.inject.ImplementedBy
-import modules.entityhub.models.{GraphGet, IRI, Literal, Triple, SearchHit}
+import modules.entityhub.models.{GraphGet, IRI, Literal, SearchHit, Triple}
 import modules.fileserver.models.FileInfo
 import modules.graphql.services.impl.GraphQLServiceImpl
 import modules.project.models.ProjectGet
 import modules.sparql.models.QueryGet
+import modules.system.models.SettingsGet
 import modules.task.models.TaskGet
 import modules.webcrawler.models.PageGet
 
@@ -33,6 +34,8 @@ trait GraphQLService {
   def crawledPages(projectId: String): Future[Seq[PageGet]]
 
   def files(projectId: String): Future[Seq[FileInfo]]
+
+  def settings(projectId: String, username: Option[String]): Future[SettingsGet]
 
   def sparqlQueries(projectId: String): Future[Seq[QueryGet]]
 

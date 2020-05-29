@@ -62,7 +62,8 @@ function GraphView() {
             <Typography variant="h5"
                         color="textSecondary"> Please select a project
             </Typography>
-          </Box>}
+          </Box>
+        }
       </Container>
     </Page>
   );

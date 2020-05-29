@@ -21,7 +21,7 @@ function Graph() {
   const {theme} = useSelector(state => state.cyReducer)
   const layout = {name: "cola"};
   const {enqueueSnackbar} = useSnackbar();
-  const {nodes, edges} = useSelector(state => state.visualGraphReducer)
+  const {nodes, edges, centerFocus, fit} = useSelector(state => state.visualGraphReducer)
   const dispatch = useDispatch();
 
 
@@ -41,20 +41,35 @@ function Graph() {
     });
 
   useEffect(() => {
+    if (cy) cy.center();
+  }, [centerFocus]);
+
+  useEffect(() => {
+    if (cy) cy.fit();
+  }, [fit]);
+
+  useEffect(() => {
     if (!cy) {
       return;
     }
-    cy.on('tap', 'node', function (evt) {
-      let node = evt.target;
+    cy.on('select', 'node', function (e) {
+      let node = e.target;
       dispatch(visualGraphActions.selectNode(node.id()))
     });
+
+    cy.on('unselect', 'node', function (e) {
+      let node = e.target;
+      dispatch(visualGraphActions.selectNode(null))
+    })
+
     cy.cxtmenu(menu);
   }, [cy])
 
   useEffect(() => {
-    if (cy) {
-      cy.layout(layout).run();
+    if (!cy) {
+      return;
     }
+    cy.layout(layout).run();
   }, [nodes, edges])
 
   const createMenuItems = () => {

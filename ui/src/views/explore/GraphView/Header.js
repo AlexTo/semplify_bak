@@ -10,9 +10,12 @@ import {
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import Tooltip from "@material-ui/core/Tooltip";
 import {
+  CenterFocusStrong as CenterFocusStrongIcon,
   Autorenew as AutorenewIcon,
   Save as SaveIcon,
-  Menu as MenuIcon
+  Menu as MenuIcon,
+  AspectRatio as AspectRatioIcon,
+  Settings as SettingsIcon
 } from "@material-ui/icons";
 import {useDispatch, useSelector} from "react-redux";
 import {visualGraphActions} from "../../../actions";
@@ -62,16 +65,35 @@ function Header({className, ...rest}) {
             <SaveIcon/>
           </IconButton>
         </Tooltip>
-        <Tooltip title="Clear Graph" placement="top">
+        <Tooltip title="Settings" placement="top">
+          <IconButton
+            onClick={() => dispatch(visualGraphActions.openSettingsDrawer())}>
+            <SettingsIcon/>
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="Clear" placement="top">
           <IconButton
             onClick={() => dispatch(visualGraphActions.clear())}>
             <AutorenewIcon/>
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="Fit" placement="top">
+          <IconButton
+            onClick={() => dispatch(visualGraphActions.fit())}>
+            <AspectRatioIcon/>
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="Center Forcus" placement="top">
+          <IconButton
+            onClick={() => dispatch(visualGraphActions.centerFocus())}>
+            <CenterFocusStrongIcon/>
           </IconButton>
         </Tooltip>
         <Tooltip title="Autoshow Node Details" placement="top">
           <ToggleButton
             className={classes.toggleButton}
             selected={autoshowNodeDetails}
+            value="auto-show-node-details"
             onChange={() => dispatch(visualGraphActions.toggleAutoshowNodeDetails())}>
             <MenuIcon/>
           </ToggleButton>
