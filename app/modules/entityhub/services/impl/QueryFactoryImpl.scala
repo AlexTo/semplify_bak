@@ -18,7 +18,20 @@ class QueryFactoryImpl extends QueryFactory {
           " }} " +
           "ORDER BY DESC (?sc) " +
           "LIMIT 40 "
+      case QueryType.SearchPreds =>
+        "SELECT ?p ?sc (?o AS ?snippet) " + (if (graph.isEmpty) "?g" else "") +
+          " WHERE { " +
+          "  GRAPH ?g { " +
+          "   ?p ?pp ?o . " +
+          "   ?o bif:contains ?term " +
+          "   OPTION (score ?sc) " +
+          "  } " +
+          "  FILTER EXISTS { GRAPH ?g1 { ?s ?p ?oo }} " +
+          "} " +
+          "ORDER BY DESC (?sc) " +
+          "LIMIT 40 "
     }
+
     case RepositoryType.Native => queryType match {
       case QueryType.SearchNodes => "PREFIX search: <http://www.openrdf.org/contrib/lucenesail#> " +
         "SELECT ?s ?sc ?snippet " + (if (graph.isEmpty) "?g" else "") +
@@ -26,6 +39,16 @@ class QueryFactoryImpl extends QueryFactory {
         "  GRAPH ?g { " +
         "   ?s ?p ?o . " +
         "   ?s search:matches [" +
+        "   search:query ?term ; " +
+        "   search:score ?sc; " +
+        "   search:snippet ?snippet ] }} " +
+        "LIMIT 40 "
+      case QueryType.SearchPreds => "PREFIX search: <http://www.openrdf.org/contrib/lucenesail#> " +
+        "SELECT ?p ?sc ?snippet " + (if (graph.isEmpty) "?g" else "") +
+        " WHERE { " +
+        "  GRAPH ?g { " +
+        "   ?s ?p ?o . " +
+        "   ?p search:matches [" +
         "   search:query ?term ; " +
         "   search:score ?sc; " +
         "   search:snippet ?snippet ] }} " +

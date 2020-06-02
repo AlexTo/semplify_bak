@@ -1,43 +1,43 @@
-GET         /                                         controllers.FrontendController.index
+GET         /                                 controllers.FrontendController.index
 
-GET         /api/graphql                              modules.graphql.controllers.GraphQLController.graphql(query: String, variables: Option[String], operation: Option[String])
+GET         /api/graphql                      modules.graphql.controllers.GraphQLController.graphql(query: String, variables: Option[String], operation: Option[String])
 
-POST        /api/graphql                              modules.graphql.controllers.GraphQLController.graphqlPost
+POST        /api/graphql                      modules.graphql.controllers.GraphQLController.graphqlPost
 
-GET         /api/graphql/render-schema                modules.graphql.controllers.GraphQLController.renderSchema
+GET         /api/graphql/render-schema        modules.graphql.controllers.GraphQLController.renderSchema
 
-GET         /api/fb                                   modules.facebook.controllers.FbController.test
+GET         /api/fb                           modules.facebook.controllers.FbController.test
 
-POST        /api/sparql                               modules.sparql.controllers.SPARQLController.execute(projectId: String)
+POST        /api/sparql                       modules.sparql.controllers.SPARQLController.execute(projectId: String)
 
-GET         /api/queries/                             modules.sparql.controllers.QueryController.findAll(projectId: String)
+GET         /api/queries/                     modules.sparql.controllers.QueryController.findAll(projectId: String)
 
-POST        /api/queries/                             modules.sparql.controllers.QueryController.create()
+POST        /api/queries/                     modules.sparql.controllers.QueryController.create()
 
-PUT         /api/queries/                             modules.sparql.controllers.QueryController.update()
+PUT         /api/queries/                     modules.sparql.controllers.QueryController.update()
 
-GET         /api/crawled-pages/                       modules.webcrawler.controllers.WebPageController.findAll(projectId: String)
+GET         /api/crawled-pages/               modules.webcrawler.controllers.WebPageController.findAll(projectId: String)
 
-POST        /api/tasks/                               modules.task.controllers.TaskController.create
+POST        /api/tasks/                       modules.task.controllers.TaskController.create
 
-PUT         /api/tasks/                               modules.task.controllers.TaskController.update
+PUT         /api/tasks/                       modules.task.controllers.TaskController.update
 
-GET         /api/tasks/                               modules.task.controllers.TaskController.findAll
+GET         /api/tasks/                       modules.task.controllers.TaskController.findAll
 
-POST        /api/projects/                            modules.project.controllers.ProjectController.create
+POST        /api/projects/                    modules.project.controllers.ProjectController.create
 
-GET         /api/projects/                            modules.project.controllers.ProjectController.findAll
+GET         /api/projects/                    modules.project.controllers.ProjectController.findAll
 
-GET         /api/settings/:projectId                  modules.system.controllers.SettingsController.findProjectSettings(projectId: String)
+GET         /api/settings/                    modules.system.controllers.SettingsController.findSettings(projectId: String, username: Option[String])
 
-GET         /api/settings/:projectId/:username        modules.system.controllers.SettingsController.findUserSettings(projectId: String, username: String)
+PUT         /api/settings/:settingsId         modules.system.controllers.SettingsController.update(settingsId: String)
 
-POST        /api/files/                               modules.fileserver.controllers.FileController.upload
+POST        /api/files/                       modules.fileserver.controllers.FileController.upload
 
-GET         /api/files/                               modules.fileserver.controllers.FileController.findAll(projectId: String)
+GET         /api/files/                       modules.fileserver.controllers.FileController.findAll(projectId: String)
 
-POST        /api/rml/map-file/                        modules.rml.controllers.RMLController.execute
+POST        /api/rml/map-file/                modules.rml.controllers.RMLController.execute
 
-GET         /api/entity-hub/test1                     modules.entityhub.controllers.EntityHubController.test(dataFileId: String, mappingFileId: String, projectId: String, graph: String)
+GET         /api/entity-hub/test1             modules.entityhub.controllers.EntityHubController.test(dataFileId: String, mappingFileId: String, projectId: String, graph: String)
 
-GET         /*file                                    controllers.FrontendController.assetOrDefault(file)
+GET         /*file                            controllers.FrontendController.assetOrDefault(file)

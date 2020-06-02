@@ -10,6 +10,7 @@ import modules.project.models.ProjectGet
 import modules.project.services.ProjectService
 import modules.sparql.models.QueryGet
 import modules.sparql.services.QueryService
+import modules.system.entities.VisualGraph
 import modules.system.models.SettingsGet
 import modules.system.services.SettingsService
 import modules.task.models.TaskGet
@@ -42,6 +43,9 @@ class GraphQLServiceImpl @Inject()(entityService: EntityService,
   override def searchNodes(projectId: String, graph: Option[String], term: String): Future[Seq[SearchHit]]
   = entityService.searchNodes(projectId, graph, term)
 
+  override def searchPreds(projectId: String, graph: Option[String], term: String): Future[Seq[SearchHit]]
+  = entityService.searchPreds(projectId, graph, term)
+
   override def prefLabel(projectId: String, uri: String): Future[Option[Literal]]
   = entityService.findPrefLabel(projectId, uri)
 
@@ -66,4 +70,7 @@ class GraphQLServiceImpl @Inject()(entityService: EntityService,
     case Some(u) => settingsService.findUserSettings(projectId, u)
     case None => settingsService.findProjectSettings(projectId)
   }
+
+  override def updateVisualGraphSettings(settingsId: String, visualGraph: VisualGraph): Future[Int]
+  = settingsService.updateVisualGraphSettings(settingsId, visualGraph)
 }

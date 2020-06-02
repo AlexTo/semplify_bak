@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import PropTypes from 'prop-types';
 import {makeStyles} from '@material-ui/core/styles';
 import {useForm} from "react-hook-form";
@@ -12,15 +12,18 @@ import {
   DialogTitle,
   Button,
   DialogActions,
-  Radio,
+  Radio, List, ListItem,
+  ListItemText, ListItemSecondaryAction,
+  IconButton,
   Box, Tabs, Tab,
   Card, FormControlLabel
 } from "@material-ui/core";
 import {visualGraphActions} from "../../../actions";
 import PropertySearch from "./PropertySearch";
-import {useQuery} from "@apollo/react-hooks";
+import {useLazyQuery, useMutation, useQuery} from "@apollo/react-hooks";
 import {settingsQueries} from "../../../graphql/settingsQueries";
 import {useKeycloak} from "@react-keycloak/web";
+import {Delete as DeleteIcon} from '@material-ui/icons';
 
 function TabPanel(props) {
   const {className, children, value, index, ...other} = props;
@@ -83,32 +86,104 @@ const useStyles = makeStyles((theme) => ({
 
 function SettingsDialog() {
   const classes = useStyles();
+
   const [tab, setTab] = useState(0);
 
   const handleTabChange = (event, newValue) => {
     setTab(newValue);
   };
   const {register, handleSubmit, errors} = useForm();
+
+  const [settingsId, setSettingsId] = useState(null);
+  const [filterMode, setFilterMode] = useState(null);
+  const [excludePreds, setExcludePreds] = useState([]);
+  const [includePreds, setIncludePreds] = useState([]);
+  const [colorMaps, setColorMaps] = useState([]);
   const dispatch = useDispatch();
   const {enqueueSnackbar} = useSnackbar();
   const {projectId} = useSelector(state => state.projectReducer);
   const {keycloak} = useKeycloak();
   const {idTokenParsed: token} = keycloak;
   const {preferred_username: username} = token;
-  const {userSettingsDialogOpen} = useSelector(state => state.visualGraphReducer)
+  const {userSettingsDialogOpen, settings} = useSelector(state => state.visualGraphReducer)
 
-  const {data} = useQuery(settingsQueries.visualGraph, {
-    variables: {
-      projectId,
-      username
-    }
-  })
+  const [updateVisualGraphSettings] = useMutation(settingsQueries.updateVisualGraph);
+  const [loadSettings] = useLazyQuery(settingsQueries.visualGraph,
+    {
+      onCompleted: data => dispatch(visualGraphActions.updateSettings(data.settings)),
+      fetchPolicy: "no-cache"
+    });
 
+  useEffect(() => {
+    loadSettings({
+      variables: {
+        projectId, username
+      }
+    })
+  }, [userSettingsDialogOpen])
 
+  useEffect(() => {
+    if (!settings)
+      return;
+    const {id, visualGraph} = settings;
+    const {edgeRenderer, nodeRenderer} = visualGraph;
+    const {includePreds, excludePreds, filterMode} = edgeRenderer;
+
+    setSettingsId(id);
+    setFilterMode(filterMode);
+    setExcludePreds(excludePreds);
+    setIncludePreds(includePreds);
+
+  }, [settings])
 
   const handleClose = () => {
     dispatch(visualGraphActions.closeUserSettingsDialog());
   }
+
+  const handleFilterModeChange = (e) => {
+    setFilterMode(e.target.value);
+  }
+
+  const handleExcludePred = (p) => {
+    if (!excludePreds.find(d => d.value === p.value)) {
+      setExcludePreds([...excludePreds, p]);
+    }
+  }
+
+  const handleIncludePred = (p) => {
+    if (!includePreds.find(d => d.value === p.value)) {
+      setIncludePreds([...includePreds, p]);
+    }
+  }
+
+  const handleSave = () => {
+    updateVisualGraphSettings({
+      variables: {
+        settingsId: settingsId,
+        visualGraph: {
+          edgeRenderer: {
+            filterMode,
+            excludePreds: excludePreds.map(p => {
+              return {projectId: p.projectId, value: p.value}
+            }),
+            includePreds: includePreds.map(p => {
+              return {projectId: p.projectId, value: p.value}
+            }),
+          },
+          nodeRenderer: {
+            colorMaps
+          }
+        }
+      }
+    }).then(() => {
+      enqueueSnackbar("Visual graph settings updated", {
+        variant: 'success'
+      });
+      dispatch(visualGraphActions.closeUserSettingsDialog());
+    })
+  }
+
+  if (!settings) return null;
 
   return (
     <Dialog open={userSettingsDialogOpen} onClose={handleClose}
@@ -124,10 +199,78 @@ function SettingsDialog() {
             onChange={handleTabChange}
             className={classes.tabs}
           >
-            <Tab classes={{wrapper: classes.tabWapper}} className={classes.tab} label="Nodes" {...a11yProps(0)} />
-            <Tab classes={{wrapper: classes.tabWapper}} className={classes.tab} label="Properties" {...a11yProps(1)} />
+            <Tab classes={{wrapper: classes.tabWapper}} className={classes.tab} label="Properties" {...a11yProps(0)} />
+            <Tab classes={{wrapper: classes.tabWapper}} className={classes.tab} label="Nodes" {...a11yProps(1)} />
           </Tabs>
           <TabPanel className={classes.tabPanel} value={tab} index={0}>
+            <Card>
+              <CardHeader title="Properties Visibility"/>
+              <Divider/>
+              <CardContent>
+                <Grid container spacing={2}>
+                  <Grid item md={6}>
+                    <Box>
+                      <FormControlLabel value="end"
+                                        control={<Radio checked={filterMode === "Exclusive"}
+                                                        value="Exclusive"
+                                                        onChange={handleFilterModeChange}
+                                                        color="primary"/>}
+                                        label="Do not show the following properties"/>
+                    </Box>
+                    <Box>
+                      <PropertySearch onSelected={handleExcludePred}/>
+                    </Box>
+                    <Box>
+                      <List dense>
+                        {excludePreds.map(p => (<ListItem key={p.value}>
+                          <ListItemText
+                            primary={p.prefLabel.value}
+                            secondary={p.value}
+                          />
+                          <ListItemSecondaryAction>
+                            <IconButton edge="end" aria-label="delete"
+                                        onClick={() => setExcludePreds(excludePreds.filter(d => d.value !== p.value))}>
+                              <DeleteIcon/>
+                            </IconButton>
+                          </ListItemSecondaryAction>
+                        </ListItem>))}
+                      </List>
+                    </Box>
+                  </Grid>
+                  <Grid item md={6}>
+                    <Box>
+                      <FormControlLabel value="end"
+                                        control={<Radio checked={filterMode === "Inclusive"}
+                                                        value="Inclusive"
+                                                        onChange={handleFilterModeChange}
+                                                        color="primary"/>}
+                                        label="Show only the following properties"/>
+                    </Box>
+                    <Box>
+                      <PropertySearch onSelected={handleIncludePred}/>
+                    </Box>
+                    <Box>
+                      <List dense>
+                        {includePreds.map(p => (<ListItem key={p.value}>
+                          <ListItemText
+                            primary={p.prefLabel.value}
+                            secondary={p.value}
+                          />
+                          <ListItemSecondaryAction>
+                            <IconButton edge="end" aria-label="delete"
+                                        onClick={() => setIncludePreds(includePreds.filter(d => d.value !== p.value))}>
+                              <DeleteIcon/>
+                            </IconButton>
+                          </ListItemSecondaryAction>
+                        </ListItem>))}
+                      </List>
+                    </Box>
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </Card>
+          </TabPanel>
+          <TabPanel className={classes.tabPanel} value={tab} index={1}>
             <Card>
               <CardHeader title="Nodes Visibility"/>
               <Divider/>
@@ -137,46 +280,16 @@ function SettingsDialog() {
               </CardContent>
             </Card>
           </TabPanel>
-          <TabPanel className={classes.tabPanel} value={tab} index={1}>
-            <Card>
-              <CardHeader title="Properties Visibility"/>
-              <Divider/>
-              <CardContent>
-                <Grid container spacing={2}>
-                  <Grid item md={6}>
-                    <Box>
-                      <FormControlLabel value="end" control={<Radio color="primary"/>}
-                                        label="Do not show the following properties"/>
-                    </Box>
-                    <Box>
-                      <PropertySearch/>
-                    </Box>
-                  </Grid>
-                  <Grid item md={6}>
-                    <Box>
-                      <FormControlLabel value="end" control={<Radio color="primary"/>}
-                                        label="Show only the following properties"/>
-                    </Box>
-                    <Box>
-                      <PropertySearch/>
-                    </Box>
-                  </Grid>
-                </Grid>
-              </CardContent>
-            </Card>
-          </TabPanel>
+
         </div>
       </DialogContent>
       <DialogActions>
         <Button color="secondary"
                 size="small"
-                onClick={handleClose}>
-          Cancel
-        </Button>
+                onClick={handleClose}>Cancel</Button>
         <Button color="primary"
                 variant="contained"
-                size="small">Save
-        </Button>
+                size="small" onClick={handleSave}>Save</Button>
       </DialogActions>
     </Dialog>)
 }

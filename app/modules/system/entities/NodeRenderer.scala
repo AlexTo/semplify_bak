@@ -1,17 +1,18 @@
 package modules.system.entities
 
-import play.api.libs.json.{Json, OWrites, Reads}
+import play.api.libs.json.{Json, OFormat}
+import reactivemongo.bson.{BSONDocumentHandler, Macros}
 
 case class ColorMap(key: String, color: String)
 
 object ColorMap {
-  implicit val reads: Reads[ColorMap] = Json.reads[ColorMap]
-  implicit val writes: OWrites[ColorMap] = Json.writes[ColorMap]
+  implicit val handler: BSONDocumentHandler[ColorMap] = Macros.handler[ColorMap]
+  implicit val format: OFormat[ColorMap] = Json.format[ColorMap]
 }
 
 case class NodeRenderer(colorMaps: Seq[ColorMap])
 
 object NodeRenderer {
-  implicit val reads: Reads[NodeRenderer] = Json.reads[NodeRenderer]
-  implicit val writes: OWrites[NodeRenderer] = Json.writes[NodeRenderer]
+  implicit val handler: BSONDocumentHandler[NodeRenderer] = Macros.handler[NodeRenderer]
+  implicit val format: OFormat[NodeRenderer] = Json.format[NodeRenderer]
 }

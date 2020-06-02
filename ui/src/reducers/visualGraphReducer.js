@@ -9,7 +9,7 @@ import {
   VISUAL_GRAPH_CENTER_FOCUS,
   VISUAL_GRAPH_FIT,
   VISUAL_GRAPH_OPEN_USER_SETTINGS_DIALOG,
-  VISUAL_GRAPH_CLOSE_USER_SETTINGS_DIALOG
+  VISUAL_GRAPH_CLOSE_USER_SETTINGS_DIALOG, VISUAL_GRAPH_UPDATE_SETTINGS
 } from "../actions";
 
 const initialState = {
@@ -20,7 +20,8 @@ const initialState = {
   nodeDetailsPanelOpen: false,
   selectedNode: null,
   centerFocus: 1,
-  fit: 1
+  fit: 1,
+  settings: null
 }
 
 export const visualGraphReducer = (state = initialState, action) => {
@@ -62,9 +63,55 @@ export const visualGraphReducer = (state = initialState, action) => {
         nodeDetailsPanelOpen: state.autoshowNodeDetails ? false : state.nodeDetailsPanelOpen
       });
 
+    case VISUAL_GRAPH_UPDATE_SETTINGS:
+      return refreshGraphWithNewSettings(state, action.settings)
     default:
       return state
   }
+}
+
+function refreshGraphWithNewSettings(state, settings) {
+
+  if (!settings) return;
+  const {nodes, edges} = state;
+  const {visualGraph} = settings;
+  const {edgeRenderer} = visualGraph;
+  const {excludePreds, includePreds, filterMode} = edgeRenderer;
+  let remainingEdges = edges;
+  let toBeRemovedEdges = [];
+  if (filterMode === "Exclusive") {
+    const excludedIRIs = excludePreds.map(p => p.value)
+    toBeRemovedEdges = edges.filter(e => excludedIRIs.includes(e.data.value));
+    if (toBeRemovedEdges.length) {
+      remainingEdges = edges.filter(e => !excludedIRIs.includes(e.data.value));
+    }
+  } else {
+    const includedIRIs = includePreds.map(p => p.value)
+    toBeRemovedEdges = edges.filter(e => !includedIRIs.includes(e.data.value));
+    if (toBeRemovedEdges.length) {
+      remainingEdges = edges.filter(e => includedIRIs.includes(e.data.value));
+    }
+  }
+
+  let remainingNodes = nodes;
+  if (toBeRemovedEdges.length) {
+    // After removing some edges, some nodes become orphaned.
+    // Nodes are orphaned if they are pointed to by a removed edge but none of the remaining edges points to them
+    const orphanedNodes = nodes.filter(n =>
+      toBeRemovedEdges.find(e => e.data.target === n.data.id) &&
+      !remainingEdges.find(e => e.data.target === n.data.id))
+    if (orphanedNodes.length) {
+      const excludedIRIs = orphanedNodes.map(n => n.data.id);
+      remainingNodes = nodes.filter(n => !excludedIRIs.includes(n.data.id))
+    }
+  }
+
+
+  return Object.assign({}, state, {
+    settings: settings,
+    edges: remainingEdges,
+    nodes: remainingNodes
+  })
 }
 
 function addNode(state, action) {

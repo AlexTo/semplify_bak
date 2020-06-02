@@ -46,6 +46,7 @@ class TaskServiceImpl @Inject()(projectService: ProjectService,
           _.n
         }
       }
+    case _ => Future(0)
   }
 
   override def setTaskFinished(taskId: String, error: Option[String]): Future[Int] = BSONObjectID.parse(taskId) match {
@@ -90,6 +91,7 @@ class TaskServiceImpl @Inject()(projectService: ProjectService,
           _.n
         }
       }
+    case _ => Future(0)
   }
 
   override def findAll: Future[Seq[TaskGet]] = collection map {

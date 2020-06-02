@@ -40,7 +40,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-function PropertySearch() {
+function PropertySearch({onSelected}) {
   const classes = useStyles();
 
   const {enqueueSnackbar} = useSnackbar();
@@ -88,6 +88,7 @@ function PropertySearch() {
   const handleOptionSelected = (value) => {
     if (!value)
       return;
+    onSelected(value.node);
   }
 
   return (

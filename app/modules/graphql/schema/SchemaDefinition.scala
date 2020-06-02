@@ -5,13 +5,15 @@ import modules.fileserver.models.FileInfo
 import modules.graphql.models.GraphQLContext
 import modules.project.models.{NativeRepository, ProjectGet, Repository, VirtuosoRepository}
 import modules.sparql.models.QueryGet
-import modules.system.entities.{ColorMap, EdgeRenderer, NodeRenderer, VisualGraph}
+import modules.system.entities.{ColorMap, EdgeFilterMode, EdgeRenderer, NodeRenderer, VisualGraph}
 import modules.system.models.SettingsGet
 import modules.task.models.TaskGet
 import modules.webcrawler.models.PageGet
+import sangria.macros.derive._
 import sangria.marshalling.FromInput
 import sangria.schema._
 import sangria.util.tag.@@
+import sangria.marshalling.playJson._
 
 object SchemaDefinition {
 
@@ -50,6 +52,10 @@ object SchemaDefinition {
         resolve = ctx => ctx.ctx.svc.triplesFromNode(ctx.value.projectId, None, ctx.value.value, None, ctx.ctx.username)),
       Field("incomingPredicates", ListType(Triple),
         resolve = ctx => ctx.ctx.svc.triplesToNode(ctx.value.projectId, None, ctx.value.value))))
+
+  implicit val IRIInput: InputObjectType[IRI] = deriveInputObjectType[IRI](
+    InputObjectTypeName("IRIInput")
+  )
 
   val Literal: ObjectType[GraphQLContext, Literal] = ObjectType("Literal", "An RDF Literal",
     interfaces[GraphQLContext, Literal](Value),
@@ -106,6 +112,10 @@ object SchemaDefinition {
       Field("key", StringType, resolve = _.value.key),
       Field("color", StringType, resolve = _.value.color)))
 
+  implicit val ColorMapSettingsInput: InputObjectType[ColorMap] = deriveInputObjectType[ColorMap](
+    InputObjectTypeName("ColorMapSettingsInput")
+  )
+
   val NodeRendererSettings: ObjectType[GraphQLContext, NodeRenderer] = ObjectType("NodeRendererSettings",
     () => fields[GraphQLContext, NodeRenderer](
       Field("colorMaps", ListType(ColorMapSettings), resolve = _.value.colorMaps)
@@ -113,8 +123,8 @@ object SchemaDefinition {
 
   val EdgeRendererSettings: ObjectType[GraphQLContext, EdgeRenderer] = ObjectType("EdgeRendererSettings",
     () => fields[GraphQLContext, EdgeRenderer](
-      Field("includePreds", ListType(StringType), resolve = _.value.includePreds),
-      Field("excludePreds", ListType(StringType), resolve = _.value.excludePreds),
+      Field("includePreds", ListType(IRI), resolve = _.value.includePreds),
+      Field("excludePreds", ListType(IRI), resolve = _.value.excludePreds),
       Field("filterMode", StringType, resolve = _.value.filterMode.toString)
     )
   )
@@ -124,6 +134,18 @@ object SchemaDefinition {
       Field("nodeRenderer", NodeRendererSettings, resolve = _.value.nodeRenderer),
       Field("edgeRenderer", EdgeRendererSettings, resolve = _.value.edgeRenderer)
     ))
+
+  implicit val EdgeFilterModeSettingsInput: EnumType[EdgeFilterMode.Value] = deriveEnumType[EdgeFilterMode.Value]()
+
+  implicit val EdgeRendererSettingsInput: InputObjectType[EdgeRenderer] = deriveInputObjectType[EdgeRenderer](
+    InputObjectTypeName("EdgeRendererSettingsInput")
+  )
+  implicit val NodeRendererSettingsInput: InputObjectType[NodeRenderer] = deriveInputObjectType[NodeRenderer](
+    InputObjectTypeName("NodeRendererSettingsInput")
+  )
+  val VisualGraphSettingsInput: InputObjectType[VisualGraph] = deriveInputObjectType[VisualGraph](
+    InputObjectTypeName("VisualGraphSettingsInput")
+  )
 
   val Settings: ObjectType[GraphQLContext, SettingsGet] = ObjectType("Settings",
     () => fields[GraphQLContext, SettingsGet](
@@ -172,15 +194,16 @@ object SchemaDefinition {
     ))
 
   val ProjectIdArg: Argument[String] = Argument("projectId", StringType)
+  val SettingsIdArg: Argument[String] = Argument("settingsId", StringType)
   val UsernameArg: Argument[Option[String]] = Argument("username", OptionInputType(StringType))
   val GraphArg: Argument[Option[String]] = Argument("graph", OptionInputType(StringType))
   val NodeTypeArg: Argument[Option[String]] = Argument("nodeType", OptionInputType(StringType))
   val GraphsArg: Argument[Seq[String @@ FromInput.CoercedScalaResult]] = Argument("graphs", ListInputType(StringType))
   val FileIdsArg: Argument[Seq[String @@ FromInput.CoercedScalaResult]] = Argument("fileIds", ListInputType(StringType))
-
   val UriArg: Argument[String] = Argument("uri", StringType)
   val TermArg: Argument[String] = Argument("term", StringType)
 
+  val VisualGraphSettingsInputArg: Argument[VisualGraph] = Argument("visualGraph", VisualGraphSettingsInput)
 
   val Query: ObjectType[GraphQLContext, Unit] = ObjectType(
     "Query", fields[GraphQLContext, Unit](
@@ -214,9 +237,14 @@ object SchemaDefinition {
         arguments = ProjectIdArg :: Nil,
         resolve = ctx => ctx.ctx.svc.crawledPages(ctx arg ProjectIdArg)
       ),
+
       Field("searchNodes", ListType(SearchHit),
         arguments = ProjectIdArg :: GraphArg :: TermArg :: Nil,
         resolve = ctx => ctx.ctx.svc.searchNodes(ctx arg ProjectIdArg, ctx arg GraphArg, ctx arg TermArg)
+      ),
+      Field("searchPreds", ListType(SearchHit),
+        arguments = ProjectIdArg :: GraphArg :: TermArg :: Nil,
+        resolve = ctx => ctx.ctx.svc.searchPreds(ctx arg ProjectIdArg, ctx arg GraphArg, ctx arg TermArg)
       ),
       Field("sparqlQueries", ListType(SparqlQuery),
         arguments = ProjectIdArg :: Nil,
@@ -233,6 +261,10 @@ object SchemaDefinition {
       Field("deleteFiles", ListType(FileInfo),
         arguments = ProjectIdArg :: FileIdsArg :: Nil,
         resolve = ctx => ctx.ctx.svc.deleteFiles(ctx arg ProjectIdArg, ctx arg FileIdsArg)
+      ),
+      Field("updateVisualGraphSettings", IntType,
+        arguments = SettingsIdArg :: VisualGraphSettingsInputArg :: Nil,
+        resolve = ctx => ctx.ctx.svc.updateVisualGraphSettings(ctx arg SettingsIdArg, ctx arg VisualGraphSettingsInputArg)
       )
     ))
 

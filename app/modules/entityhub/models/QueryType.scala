@@ -5,7 +5,7 @@ import utils.EnumUtils
 
 object QueryType extends Enumeration {
   type QueryType = Value
-  val SearchNodes = Value
+  val SearchNodes, SearchPreds = Value
   implicit val reads: Reads[QueryType.Value] = EnumUtils.enumReads(QueryType)
 
   implicit def writes: Writes[QueryType] = EnumUtils.enumWrites

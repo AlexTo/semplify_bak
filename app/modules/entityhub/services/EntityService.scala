@@ -18,6 +18,8 @@ trait EntityService {
 
   def searchNodes(projectId: String, graph: Option[String], term: String): Future[Seq[SearchHit]]
 
+  def searchPreds(projectId: String, graph: Option[String], term: String): Future[Seq[SearchHit]]
+
   def findPrefLabel(projectId: String, nodeUri: String): Future[Option[Literal]]
 
   def findDepiction(projectId: String, nodeUri: String): Future[Option[IRI]]

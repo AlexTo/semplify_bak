@@ -1,24 +1,29 @@
 package modules.system.controllers
 
 import javax.inject.Inject
+import modules.system.models.SettingsUpdate
 import modules.system.services.SettingsService
-import play.api.libs.json.Json
-import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
+import play.api.libs.json.{JsValue, Json}
+import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents, Request}
 
 import scala.concurrent.ExecutionContext
 
 class SettingsController @Inject()(settingsService: SettingsService)(cc: ControllerComponents)
                                   (implicit ec: ExecutionContext) extends AbstractController(cc) {
 
-  def findProjectSettings(projectId: String): Action[AnyContent] = Action.async { _ =>
-    settingsService.findProjectSettings(projectId) map {
-      projectSettings => Ok(Json.toJson(projectSettings))
+  def findSettings(projectId: String, username: Option[String]): Action[AnyContent] = Action.async { _ =>
+    (username match {
+      case Some(value) => settingsService.findUserSettings(projectId, value)
+      case None => settingsService.findProjectSettings(projectId)
+    }) map {
+      s => Ok(Json.toJson(s))
     }
   }
 
-  def findUserSettings(projectId: String, username: String): Action[AnyContent] = Action.async { _ =>
-    settingsService.findUserSettings(projectId, username) map {
-      projectSettings => Ok(Json.toJson(projectSettings))
+  def update(settingsId: String): Action[JsValue] = Action.async(parse.json) { request: Request[JsValue] =>
+    val settings = request.body.as[SettingsUpdate]
+    settingsService.update(settingsId, settings) map {
+      n => Ok(Json.toJson(n))
     }
   }
 

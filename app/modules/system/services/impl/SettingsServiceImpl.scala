@@ -4,7 +4,7 @@ import akka.stream.Materializer
 import javax.inject.Inject
 import modules.project.services.ProjectService
 import modules.system.entities._
-import modules.system.models.{SettingsCreate, SettingsGet}
+import modules.system.models.{SettingsCreate, SettingsGet, SettingsUpdate}
 import modules.system.services.SettingsService
 import play.api.libs.json.JsObject
 import play.modules.reactivemongo.ReactiveMongoApi
@@ -15,6 +15,7 @@ import reactivemongo.play.json.collection.JSONCollection
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Success
+import VisualGraph._
 
 class SettingsServiceImpl @Inject()(projectService: ProjectService,
                                     reactiveMongoApi: ReactiveMongoApi)
@@ -75,4 +76,28 @@ class SettingsServiceImpl @Inject()(projectService: ProjectService,
           includePreds = Seq.empty,
           excludePreds = Seq.empty,
           EdgeFilterMode.Exclusive)))
+
+  override def update(settingsId: String, settings: SettingsUpdate): Future[Int] =
+    BSONObjectID.parse(settingsId) match {
+      case Success(id) => collection flatMap { coll =>
+
+        val q = BSONDocument("_id" -> id)
+        val u = BSONDocument("$set" -> BSONDocument(
+          "visualGraph" -> settings.visualGraph
+        ))
+        coll.update.one(q, u, upsert = false, multi = false).map(_.n)
+      }
+    }
+
+  override def updateVisualGraphSettings(settingsId: String, visualGraphSettings: VisualGraph): Future[Int] =
+    BSONObjectID.parse(settingsId) match {
+      case Success(id) => collection flatMap { coll =>
+
+        val q = BSONDocument("_id" -> id)
+        val u = BSONDocument("$set" -> BSONDocument(
+          "visualGraph" -> visualGraphSettings
+        ))
+        coll.update.one(q, u, upsert = false, multi = false).map(_.n)
+      }
+    }
 }

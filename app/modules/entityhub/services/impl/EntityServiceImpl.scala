@@ -30,7 +30,7 @@ class EntityServiceImpl @Inject()(projectService: ProjectService,
       case Some((_, repo)) =>
         val f = repo.getValueFactory
         val q =
-          "SELECT ?s " + (if (graph.isEmpty) "?g" else "") +
+          "SELECT " + (if (graph.isEmpty) "?g" else "") +
             " WHERE { " +
             "  GRAPH ?g { " +
             "   ?s ?p ?o " +
@@ -38,6 +38,8 @@ class EntityServiceImpl @Inject()(projectService: ProjectService,
 
         Using(repo.getConnection) { conn =>
           val tq = conn.prepareTupleQuery(QueryLanguage.SPARQL, q)
+          val s = f.createIRI(uri)
+          tq.setBinding("s", s)
           graph match {
             case Some(iri) => tq.setBinding("g", f.createIRI(iri))
             case _ =>
@@ -46,14 +48,12 @@ class EntityServiceImpl @Inject()(projectService: ProjectService,
           if (results.hasNext) {
             val bindings = results.next
             val g = if (graph.isEmpty) bindings.getBinding("g").getValue.stringValue() else graph.get
-            val s = bindings.getBinding("s").getValue
             Some(ValueUtils.createValue(projectId, Some(g), s).asInstanceOf[IRI])
           } else None
         } match {
           case Success(value) => value
         }
     }
-
   }
 
   override def findTriplesFromNode(projectId: String, graph: Option[String],
@@ -71,11 +71,11 @@ class EntityServiceImpl @Inject()(projectService: ProjectService,
           // here we use user settings to apply filters on nodes and edges
           val edgeRenderer = userSettings.visualGraph.edgeRenderer
 
-          val excludePreds = edgeRenderer.excludePreds.map(s => f.createIRI(s))
-          val includePreds = edgeRenderer.includePreds.map(s => f.createIRI(s))
+          val excludePreds = edgeRenderer.excludePreds.map(s => f.createIRI(s.value))
+          val includePreds = edgeRenderer.includePreds.map(s => f.createIRI(s.value))
 
-          val excludePredsFilter = excludePreds map { p => s"FILTER (?p != <${p.stringValue()}>) " } mkString ("")
-          val includePredsFilter = s"FILTER (${includePreds map { p => s"?p = <${p.stringValue()}>" } mkString (" OR ")}) "
+          val excludePredsFilter = excludePreds map { p => s"FILTER (?p != <${p.stringValue()}>) " } mkString ""
+          val includePredsFilter = s"FILTER (${includePreds map { p => s"?p = <${p.stringValue()}>" } mkString " OR "}) "
 
           val filter = nodeType match {
             case Some("iri") => "FILTER isIRI(?o) " +
@@ -194,6 +194,45 @@ class EntityServiceImpl @Inject()(projectService: ProjectService,
           case Success(value) => value
         }
     }
+
+  override def searchPreds(projectId: String, graph: Option[String], term: String): Future[Seq[SearchHit]] = projectService.findRepoById(projectId).map {
+    case Some((proj, repo)) =>
+      Using(repo.getConnection) { conn =>
+        val q = queryFactory.getQuery(QueryType.SearchPreds, proj, graph)
+        val f = repo.getValueFactory
+
+        val searchHits = new ListBuffer[SearchHit]
+
+        val tq = proj.repository.`type` match {
+          case RepositoryType.Virtuoso =>
+            conn.prepareTupleQuery(QueryLanguage.SPARQL,
+              q.replace(
+                "?term",
+                s"""\"${term.split(" ").map(s => s.trim).mkString(" AND ")}\""""))
+          case _ =>
+            val tq = conn.prepareTupleQuery(QueryLanguage.SPARQL, q)
+            tq.setBinding("term", f.createLiteral(s"${term.trim}*"))
+            tq
+        }
+
+        val results = tq.evaluate
+        while (results.hasNext) {
+          val bindings = results.next()
+          val g = if (graph.isEmpty) bindings.getBinding("g").getValue.stringValue() else graph.get
+          val s = bindings.getValue("p")
+          if (!searchHits.map(s => s.node.value).contains(s.stringValue())) {
+            val snippet = bindings.getValue("snippet").stringValue()
+            val score = bindings.getValue("sc").stringValue()
+            val node = ValueUtils.createValue(projectId, Some(g), s)
+            val searchHit = SearchHit(node.asInstanceOf[IRI], score.toDouble, snippet)
+            searchHits.addOne(searchHit)
+          }
+        }
+        searchHits.toSeq
+      } match {
+        case Success(value) => value
+      }
+  }
 
   override def findPrefLabel(projectId: String, nodeUri: String): Future[Option[Literal]] =
     projectService.findRepoById(projectId) map {
@@ -317,4 +356,6 @@ class EntityServiceImpl @Inject()(projectService: ProjectService,
       }
     case None => Option.empty[IRI]
   }
+
+
 }
