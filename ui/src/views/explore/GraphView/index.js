@@ -6,10 +6,11 @@ import {
 } from '@material-ui/core';
 import Page from 'src/components/Page';
 import Header from './Header';
-import NodeSearch from "../../../components/NodeSearch";
+import NodeSearch from "./NodeSearch";
 import Graph from "./Graph";
 import {useSelector} from "react-redux";
 import NodeDetailsPanel from "./NodeDetailsPanel";
+import SettingsDialog from "./SettingsDialog";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -58,6 +59,7 @@ function GraphView() {
                 </Grid>
               </Grid>
             </Box>
+            <SettingsDialog/>
           </> : <Box mt={3}>
             <Typography variant="h5"
                         color="textSecondary"> Please select a project

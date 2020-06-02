@@ -6,15 +6,18 @@ import {
   VISUAL_GRAPH_CLEAR,
   VISUAL_GRAPH_TOGGLE_AUTOSHOW_NODE_DETAILS,
   VISUAL_GRAPH_NODE_SELECTED,
-  VISUAL_GRAPH_CENTER_FOCUS, VISUAL_GRAPH_FIT, VISUAL_GRAPH_OPEN_SETTINGS_DRAWER, VISUAL_GRAPH_CLOSE_SETTINGS_DRAWER
+  VISUAL_GRAPH_CENTER_FOCUS,
+  VISUAL_GRAPH_FIT,
+  VISUAL_GRAPH_OPEN_USER_SETTINGS_DIALOG,
+  VISUAL_GRAPH_CLOSE_USER_SETTINGS_DIALOG
 } from "../actions";
 
 const initialState = {
   nodes: [],
   edges: [],
+  userSettingsDialogOpen: false,
   autoshowNodeDetails: true,
   nodeDetailsPanelOpen: false,
-  settingsDrawerOpen: false,
   selectedNode: null,
   centerFocus: 1,
   fit: 1
@@ -23,14 +26,14 @@ const initialState = {
 export const visualGraphReducer = (state = initialState, action) => {
 
   switch (action.type) {
+    case VISUAL_GRAPH_OPEN_USER_SETTINGS_DIALOG:
+      return Object.assign({}, state, {userSettingsDialogOpen: true})
+
+    case VISUAL_GRAPH_CLOSE_USER_SETTINGS_DIALOG:
+      return Object.assign({}, state, {userSettingsDialogOpen: false})
+
     case VISUAL_GRAPH_CLEAR:
-      return Object.assign({}, state, {nodes: [], edges: []});
-
-    case VISUAL_GRAPH_OPEN_SETTINGS_DRAWER:
-      return Object.assign({}, state, {settingsDrawerOpen: true});
-
-    case VISUAL_GRAPH_CLOSE_SETTINGS_DRAWER:
-      return Object.assign({}, state, {settingsDrawerOpen: false});
+      return Object.assign({}, state, {nodes: [], edges: [], selectedNode: null});
 
     case VISUAL_GRAPH_CENTER_FOCUS:
       return Object.assign({}, state, {centerFocus: state.centerFocus * -1});
@@ -124,7 +127,11 @@ function removeNode(state, action) {
         && (!edges.find(e => (e.data.source === n.data.id && e.data.target === action.uri)
           || (e.data.source === action.uri && e.data.target === n.data.id)))))
 
-  return Object.assign({}, state, {nodes: [...remainingNodes], edges: [...remainingEdges]});
+  return Object.assign({}, state, {
+    nodes: [...remainingNodes],
+    edges: [...remainingEdges],
+    selectedNode: state.selectedNode !== action.uri ? state.selectedNode : null
+  });
 }
 
 function toBidirectionalEdge(e) {

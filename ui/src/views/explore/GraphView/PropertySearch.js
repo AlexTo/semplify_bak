@@ -12,12 +12,11 @@ import {
   Avatar
 } from "@material-ui/core";
 import {useLazyQuery} from "@apollo/react-hooks";
-import {useDebounce} from "../hooks";
+import {useDebounce} from "../../../hooks";
 import {Search as SearchIcon} from "react-feather";
-import {entityHubQueries} from "../graphql";
+import {entityHubQueries} from "../../../graphql";
 import {useSelector, useDispatch} from "react-redux";
 import {useSnackbar} from "notistack";
-import {visualGraphActions} from "../actions";
 
 const renderOption = (option) => <Grid container spacing={1}>
   <Grid item>
@@ -41,7 +40,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-function NodeSearch() {
+function PropertySearch() {
   const classes = useStyles();
 
   const {enqueueSnackbar} = useSnackbar();
@@ -51,7 +50,7 @@ function NodeSearch() {
   const {projectId} = useSelector(state => state.projectReducer);
   const dispatch = useDispatch();
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
-  const [load, {called, loading, data}] = useLazyQuery(entityHubQueries.searchNodes, {
+  const [load, {called, loading, data}] = useLazyQuery(entityHubQueries.searchPreds, {
     fetchPolicy: "no-cache"
   });
 
@@ -65,12 +64,6 @@ function NodeSearch() {
     }
     if (debouncedSearchTerm.length < 3) {
       setOptions([]);
-      return;
-    }
-    if (projectId === "") {
-      enqueueSnackbar('Please select a project', {
-        variant: 'warning'
-      })
       return;
     }
     load({
@@ -87,15 +80,14 @@ function NodeSearch() {
       setOptions([]);
       return;
     }
-    if (data && data.searchNodes) {
-      setOptions(data.searchNodes);
+    if (data && data.searchPreds) {
+      setOptions(data.searchPreds);
     }
   }, [open, data]);
 
   const handleOptionSelected = (value) => {
     if (!value)
       return;
-    dispatch(visualGraphActions.addNode(value.node));
   }
 
   return (
@@ -149,4 +141,4 @@ function NodeSearch() {
   )
 }
 
-export default NodeSearch;
+export default PropertySearch;

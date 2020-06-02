@@ -18,6 +18,23 @@ export const entityHubQueries = {
         snippet
       }
     }`,
+  searchPreds: gql`
+    query searchPreds($projectId: String!, $graph: String, $term: String!) {
+      searchPreds(projectId: $projectId, graph: $graph, term: $term) {
+        node {
+          projectId
+          value
+          graph
+          prefLabel {
+            value
+          }
+          depiction {
+            value
+          }
+        }
+        snippet
+      }
+    }`,
   graphs: gql`
     query graphs($projectId: String!) {
       graphs(projectId: $projectId) {

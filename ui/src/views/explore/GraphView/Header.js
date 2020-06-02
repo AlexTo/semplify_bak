@@ -67,7 +67,7 @@ function Header({className, ...rest}) {
         </Tooltip>
         <Tooltip title="Settings" placement="top">
           <IconButton
-            onClick={() => dispatch(visualGraphActions.openSettingsDrawer())}>
+            onClick={() => dispatch(visualGraphActions.openUserSettingsDialog())}>
             <SettingsIcon/>
           </IconButton>
         </Tooltip>

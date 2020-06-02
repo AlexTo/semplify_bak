@@ -6,8 +6,8 @@ export const VISUAL_GRAPH_NODE_REMOVED = 'VISUAL_GRAPH/NODE_REMOVED';
 export const VISUAL_GRAPH_TOGGLE_AUTOSHOW_NODE_DETAILS = 'VISUAL_GRAPH/TOGGLE_AUTOSHOW_NODE_DETAILS';
 export const VISUAL_GRAPH_CENTER_FOCUS = 'VISUAL_GRAPH/CENTER_FOCUS';
 export const VISUAL_GRAPH_FIT = 'VISUAL_GRAPH/FIT';
-export const VISUAL_GRAPH_OPEN_SETTINGS_DRAWER = "VISUAL_GRAPH/OPEN_SETTINGS_DRAWER";
-export const VISUAL_GRAPH_CLOSE_SETTINGS_DRAWER = "VISUAL_GRAPH/CLOSE_SETTINGS_DRAWER";
+export const VISUAL_GRAPH_OPEN_USER_SETTINGS_DIALOG = 'VISUAL_GRAPH/OPEN_USER_SETTINGS_DIALOG'
+export const VISUAL_GRAPH_CLOSE_USER_SETTINGS_DIALOG = 'VISUAL_GRAPH/CLOSE_USER_SETTINGS_DIALOG'
 
 export const visualGraphActions = {
   clear,
@@ -18,19 +18,19 @@ export const visualGraphActions = {
   removeNode,
   addTriples,
   toggleAutoshowNodeDetails,
-  openSettingsDrawer,
-  closeSettingsDrawer
+  openUserSettingsDialog,
+  closeUserSettingsDialog
 }
 
-function openSettingsDrawer() {
+function openUserSettingsDialog() {
   return dispatch => dispatch({
-    type: VISUAL_GRAPH_OPEN_SETTINGS_DRAWER
+    type: VISUAL_GRAPH_OPEN_USER_SETTINGS_DIALOG
   })
 }
 
-function closeSettingsDrawer() {
+function closeUserSettingsDialog() {
   return dispatch => dispatch({
-    type: VISUAL_GRAPH_CLOSE_SETTINGS_DRAWER
+    type: VISUAL_GRAPH_CLOSE_USER_SETTINGS_DIALOG
   })
 }
 

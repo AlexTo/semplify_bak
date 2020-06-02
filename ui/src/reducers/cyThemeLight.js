@@ -26,16 +26,16 @@ export const cyThemeLight = [
     style: {
       color: '#131111',
       label: "data(label)",
-      fontSize: 10,
+      fontSize: 8,
     }
   },
   {
     selector: "edge[label]",
     style: {
       label: "data(label)",
-
       width: 3,
-      fontSize: 8
+      fontSize: 8,
+      "text-margin-y": "-5px"
     }
   },
   {
