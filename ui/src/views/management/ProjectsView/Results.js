@@ -26,32 +26,12 @@ import {
   Trash as TrashIcon,
 } from 'react-feather';
 import {useQuery} from "@apollo/react-hooks";
-import {useDispatch, useSelector} from "react-redux";
 import {projectQueries} from "../../../graphql";
 import OkCancelDialog from "../../../components/ConfirmationDialog";
 import moment from "moment";
 
-const sortOptions = [
-  {
-    value: 'updatedAt|desc',
-    label: 'Last update (newest first)'
-  },
-  {
-    value: 'updatedAt|asc',
-    label: 'Last update (oldest first)'
-  },
-  {
-    value: 'createdAt|desc',
-    label: 'Creation date (newest first)'
-  },
-  {
-    value: 'createdAt|asc',
-    label: 'Creation date (oldest first)'
-  }
-];
-
-function applyFilters(webPages, query, filters) {
-  return webPages.filter((p) => {
+function applyFilters(webPages) {
+  return webPages.filter(() => {
     return true;
   });
 }
@@ -109,18 +89,15 @@ const useStyles = makeStyles((theme) => ({
 function Results({className, ...rest}) {
   const classes = useStyles();
 
-  const dispatch = useDispatch();
   const [selectedProjects, setSelectedProjects] = useState([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [page, setPage] = useState(0);
   const [projects, setProjects] = useState([]);
-  const {projectId} = useSelector(state => state.projectReducer);
   const {data} = useQuery(projectQueries.projects);
 
   const [limit, setLimit] = useState(5);
   const [query, setQuery] = useState('');
-  const [sort, setSort] = useState(sortOptions[0].value);
-  const [filters, setFilters] = useState({
+  const [filters,] = useState({
     category: null,
     availability: null,
     inStock: null,

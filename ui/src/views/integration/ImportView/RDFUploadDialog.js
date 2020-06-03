@@ -5,8 +5,9 @@ import {
   CircularProgress, Dialog,
   DialogActions,
   DialogContent,
-  DialogTitle, IconButton, Link, List, ListItem, ListItemIcon, ListItemText,
-  makeStyles, Tooltip,
+  DialogTitle,
+  Link, List, ListItem, ListItemIcon, ListItemText,
+  makeStyles,
   Typography
 } from "@material-ui/core";
 import {useDispatch, useSelector} from "react-redux";

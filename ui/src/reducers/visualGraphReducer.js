@@ -9,7 +9,10 @@ import {
   VISUAL_GRAPH_CENTER_FOCUS,
   VISUAL_GRAPH_FIT,
   VISUAL_GRAPH_OPEN_USER_SETTINGS_DIALOG,
-  VISUAL_GRAPH_CLOSE_USER_SETTINGS_DIALOG, VISUAL_GRAPH_UPDATE_SETTINGS
+  VISUAL_GRAPH_CLOSE_USER_SETTINGS_DIALOG,
+  VISUAL_GRAPH_UPDATE_SETTINGS,
+  VISUAL_GRAPH_UPDATE_LAYOUT,
+  VISUAL_GRAPH_REFRESH_LAYOUT
 } from "../actions";
 
 const initialState = {
@@ -21,6 +24,8 @@ const initialState = {
   selectedNode: null,
   centerFocus: 1,
   fit: 1,
+  refreshLayout: 1,
+  layout: {name: "cola", label: "Cola"},
   settings: null
 }
 
@@ -32,6 +37,9 @@ export const visualGraphReducer = (state = initialState, action) => {
 
     case VISUAL_GRAPH_CLOSE_USER_SETTINGS_DIALOG:
       return Object.assign({}, state, {userSettingsDialogOpen: false})
+
+    case VISUAL_GRAPH_REFRESH_LAYOUT:
+      return Object.assign({}, state, {refreshLayout: state.refreshLayout * -1});
 
     case VISUAL_GRAPH_CLEAR:
       return Object.assign({}, state, {nodes: [], edges: [], selectedNode: null});
@@ -65,6 +73,9 @@ export const visualGraphReducer = (state = initialState, action) => {
 
     case VISUAL_GRAPH_UPDATE_SETTINGS:
       return refreshGraphWithNewSettings(state, action.settings)
+
+    case VISUAL_GRAPH_UPDATE_LAYOUT:
+      return Object.assign({}, state, {layout: action.layout})
     default:
       return state
   }

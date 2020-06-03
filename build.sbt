@@ -1,6 +1,6 @@
 name := """semplify"""
 organization := "ai.semplify"
-
+maintainer := "tonhudung@gmail.com"
 version := "1.0-SNAPSHOT"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala).settings(

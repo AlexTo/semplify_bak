@@ -26,6 +26,7 @@ export function useDebounce(value, delay) {
     // Only re-call effect if value changes
     // You could also add the "delay" var to inputs array if you ...
     // ... need to be able to change that dynamically.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [value]
   );
 

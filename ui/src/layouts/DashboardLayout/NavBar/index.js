@@ -1,5 +1,4 @@
 /* eslint-disable no-use-before-define */
-/* eslint-disable react/prop-types */
 import React, {useEffect} from 'react';
 import {useLocation, matchPath} from 'react-router';
 import {Link as RouterLink} from 'react-router-dom';
@@ -22,7 +21,6 @@ import {
   Upload as UploadIcon,
   Code as CodeIcon,
   Trello as TrelloIcon,
-  Database as DatabaseIcon,
   Terminal as TerminalIcon,
   Grid as GridIcon,
 } from 'react-feather';

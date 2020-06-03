@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {
   Box, Grid, Collapse,
   Container,
@@ -53,7 +53,8 @@ function GraphView() {
                   <Graph/>
                 </Grid>
                 <Grid item>
-                  <Collapse in={nodeDetailsPanelOpen} timeout="auto" unmountOnExit>
+                  <Collapse in={nodeDetailsPanelOpen}
+                            timeout="auto" unmountOnExit>
                     <NodeDetailsPanel/>
                   </Collapse>
                 </Grid>

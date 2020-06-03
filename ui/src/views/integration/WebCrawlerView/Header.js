@@ -5,7 +5,6 @@ import {
   Breadcrumbs,
   IconButton,
   Grid,
-  SvgIcon,
   Typography,
   Tooltip,
   makeStyles
@@ -17,7 +16,7 @@ import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import {useDispatch, useSelector} from "react-redux";
 import {webCrawlerActions} from "../../../actions";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   root: {},
 }));
 

@@ -7,7 +7,7 @@ import {
   DialogContent,
   DialogTitle,
   RadioGroup, Radio,
-  makeStyles, TextField
+  TextField
 } from "@material-ui/core";
 import {useDispatch, useSelector} from "react-redux";
 import {projectActions} from "../../../actions";
@@ -17,24 +17,7 @@ import {projectService} from "../../../services";
 import {useQuery} from "@apollo/react-hooks";
 import {projectQueries} from "../../../graphql";
 
-const useStyles = makeStyles((theme) => ({
-  root: {},
-  actions: {
-    marginTop: theme.spacing(2),
-    display: 'flex',
-    justifyContent: 'flex-end',
-    '& > * + *': {
-      marginLeft: theme.spacing(2)
-    }
-  },
-  backdrop: {
-    zIndex: theme.zIndex.drawer + 1000,
-    color: '#fff',
-  },
-}));
-
 function NewProjectDialog() {
-  const classes = useStyles();
   const {newProjectDialogOpen} = useSelector(state => state.projectReducer);
   const [repositoryType, setRepositoryType] = useState("Native")
   const dispatch = useDispatch();
@@ -46,6 +29,7 @@ function NewProjectDialog() {
   useEffect(() => {
     register({name: "repositoryType"});
     setValue("repositoryType", repositoryType)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [register])
 
   const handleClose = () => {
@@ -85,7 +69,6 @@ function NewProjectDialog() {
                         value={repositoryType}
                         onChange={(e) => {
                           setRepositoryType(e.target.value)
-                          setValue("repositoryType", e.target.value)
                         }} row>
               <FormControlLabel value="Native" control={<Radio/>} label="RDF4J Native Store"/>
               <FormControlLabel value="Virtuoso" control={<Radio/>} label="OpenLink Virtuoso"/>

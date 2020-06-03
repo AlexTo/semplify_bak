@@ -2,6 +2,14 @@ import React, {useEffect, useState} from 'react';
 import cytoscape from 'cytoscape';
 import CytoscapeComponent from "react-cytoscapejs";
 import cola from 'cytoscape-cola';
+import avsdf from 'cytoscape-avsdf';
+import cise from 'cytoscape-cise';
+import coseBilkent from 'cytoscape-cose-bilkent';
+import fcose from 'cytoscape-fcose';
+import euler from 'cytoscape-euler';
+import spread from 'cytoscape-spread';
+import dagre from 'cytoscape-dagre';
+import klay from 'cytoscape-klay';
 import cxtmenu from 'cytoscape-cxtmenu';
 import {Maximize2, MapPin, Trash, ExternalLink} from 'react-feather';
 import {useDispatch, useSelector} from "react-redux";
@@ -11,19 +19,24 @@ import {entityHubQueries} from "../../../graphql";
 import {useSnackbar} from "notistack";
 import {visualGraphActions} from "../../../actions";
 
+cytoscape.use(avsdf);
 cytoscape.use(cola);
+cytoscape.use(cise);
+cytoscape.use(coseBilkent)
+cytoscape.use(euler);
+cytoscape.use(fcose);
+cytoscape.use(spread);
+cytoscape.use(dagre);
+cytoscape.use(klay);
 cytoscape.use(cxtmenu);
-
 
 function Graph() {
 
   const [cy, setCy] = useState(null);
   const {theme} = useSelector(state => state.cyReducer)
-  const layout = {name: "cola"};
   const {enqueueSnackbar} = useSnackbar();
-  const {nodes, edges, centerFocus, fit} = useSelector(state => state.visualGraphReducer)
+  const {nodes, edges, centerFocus, fit, layout, refreshLayout} = useSelector(state => state.visualGraphReducer)
   const dispatch = useDispatch();
-
 
   const [loadTriplesFromNode] = useLazyQuery(
     entityHubQueries.triplesFromNode, {
@@ -42,11 +55,18 @@ function Graph() {
 
   useEffect(() => {
     if (cy) cy.center();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [centerFocus]);
 
   useEffect(() => {
     if (cy) cy.fit();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fit]);
+
+  useEffect(() => {
+    if (cy) cy.layout(layout).run();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refreshLayout])
 
   useEffect(() => {
     if (!cy) {
@@ -57,12 +77,12 @@ function Graph() {
       dispatch(visualGraphActions.selectNode(node.id()))
     });
 
-    cy.on('unselect', 'node', function (e) {
-      let node = e.target;
+    cy.on('unselect', 'node', function () {
       dispatch(visualGraphActions.selectNode(null))
     })
 
     cy.cxtmenu(menu);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cy])
 
   useEffect(() => {
@@ -70,6 +90,7 @@ function Graph() {
       return;
     }
     cy.layout(layout).run();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nodes, edges])
 
   const createMenuItems = () => {

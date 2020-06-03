@@ -49,6 +49,7 @@ function YasqeEditor({id}) {
     })
 
     setYasqe(yasqe);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
@@ -63,12 +64,14 @@ function YasqeEditor({id}) {
       },
     });
     dispatch(sparqlActions.tabExecuting(id));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [executeTab])
 
   useEffect(() => {
     if (yasqe) {
       yasqe.setOption("theme", theme)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [theme])
 
 

@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {
-  Tabs, Tab, Card, Box, IconButton, Typography, makeStyles, Grid
+  Tabs, Tab, Card, Box, IconButton, makeStyles, Grid
 } from "@material-ui/core";
 import {
   Plus as PlusIcon
@@ -15,7 +15,7 @@ import {sparqlActions} from "../../../actions/sparqlActions";
 import SaveQueryDialog from "./SaveQueryDialog";
 import {queryService, yasqeService} from "../../../services";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   tab: {
     display: 'flex',
     alignItems: 'center',
@@ -32,7 +32,7 @@ function YasqeManager() {
   const dispatch = useDispatch();
   const {projectId} = useSelector(state => state.projectReducer);
   const [currentTabId, setCurrentTabId] = useState(0);
-  const [currentTab, setCurrentTab] = useState(null);
+  const [currentTab,] = useState(null);
 
   const {enqueueSnackbar} = useSnackbar();
 
@@ -41,6 +41,7 @@ function YasqeManager() {
       yasqeService.cleanup();
       handleNewTab();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -52,6 +53,7 @@ function YasqeManager() {
     if (!tabs.find(t => t.key === currentTabId)) {
       setCurrentTabId(tabs[tabs.length - 1].key);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tabs])
 
   const handleTabsChange = (event, value) => {

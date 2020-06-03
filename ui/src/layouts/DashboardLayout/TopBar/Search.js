@@ -2,17 +2,13 @@ import React from 'react';
 import {
   IconButton,
   SvgIcon,
-  Tooltip,
-  makeStyles
+  Tooltip
 } from '@material-ui/core';
 import {
   Search as SearchIcon
 } from 'react-feather';
 
-const useStyles = makeStyles(() => ({}));
-
 function Search() {
-  const classes = useStyles();
 
   return (
     <Tooltip title="Search">

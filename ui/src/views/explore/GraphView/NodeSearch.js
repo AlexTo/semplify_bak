@@ -51,9 +51,10 @@ function NodeSearch() {
   const {projectId} = useSelector(state => state.projectReducer);
   const dispatch = useDispatch();
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
-  const [load, {called, loading, data}] = useLazyQuery(entityHubQueries.searchNodes, {
-    fetchPolicy: "no-cache"
-  });
+  const [load, {called, loading, data}] = useLazyQuery(entityHubQueries.searchNodes,
+    {
+      fetchPolicy: "no-cache"
+    });
 
   useEffect(() => {
     setSearchTerm("");
@@ -79,6 +80,7 @@ function NodeSearch() {
         term: debouncedSearchTerm,
       }
     })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearchTerm]);
 
 

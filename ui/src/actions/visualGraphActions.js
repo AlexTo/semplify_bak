@@ -9,6 +9,8 @@ export const VISUAL_GRAPH_FIT = 'VISUAL_GRAPH/FIT';
 export const VISUAL_GRAPH_OPEN_USER_SETTINGS_DIALOG = 'VISUAL_GRAPH/OPEN_USER_SETTINGS_DIALOG'
 export const VISUAL_GRAPH_CLOSE_USER_SETTINGS_DIALOG = 'VISUAL_GRAPH/CLOSE_USER_SETTINGS_DIALOG'
 export const VISUAL_GRAPH_UPDATE_SETTINGS = 'VISUAL_GRAPH/UPDATE_SETTINGS';
+export const VISUAL_GRAPH_UPDATE_LAYOUT = 'VISUAL_GRAPH/UPDATE_LAYOUT';
+export const VISUAL_GRAPH_REFRESH_LAYOUT = 'VISUAL_GRAPH/REFRESH_LAYOUT';
 
 export const visualGraphActions = {
   clear,
@@ -21,7 +23,22 @@ export const visualGraphActions = {
   toggleAutoshowNodeDetails,
   openUserSettingsDialog,
   closeUserSettingsDialog,
-  updateSettings
+  updateSettings,
+  updateLayout,
+  refreshLayout
+}
+
+function refreshLayout() {
+  return dispatch => dispatch({
+    type: VISUAL_GRAPH_REFRESH_LAYOUT
+  })
+}
+
+function updateLayout(layout) {
+  return dispatch => dispatch({
+    type: VISUAL_GRAPH_UPDATE_LAYOUT,
+    layout
+  })
 }
 
 function updateSettings(settings) {

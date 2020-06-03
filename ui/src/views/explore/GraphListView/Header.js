@@ -2,20 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import {
-  Box,
   Breadcrumbs,
-  Button,
   Grid,
-  SvgIcon,
   Typography,
   makeStyles
 } from '@material-ui/core';
-import {
-  Target as TargetIcon,
-} from 'react-feather';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
-import {useDispatch} from "react-redux";
-import {webCrawlerActions} from "../../../actions";
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -32,8 +24,6 @@ const useStyles = makeStyles((theme) => ({
 
 function Header({className, ...rest}) {
   const classes = useStyles();
-
-  const dispatch = useDispatch();
 
   return (
     <Grid

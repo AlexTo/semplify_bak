@@ -1,17 +1,18 @@
-import React from 'react';
+import React, {useRef, useState} from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import {
   Breadcrumbs,
   Grid,
   Typography,
-  makeStyles, IconButton
+  makeStyles, IconButton, MenuItem, Menu, Button
 } from '@material-ui/core';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import Tooltip from "@material-ui/core/Tooltip";
 import {
   CenterFocusStrong as CenterFocusStrongIcon,
-  Autorenew as AutorenewIcon,
+  Clear as ClearIcon,
+  Replay as ReplayIcon,
   Save as SaveIcon,
   Menu as MenuIcon,
   AspectRatio as AspectRatioIcon,
@@ -25,13 +26,64 @@ const useStyles = makeStyles((theme) => ({
   root: {},
   toggleButton: {
     border: "none"
-  }
+  },
+  button: {
+    textTransform: "none"
+  },
+  menu: {}
 }));
+
+const layouts = [
+  {
+    name: "cola", label: "Cola"
+  },
+  {
+    name: "circle", label: "Circle"
+  },
+  {
+    name: "concentric", label: "Concentric"
+  },
+  {
+    name: "avsdf", label: "AVSDF"
+  },
+  {
+    name: "cise", label: "CiSE"
+  },
+  {
+    name: "cose", label: "CoSE"
+  },
+  {
+    name: "cose-bilkent", label: "CoSE Bilkent"
+  },
+  {
+    name: "fcose", label: "fCoSE"
+  },
+  {
+    name: "grid", label: "Grid"
+  },
+  {
+    name: "euler", label: "Euler"
+  },
+  {
+    name: "spread", label: "Spread"
+  },
+  {
+    name: "dagre", label: "Dagre"
+  },
+  {
+    name: "klay", label: "Klay"
+  },
+  {
+    name: "breadthfirst", label: "Breadth first"
+  }
+]
 
 function Header({className, ...rest}) {
   const classes = useStyles();
+  const actionRef = useRef(null);
+  const [menuLayoutOpen, setLayoutMenuOpen] = useState(false);
   const {projectId} = useSelector(state => state.projectReducer);
-  const {autoshowNodeDetails} = useSelector(state => state.visualGraphReducer);
+  const {autoshowNodeDetails, layout} = useSelector(state => state.visualGraphReducer);
   const dispatch = useDispatch();
   return (
     <Grid
@@ -74,7 +126,7 @@ function Header({className, ...rest}) {
         <Tooltip title="Clear" placement="top">
           <IconButton
             onClick={() => dispatch(visualGraphActions.clear())}>
-            <AutorenewIcon/>
+            <ClearIcon/>
           </IconButton>
         </Tooltip>
         <Tooltip title="Fit" placement="top">
@@ -89,6 +141,46 @@ function Header({className, ...rest}) {
             <CenterFocusStrongIcon/>
           </IconButton>
         </Tooltip>
+        <Tooltip title="Refresh Layout" placement="top">
+          <IconButton
+            onClick={() => dispatch(visualGraphActions.refreshLayout())}>
+            <ReplayIcon/>
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="Layout" placement="top">
+          <Button
+            className={classes.button}
+            ref={actionRef}
+            onClick={() => setLayoutMenuOpen(true)}>
+            {layout ? layout.label : "Select Layout"}
+          </Button>
+        </Tooltip>
+        <Menu
+          anchorEl={actionRef.current}
+          onClose={() => setLayoutMenuOpen(false)}
+          open={menuLayoutOpen}
+          PaperProps={{className: classes.menu}}
+          getContentAnchorEl={null}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'center'
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'center'
+          }}>
+          {layouts.map(l => (
+            <MenuItem
+              key={l.name}
+              onClick={() => {
+                dispatch(visualGraphActions.updateLayout(l));
+                setLayoutMenuOpen(false);
+              }}>
+              {l.label}
+            </MenuItem>
+          ))}
+        </Menu>
+
         <Tooltip title="Autoshow Node Details" placement="top">
           <ToggleButton
             className={classes.toggleButton}

@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from "react";
 import PropTypes from 'prop-types';
 import {makeStyles} from '@material-ui/core/styles';
-import {useForm} from "react-hook-form";
 import {useDispatch, useSelector} from "react-redux";
 import {useSnackbar} from "notistack";
 import {
@@ -20,7 +19,7 @@ import {
 } from "@material-ui/core";
 import {visualGraphActions} from "../../../actions";
 import PropertySearch from "./PropertySearch";
-import {useLazyQuery, useMutation, useQuery} from "@apollo/react-hooks";
+import {useLazyQuery, useMutation} from "@apollo/react-hooks";
 import {settingsQueries} from "../../../graphql/settingsQueries";
 import {useKeycloak} from "@react-keycloak/web";
 import {Delete as DeleteIcon} from '@material-ui/icons';
@@ -92,13 +91,11 @@ function SettingsDialog() {
   const handleTabChange = (event, newValue) => {
     setTab(newValue);
   };
-  const {register, handleSubmit, errors} = useForm();
-
   const [settingsId, setSettingsId] = useState(null);
   const [filterMode, setFilterMode] = useState(null);
   const [excludePreds, setExcludePreds] = useState([]);
   const [includePreds, setIncludePreds] = useState([]);
-  const [colorMaps, setColorMaps] = useState([]);
+  const [colorMaps,] = useState([]);
   const dispatch = useDispatch();
   const {enqueueSnackbar} = useSnackbar();
   const {projectId} = useSelector(state => state.projectReducer);
@@ -120,13 +117,14 @@ function SettingsDialog() {
         projectId, username
       }
     })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userSettingsDialogOpen])
 
   useEffect(() => {
     if (!settings)
       return;
     const {id, visualGraph} = settings;
-    const {edgeRenderer, nodeRenderer} = visualGraph;
+    const {edgeRenderer} = visualGraph;
     const {includePreds, excludePreds, filterMode} = edgeRenderer;
 
     setSettingsId(id);

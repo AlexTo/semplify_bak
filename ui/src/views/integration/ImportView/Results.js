@@ -33,27 +33,8 @@ import OkCancelDialog from "../../../components/ConfirmationDialog";
 import Bytes from "../../../components/Bytes";
 import moment from 'moment';
 
-const sortOptions = [
-  {
-    value: 'updatedAt|desc',
-    label: 'Last update (newest first)'
-  },
-  {
-    value: 'updatedAt|asc',
-    label: 'Last update (oldest first)'
-  },
-  {
-    value: 'createdAt|desc',
-    label: 'Creation date (newest first)'
-  },
-  {
-    value: 'createdAt|asc',
-    label: 'Creation date (oldest first)'
-  }
-];
-
-function applyFilters(webPages, query, filters) {
-  return webPages.filter((p) => {
+function applyFilters(webPages) {
+  return webPages.filter(() => {
     return true;
   });
 }
@@ -126,8 +107,7 @@ function Results({className, ...rest}) {
   const [deleteFiles] = useMutation(fileQueries.deleteFiles);
   const [limit, setLimit] = useState(5);
   const [query, setQuery] = useState('');
-  const [sort, setSort] = useState(sortOptions[0].value);
-  const [filters, setFilters] = useState({
+  const [filters,] = useState({
     category: null,
     availability: null,
     inStock: null,

@@ -15,8 +15,7 @@ import {useLazyQuery} from "@apollo/react-hooks";
 import {useDebounce} from "../../../hooks";
 import {Search as SearchIcon} from "react-feather";
 import {entityHubQueries} from "../../../graphql";
-import {useSelector, useDispatch} from "react-redux";
-import {useSnackbar} from "notistack";
+import {useSelector} from "react-redux";
 
 const renderOption = (option) => <Grid container spacing={1}>
   <Grid item>
@@ -42,13 +41,10 @@ const useStyles = makeStyles((theme) => ({
 
 function PropertySearch({onSelected}) {
   const classes = useStyles();
-
-  const {enqueueSnackbar} = useSnackbar();
   const [open, setOpen] = useState(false);
   const [options, setOptions] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const {projectId} = useSelector(state => state.projectReducer);
-  const dispatch = useDispatch();
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [load, {called, loading, data}] = useLazyQuery(entityHubQueries.searchPreds, {
     fetchPolicy: "no-cache"
@@ -72,6 +68,7 @@ function PropertySearch({onSelected}) {
         term: debouncedSearchTerm,
       }
     })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearchTerm]);
 
 
@@ -83,6 +80,7 @@ function PropertySearch({onSelected}) {
     if (data && data.searchPreds) {
       setOptions(data.searchPreds);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, data]);
 
   const handleOptionSelected = (value) => {

@@ -18,7 +18,7 @@ import {
   TablePagination,
   TableRow,
   TextField,
-  makeStyles, Typography
+  makeStyles
 } from '@material-ui/core';
 import {
   Trash as TrashIcon,
@@ -48,8 +48,8 @@ const sortOptions = [
   }
 ];
 
-function applyFilters(graphs, query, filters) {
-  return graphs.filter((p) => {
+function applyFilters(graphs) {
+  return graphs.filter(() => {
     return true;
   });
 }
@@ -123,7 +123,7 @@ function Results({className, ...rest}) {
   const [limit, setLimit] = useState(5);
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState(sortOptions[0].value);
-  const [filters, setFilters] = useState({
+  const [filters,] = useState({
     domain: null,
   });
 
