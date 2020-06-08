@@ -33,7 +33,7 @@ export const cyThemeDark = [
     style: {
       color: '#fff',
       label: "data(label)",
-      fontSize: 8,
+      fontSize: 10,
     }
   },
   {
@@ -42,8 +42,8 @@ export const cyThemeDark = [
       label: "data(label)",
       color: 'rgba(255,255,255,0.7)',
       width: 3,
-      fontSize: 8,
-      "text-margin-y": "-5px"
+      fontSize: 10,
+      "text-margin-y": "-6px"
     }
   },
   {

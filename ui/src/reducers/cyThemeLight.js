@@ -33,7 +33,7 @@ export const cyThemeLight = [
     style: {
       color: '#131111',
       label: "data(label)",
-      fontSize: 8,
+      fontSize: 10,
     }
   },
   {
@@ -41,7 +41,7 @@ export const cyThemeLight = [
     style: {
       label: "data(label)",
       width: 3,
-      fontSize: 8,
+      fontSize: 10,
       "text-margin-y": "-5px"
     }
   },

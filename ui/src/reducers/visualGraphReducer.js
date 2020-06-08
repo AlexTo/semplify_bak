@@ -129,7 +129,12 @@ function addNode(state, action) {
   const {nodes} = state;
   const newNode = createGraphNode(action.node);
   const newNodes = [newNode, ...nodes];
-  return Object.assign({}, state, {nodes: newNodes});
+
+  return Object.assign({}, state, {
+    nodes: newNodes,
+    refreshLayout: newNodes.length > 1 ? state.refreshLayout * -1 : state.refreshLayout,
+    centerFocus: newNodes.length === 1 ? state.centerFocus * -1 : state.centerFocus
+  });
 }
 
 function addTriples(state, action) {
@@ -165,6 +170,9 @@ function addTriples(state, action) {
       })
     })
     newState = renderTriples(newState, transformExistingSubjToCompoundNode);
+  }
+  if (newState.nodes.length > state.nodes.length) {
+    newState = Object.assign({}, newState, {refreshLayout: newState.refreshLayout * -1})
   }
   return newState;
 }

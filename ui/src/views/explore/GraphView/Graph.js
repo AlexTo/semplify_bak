@@ -74,7 +74,7 @@ function Graph() {
     }
     cy.on('select', 'node', function (e) {
       let node = e.target;
-      dispatch(visualGraphActions.selectNode(node.id()))
+      dispatch(visualGraphActions.selectNode(node.data().isCompound ? null : node.id()))
     });
 
     cy.on('unselect', 'node', function () {
@@ -84,14 +84,6 @@ function Graph() {
     cy.cxtmenu(menu);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cy])
-
-  useEffect(() => {
-    if (!cy) {
-      return;
-    }
-    cy.layout(layout).run();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nodes, edges])
 
   const expandNode = (node) => {
     loadTriplesFromNode({
