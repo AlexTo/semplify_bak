@@ -27,6 +27,8 @@ export const settingsQueries = {
               }
             }
             filterMode
+            groupPreds
+            groupPredsIfCountExceed
           }
           nodeRenderer {
             colorMaps {

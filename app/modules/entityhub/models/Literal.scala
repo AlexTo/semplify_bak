@@ -1,6 +1,7 @@
 package modules.entityhub.models
 
-import play.api.libs.json.{Json, OWrites, Reads}
+import play.api.libs.json.{Json, OFormat}
+import reactivemongo.bson.{BSONDocumentHandler, Macros}
 
 case class Literal(override val projectId: String,
                    override val graph: Option[String],
@@ -9,6 +10,6 @@ case class Literal(override val projectId: String,
                    dataType: String) extends Value
 
 object Literal {
-  implicit val reads: Reads[Literal] = Json.reads[Literal]
-  implicit val writes: OWrites[Literal] = Json.writes[Literal]
+  implicit val format: OFormat[Literal] = Json.format[Literal]
+  implicit val handler: BSONDocumentHandler[Literal] = Macros.handler[Literal]
 }

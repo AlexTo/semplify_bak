@@ -95,6 +95,9 @@ function SettingsDialog() {
   const [filterMode, setFilterMode] = useState(null);
   const [excludePreds, setExcludePreds] = useState([]);
   const [includePreds, setIncludePreds] = useState([]);
+  const [groupPreds, setGroupPreds] = useState(null);
+  const [groupPredsIfCountExceed, setGroupPredsIfCountExceed] = useState(null);
+
   const [colorMaps,] = useState([]);
   const dispatch = useDispatch();
   const {enqueueSnackbar} = useSnackbar();
@@ -125,13 +128,14 @@ function SettingsDialog() {
       return;
     const {id, visualGraph} = settings;
     const {edgeRenderer} = visualGraph;
-    const {includePreds, excludePreds, filterMode} = edgeRenderer;
+    const {includePreds, excludePreds, filterMode, groupPreds, groupPredsIfCountExceed} = edgeRenderer;
 
     setSettingsId(id);
     setFilterMode(filterMode);
     setExcludePreds(excludePreds);
     setIncludePreds(includePreds);
-
+    setGroupPreds(groupPreds);
+    setGroupPredsIfCountExceed(groupPredsIfCountExceed);
   }, [settings])
 
   const handleClose = () => {
@@ -167,6 +171,8 @@ function SettingsDialog() {
             includePreds: includePreds.map(p => {
               return {projectId: p.projectId, value: p.value}
             }),
+            groupPreds,
+            groupPredsIfCountExceed
           },
           nodeRenderer: {
             colorMaps
@@ -213,7 +219,7 @@ function SettingsDialog() {
                                                         value="Exclusive"
                                                         onChange={handleFilterModeChange}
                                                         color="primary"/>}
-                                        label="Do not show the following properties"/>
+                                        label="Do not show the following predicates"/>
                     </Box>
                     <Box>
                       <PropertySearch onSelected={handleExcludePred}/>

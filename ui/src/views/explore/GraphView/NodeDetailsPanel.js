@@ -38,7 +38,7 @@ function NodeDetailsPanel() {
       loadTriplesFromNode({
         variables: {
           projectId,
-          uri: selectedNode,
+          subj: selectedNode,
           nodeType: 'literal'
         }
       });

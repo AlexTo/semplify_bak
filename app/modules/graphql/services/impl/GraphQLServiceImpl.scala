@@ -31,8 +31,9 @@ class GraphQLServiceImpl @Inject()(entityService: EntityService,
   = entityService.findNode(projectId, graph, uri)
 
   override def triplesFromNode(projectId: String, graph: Option[String],
-                               from: String, nodeType: Option[String], currentUser: String): Future[Seq[Triple]]
-  = entityService.findTriplesFromNode(projectId, graph, from, nodeType, currentUser: String)
+                               subj: String, pred: Option[String],
+                               nodeType: Option[String], currentUser: String): Future[Seq[Triple]]
+  = entityService.findTriplesFromNode(projectId, graph, subj, pred, nodeType, currentUser)
 
   override def triplesToNode(projectId: String, graph: Option[String], to: String): Future[Seq[Triple]]
   = entityService.findTriplesToNode(projectId, graph, to)

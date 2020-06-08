@@ -1,11 +1,14 @@
 package modules.entityhub.utils
 
+import modules.entityhub.models.CompoundNode
+import org.eclipse.rdf4j.model.vocabulary.XMLSchema
 import org.eclipse.rdf4j.model.{BNode, IRI, Literal, Value}
 
 import scala.jdk.javaapi.OptionConverters
 
 object ValueUtils {
-  def createValue(projectId: String, graph: Option[String], value: Value): modules.entityhub.models.Value = {
+  def createValue(projectId: String, graph: Option[String],
+                  value: Value): modules.entityhub.models.Value = {
     value match {
       case iri: IRI =>
         modules.entityhub.models.IRI(projectId, graph, iri.stringValue())
@@ -16,5 +19,12 @@ object ValueUtils {
       case bNode: BNode =>
         modules.entityhub.models.BNode(projectId, graph, bNode.getID)
     }
+  }
+
+  def createCompoundNode(projectId: String, graph: Option[String], value: String,
+                         subj: String, pred: String, prefLabel: String): modules.entityhub.models.Value = {
+    CompoundNode(projectId, graph,
+      value, subj, pred, modules.entityhub.models.Literal(projectId, graph, prefLabel, None,
+        XMLSchema.STRING.stringValue()))
   }
 }

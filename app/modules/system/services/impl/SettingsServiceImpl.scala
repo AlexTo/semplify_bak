@@ -75,7 +75,9 @@ class SettingsServiceImpl @Inject()(projectService: ProjectService,
         EdgeRenderer(
           includePreds = Seq.empty,
           excludePreds = Seq.empty,
-          EdgeFilterMode.Exclusive)))
+          filterMode = EdgeFilterMode.Exclusive,
+          groupPreds = true,
+          groupPredsIfCountExceed = 5)))
 
   override def update(settingsId: String, settings: SettingsUpdate): Future[Int] =
     BSONObjectID.parse(settingsId) match {

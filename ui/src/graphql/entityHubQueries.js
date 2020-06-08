@@ -60,8 +60,8 @@ export const entityHubQueries = {
     }
   `,
   triplesFromNode: gql`
-    query triplesFromNode($projectId: String!, $graph: String, $uri: String!, $nodeType: String) {
-      triplesFromNode(projectId: $projectId, graph: $graph, uri: $uri, nodeType: $nodeType) {
+    query triplesFromNode($projectId: String!, $graph: String, $subj: String!, $pred: String, $nodeType: String) {
+      triplesFromNode(projectId: $projectId, graph: $graph, subj: $subj, pred: $pred, nodeType: $nodeType) {
         subj {
           projectId
           value
@@ -98,6 +98,13 @@ export const entityHubQueries = {
           ... on Literal {
             dataType
             lang
+          }
+          ... on CompoundNode {
+            subj
+            pred
+            prefLabel {
+              value
+            }
           }
         }
       }

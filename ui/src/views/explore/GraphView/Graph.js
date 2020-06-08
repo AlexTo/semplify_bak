@@ -93,38 +93,50 @@ function Graph() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nodes, edges])
 
-  const createMenuItems = () => {
-    return [
+  const expandNode = (node) => {
+    loadTriplesFromNode({
+      variables: {
+        projectId: node.data().projectId,
+        subj: node.id(),
+        nodeType: 'iri'
+      }
+    })
+  }
+
+  const expandCompoundNode = (node) => {
+    loadTriplesFromNode({
+      variables: {
+        projectId: node.data().projectId,
+        subj: node.data().subj,
+        pred: node.data().pred,
+        nodeType: 'iri'
+      }
+    })
+  }
+
+  const createMenuItems = (e) => {
+    const commands = [
       {
         content: renderToString(<Trash size={16}/>),
-        select: function (ele) {
-          dispatch(visualGraphActions.removeNode(ele.id()))
-        },
+        select: () => dispatch(visualGraphActions.removeNode(e.id()))
       },
       {
         content: renderToString(<MapPin size={16}/>),
-        select: function (ele) {
-        },
-      },
-      {
-        content: renderToString(<ExternalLink size={16}/>),
-        select: function (ele) {
-          window.open(ele.id(), "_blank");
+        select: () => {
         },
       },
       {
         content: renderToString(<Maximize2 size={16}/>),
-        select: function (ele) {
-          loadTriplesFromNode({
-            variables: {
-              projectId: ele.data().projectId,
-              uri: ele.id(),
-              nodeType: 'iri'
-            }
-          })
-        },
+        select: e.data().isCompound ? expandCompoundNode : expandNode,
       }
     ]
+    if (!e.data().isCompound) {
+      commands.splice(2, 0, {
+        content: renderToString(<ExternalLink size={16}/>),
+        select: () => window.open(e.id(), "_blank")
+      });
+    }
+    return commands;
   }
 
   const menu = {

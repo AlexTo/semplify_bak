@@ -49,9 +49,23 @@ object SchemaDefinition {
       Field("prefLabel", OptionType(Literal), resolve = ctx => ctx.ctx.svc.prefLabel(ctx.value.projectId, ctx.value.value)),
       Field("depiction", OptionType(IRI), resolve = ctx => ctx.ctx.svc.depiction(ctx.value.projectId, ctx.value.value)),
       Field("outGoingPredicates", ListType(Triple),
-        resolve = ctx => ctx.ctx.svc.triplesFromNode(ctx.value.projectId, None, ctx.value.value, None, ctx.ctx.username)),
+        resolve = ctx => ctx.ctx.svc.triplesFromNode(ctx.value.projectId, None, ctx.value.value,
+          None, None, ctx.ctx.username)),
       Field("incomingPredicates", ListType(Triple),
         resolve = ctx => ctx.ctx.svc.triplesToNode(ctx.value.projectId, None, ctx.value.value))))
+
+  val CompoundNode: ObjectType[GraphQLContext, CompoundNode] = ObjectType("CompoundNode", "A compound virtual node",
+    interfaces[GraphQLContext, CompoundNode](Value),
+    () => fields[GraphQLContext, CompoundNode](
+      Field("projectId", StringType, resolve = _.value.projectId),
+      Field("graph", OptionType(StringType), resolve = _.value.graph),
+      Field("value", StringType, resolve = _.value.value),
+      Field("subj", StringType, resolve = _.value.subj),
+      Field("pred", StringType, resolve = _.value.pred),
+      Field("prefLabel", OptionType(Literal), resolve = _.value.prefLabel)
+    )
+  )
+
 
   implicit val IRIInput: InputObjectType[IRI] = deriveInputObjectType[IRI](
     InputObjectTypeName("IRIInput")
@@ -125,7 +139,9 @@ object SchemaDefinition {
     () => fields[GraphQLContext, EdgeRenderer](
       Field("includePreds", ListType(IRI), resolve = _.value.includePreds),
       Field("excludePreds", ListType(IRI), resolve = _.value.excludePreds),
-      Field("filterMode", StringType, resolve = _.value.filterMode.toString)
+      Field("filterMode", StringType, resolve = _.value.filterMode.toString),
+      Field("groupPreds", BooleanType, resolve = _.value.groupPreds),
+      Field("groupPredsIfCountExceed", IntType, resolve = _.value.groupPredsIfCountExceed)
     )
   )
 
@@ -197,6 +213,8 @@ object SchemaDefinition {
   val SettingsIdArg: Argument[String] = Argument("settingsId", StringType)
   val UsernameArg: Argument[Option[String]] = Argument("username", OptionInputType(StringType))
   val GraphArg: Argument[Option[String]] = Argument("graph", OptionInputType(StringType))
+  val SubjArg: Argument[String] = Argument("subj", StringType)
+  val PredArg: Argument[Option[String]] = Argument("pred", OptionInputType(StringType))
   val NodeTypeArg: Argument[Option[String]] = Argument("nodeType", OptionInputType(StringType))
   val GraphsArg: Argument[Seq[String @@ FromInput.CoercedScalaResult]] = Argument("graphs", ListInputType(StringType))
   val FileIdsArg: Argument[Seq[String @@ FromInput.CoercedScalaResult]] = Argument("fileIds", ListInputType(StringType))
@@ -212,9 +230,9 @@ object SchemaDefinition {
         resolve = ctx => ctx.ctx.svc.node(ctx arg ProjectIdArg, ctx arg GraphArg, ctx arg UriArg)
       ),
       Field("triplesFromNode", ListType(Triple),
-        arguments = ProjectIdArg :: GraphArg :: UriArg :: NodeTypeArg :: Nil,
-        resolve = ctx => ctx.ctx.svc.triplesFromNode(ctx arg ProjectIdArg, ctx arg GraphArg,
-          ctx arg UriArg, ctx arg NodeTypeArg, ctx.ctx.username)
+        arguments = ProjectIdArg :: GraphArg :: SubjArg :: PredArg :: NodeTypeArg :: Nil,
+        resolve = ctx => ctx.ctx.svc.triplesFromNode(ctx arg ProjectIdArg, ctx arg GraphArg, ctx arg SubjArg,
+          ctx arg PredArg, ctx arg NodeTypeArg, ctx.ctx.username)
       ),
       Field("settings", Settings,
         arguments = ProjectIdArg :: UsernameArg :: Nil,
@@ -269,5 +287,5 @@ object SchemaDefinition {
     ))
 
   val schema: Schema[GraphQLContext, Unit] = Schema(Query, Some(Mutation),
-    additionalTypes = NativeRepository :: VirtuosoRepository :: Literal :: BNode :: Nil)
+    additionalTypes = NativeRepository :: VirtuosoRepository :: CompoundNode :: Literal :: BNode :: Nil)
 }

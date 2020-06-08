@@ -7,10 +7,11 @@ import reactivemongo.bson.{BSONDocumentHandler, Macros}
 
 case class EdgeRenderer(includePreds: Seq[IRI],
                         excludePreds: Seq[IRI],
-                        filterMode: EdgeFilterMode)
+                        filterMode: EdgeFilterMode,
+                        groupPreds: Boolean,
+                        groupPredsIfCountExceed: Int)
 
 object EdgeRenderer {
   implicit val handler: BSONDocumentHandler[EdgeRenderer] = Macros.handler[EdgeRenderer]
   implicit val format: OFormat[EdgeRenderer] = Json.format[EdgeRenderer]
-
 }

@@ -22,6 +22,13 @@ export const cyThemeLight = [
     },
   },
   {
+    selector: "node.compound",
+    style: {
+      shape: "rectangle",
+      "background-color": '#6181d2',
+    }
+  },
+  {
     selector: "node[label]",
     style: {
       color: '#131111',
