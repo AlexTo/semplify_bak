@@ -29,6 +29,7 @@ services:
       - keycloak:/opt/jboss/keycloak/standalone/data
     networks:
       - semplify
+
   rdf4j:
     image: tonhudung/rdf4j:3.2.0
     hostname: rdf4j
@@ -40,6 +41,8 @@ services:
     volumes:
       - rdf4j_data:/var/rdf4j
       - rdf4j_logs:/usr/local/tomcat/logs
+    networks:
+      - semplify
 
   virtuoso:
     image: tenforce/virtuoso
@@ -54,6 +57,9 @@ services:
     ports:
       - 8890:8890
       - 1111:1111
+    networks:
+      - semplify
+
   virtuoso-det:
     image: tenforce/virtuoso
     hostname: virtuoso-det
@@ -67,6 +73,29 @@ services:
     ports:
       - 8891:8890
       - 1112:1111
+    networks:
+      - semplify
+
+  semplify:
+    image: tonhudung/semplify
+    build:
+      context: ./semplify
+      args:
+        REACT_APP_KEYCLOAK_URL: "http://alexto.ddns.net:8080/auth"
+        REACT_APP_KEYCLOAK_REALM: "semplify"
+        REACT_APP_KEYCLOAK_CLIENT_ID: "semplify-ui"
+    hostname: semplify
+    container_name: semplify
+    environment:
+      SEMPLIFY_KEYCLOAK_DISCOVERY_URI: "http://alexto.ddns.net:8080/auth/realms/semplify/.well-known/openid-configuration"
+      SEMPLIFY_KEYCLOAK_CLIENT_ID: "semplify-services"
+      SEMPLIFY_RDF4J_URL: "http://rdf4j:8080/rdf4j-server"
+      SEMPLIFY_MONGO_URL: "mongodb://mongo:27017/semplify"
+      SEMPLIFY_KEYCLOAK_SECRET: "a82a412d-a847-497e-9423-705910239e4b"
+    ports:
+      - 9000:9000
+    networks:
+      - semplify
 
 volumes:
   mongo:
