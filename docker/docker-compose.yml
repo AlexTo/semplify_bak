@@ -1,6 +1,6 @@
-version: '3.1'
-services:
+version: '2.4'
 
+services:
   mongo:
     image: mongo
     hostname: mongo
@@ -35,7 +35,7 @@ services:
     hostname: rdf4j
     container_name: rdf4j
     environment:
-      JAVA_OPTS: '-Xms16g -Xmx32g'
+      JAVA_OPTS: '-Xms8g -Xmx16g'
     ports:
       - 8090:8080
     volumes:
@@ -48,10 +48,11 @@ services:
     image: tenforce/virtuoso
     hostname: virtuoso
     container_name: virtuoso
+    mem_swappiness: 0
     environment:
       SPARQL_UPDATE: "true"
-      VIRT_Parameters_NumberOfBuffers: 2720000
-      VIRT_Parameters_MaxDirtyBuffers: 2000000
+      VIRT_Parameters_NumberOfBuffers: 5140000
+      VIRT_Parameters_MaxDirtyBuffers: 4000000
     volumes:
       - virtuoso:/data
     ports:

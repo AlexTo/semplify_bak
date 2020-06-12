@@ -88,57 +88,15 @@ export const visualGraphReducer = (state = initialState, action) => {
       });
 
     case VISUAL_GRAPH_UPDATE_SETTINGS:
-      return refreshGraphWithNewSettings(state, action.settings)
+      return Object.assign({}, state, {
+        settings: action.settings
+      })
 
     case VISUAL_GRAPH_UPDATE_LAYOUT:
       return Object.assign({}, state, {layout: action.layout})
     default:
       return state
   }
-}
-
-function refreshGraphWithNewSettings(state, settings) {
-
-  if (!settings) return;
-  const {nodes, edges} = state;
-  const {visualGraph} = settings;
-  const {edgeRenderer} = visualGraph;
-  const {excludePreds, includePreds, filterMode} = edgeRenderer;
-  let remainingEdges = edges;
-  let toBeRemovedEdges = [];
-  if (filterMode === "Exclusive") {
-    const excludedIRIs = excludePreds.map(p => p.value)
-    toBeRemovedEdges = edges.filter(e => excludedIRIs.includes(e.data.value));
-    if (toBeRemovedEdges.length) {
-      remainingEdges = edges.filter(e => !excludedIRIs.includes(e.data.value));
-    }
-  } else {
-    const includedIRIs = includePreds.map(p => p.value)
-    toBeRemovedEdges = edges.filter(e => !includedIRIs.includes(e.data.value));
-    if (toBeRemovedEdges.length) {
-      remainingEdges = edges.filter(e => includedIRIs.includes(e.data.value));
-    }
-  }
-
-  let remainingNodes = nodes;
-  if (toBeRemovedEdges.length) {
-    // After removing some edges, some nodes become orphaned.
-    // Nodes are orphaned if they are pointed to by a removed edge but none of the remaining edges points to them
-    const orphanedNodes = nodes.filter(n =>
-      toBeRemovedEdges.find(e => e.data.target === n.data.id) &&
-      !remainingEdges.find(e => e.data.target === n.data.id))
-    if (orphanedNodes.length) {
-      const excludedIRIs = orphanedNodes.map(n => n.data.id);
-      remainingNodes = nodes.filter(n => !excludedIRIs.includes(n.data.id))
-    }
-  }
-
-
-  return Object.assign({}, state, {
-    settings: settings,
-    edges: remainingEdges,
-    nodes: remainingNodes
-  })
 }
 
 function addNode(state, action) {
@@ -198,15 +156,11 @@ function addTriples(state, action) {
 function removeNode(state, action) {
   const {nodes, edges} = state;
   const {node} = action;
-  const remainingEdges = edges.filter(e => e.data.source !== node.id() && e.data.target !== node.id());
-  const remainingNodes = nodes
-    .filter(n => n.data.id !== node.id() && (!n.data.parent || (n.data.parent && n.data.parent !== node.id())))
-    .filter(n => (remainingEdges.find(e => e.data.source === n.data.id || e.data.target === n.data.id)) ||
-      (!remainingEdges.find(e => e.data.source === n.data.id || e.data.target === n.data.id)
-        && (!edges.find(e => (e.data.source === n.data.id && e.data.target === node.id())
-          || (e.data.source === node.id() && e.data.target === n.data.id)))))
+  const remainingEdges = edges.filter(e => !isEdgeOf(e, node));
 
-  console.log(remainingNodes.map(c => c.data.parent));
+  const remainingNodes = nodes
+    .filter(n => n.data.id !== node.id() && !belongToCompoundNode(n, node))
+
   return Object.assign({}, state, {
     nodes: [...remainingNodes],
     edges: [...remainingEdges],
@@ -264,4 +218,12 @@ function renderTriples(state, triples) {
   } else {
     return state;
   }
+}
+
+function isEdgeOf(edge, node) {
+  return edge.data.source === node.id() || edge.data.target === node.id();
+}
+
+function belongToCompoundNode(node1, node2) {
+  return node1.data.parent && node1.data.parent === node2.id()
 }

@@ -77,14 +77,13 @@ function applyFilters(objs, query) {
       let containsQuery = false;
 
       properties.forEach((property) => {
-
+        let o = obj;
         let i;
         const path = property.split('.');
         for (i = 0; i < path.length - 1; i++)
-          obj = obj[path[i]];
+          o = o[path[i]];
 
-        const value = obj[path[i]];
-
+        const value = o[path[i]];
         if (value.toLowerCase().includes(query.toLowerCase())) {
           containsQuery = true;
         }
@@ -201,6 +200,7 @@ function CompoundNodeExpansionDialog() {
   const filteredObjs = applyFilters(objs, query);
   const sortedObjs = applySort(filteredObjs, sort);
   const paginatedObjs = applyPagination(sortedObjs, page, limit);
+
   const enableBulkOperations = selectedObjs.length > 0;
   const selectedSome = selectedObjs.length > 0 && selectedObjs.length < objs.length;
   const selectedAll = selectedObjs.length === objs.length;
@@ -388,7 +388,7 @@ function CompoundNodeExpansionDialog() {
                         >
                           {obj.depiction && <Avatar
                             className={classes.avatar}
-                            src={obj.depiction.uri}/>}
+                            src={obj.depiction.value}/>}
                           {!obj.depiction && <Avatar
                             className={classes.avatar}
                           >

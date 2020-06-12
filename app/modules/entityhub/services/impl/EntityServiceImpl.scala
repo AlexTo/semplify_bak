@@ -218,7 +218,7 @@ class EntityServiceImpl @Inject()(projectService: ProjectService,
               conn.prepareTupleQuery(QueryLanguage.SPARQL,
                 q.replace(
                   "?term",
-                  s"""\"${term.split(" ").map(s => s.trim).mkString(" AND ")}\""""))
+                  s"""\"${term.split(" ").map(s => s"'${s.trim}'").mkString(" AND ")}\""""))
             case _ =>
               val tq = conn.prepareTupleQuery(QueryLanguage.SPARQL, q)
               tq.setBinding("term", f.createLiteral(s"${term.trim}*"))
@@ -258,7 +258,7 @@ class EntityServiceImpl @Inject()(projectService: ProjectService,
             conn.prepareTupleQuery(QueryLanguage.SPARQL,
               q.replace(
                 "?term",
-                s"""\"${term.split(" ").map(s => s.trim).mkString(" AND ")}\""""))
+                s"""\"${term.split(" ").map(s => s"'${s.trim}'").mkString(" AND ")}\""""))
           case _ =>
             val tq = conn.prepareTupleQuery(QueryLanguage.SPARQL, q)
             tq.setBinding("term", f.createLiteral(s"${term.trim}*"))
@@ -288,7 +288,7 @@ class EntityServiceImpl @Inject()(projectService: ProjectService,
     projectService.findRepoById(projectId) map {
       case Some((_, repo)) =>
 
-        val prefLang = HashMap("vi" -> 0, "en-us" -> 1, "en-au" -> 2)
+        val prefLang = HashMap("en" -> 0, "en-us" -> 1, "en-au" -> 2)
 
         val f = repo.getValueFactory
 
