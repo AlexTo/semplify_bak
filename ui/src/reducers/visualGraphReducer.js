@@ -12,7 +12,9 @@ import {
   VISUAL_GRAPH_CLOSE_USER_SETTINGS_DIALOG,
   VISUAL_GRAPH_UPDATE_SETTINGS,
   VISUAL_GRAPH_UPDATE_LAYOUT,
-  VISUAL_GRAPH_REFRESH_LAYOUT
+  VISUAL_GRAPH_REFRESH_LAYOUT,
+  VISUAL_GRAPH_OPEN_COMPOUND_NODE_EXPANSION_DIALOG,
+  VISUAL_GRAPH_CLOSE_COMPOUND_NODE_EXPANSION_DIALOG,
 } from "../actions";
 
 const initialState = {
@@ -21,7 +23,9 @@ const initialState = {
   userSettingsDialogOpen: false,
   autoshowNodeDetails: true,
   nodeDetailsPanelOpen: false,
+  compoundNodeExpansionDialogOpen: false,
   selectedNode: null,
+  selectedCompoundNode: null,
   centerFocus: 1,
   fit: 1,
   refreshLayout: 1,
@@ -37,6 +41,18 @@ export const visualGraphReducer = (state = initialState, action) => {
 
     case VISUAL_GRAPH_CLOSE_USER_SETTINGS_DIALOG:
       return Object.assign({}, state, {userSettingsDialogOpen: false})
+
+    case VISUAL_GRAPH_OPEN_COMPOUND_NODE_EXPANSION_DIALOG:
+      return Object.assign({}, state, {
+        compoundNodeExpansionDialogOpen: true,
+        selectedCompoundNode: action.node
+      })
+
+    case VISUAL_GRAPH_CLOSE_COMPOUND_NODE_EXPANSION_DIALOG:
+      return Object.assign({}, state, {
+        compoundNodeExpansionDialogOpen: false,
+        selectedCompoundNode: null
+      })
 
     case VISUAL_GRAPH_REFRESH_LAYOUT:
       return Object.assign({}, state, {refreshLayout: state.refreshLayout * -1});
@@ -140,33 +156,35 @@ function addNode(state, action) {
 function addTriples(state, action) {
   const {nodes} = state;
 
-  const triplesFromNormalNodes = action.triples
+  const triplesWithNormalNodes = action.triples
     .filter(t => !nodes.find(n => n.data.subj === t.subj.value && n.data.pred === t.pred.value));
 
-  const triplesFromCompoundNodes = action.triples
+  const triplesWithCompoundNodes = action.triples
     .filter(t => !isCompound(t.obj) && nodes.find(n => n.data.subj === t.subj.value
       && n.data.pred === t.pred.value));
 
   let newState = state;
 
-  if (triplesFromNormalNodes.length > 0) {
-    newState = renderTriples(newState, triplesFromNormalNodes);
+  if (triplesWithNormalNodes.length > 0) {
+    newState = renderTriples(newState, triplesWithNormalNodes);
   }
 
-  if (triplesFromCompoundNodes.length > 0) {
-    const firstTriple = triplesFromCompoundNodes[0];
+  if (triplesWithCompoundNodes.length > 0) {
+    const firstTriple = triplesWithCompoundNodes[0];
     const compoundNode = nodes.find(n => n.data.subj === firstTriple.subj.value
       && n.data.pred === firstTriple.pred.value);
-    const transformExistingSubjToCompoundNode = triplesFromCompoundNodes.map(t => {
+    const transformExistingSubjToCompoundNode = triplesWithCompoundNodes.map(t => {
       const newSubj = {
         projectId: compoundNode.data.projectId,
         value: compoundNode.data.id,
         graph: compoundNode.data.graph
       };
       const newPred = Object.assign(t.pred, {}, {prefLabel: null});
+      const newObj = Object.assign(t.obj, {}, {parent: newSubj.value})
       return Object.assign({}, t, {
         subj: newSubj,
-        pred: newPred
+        pred: newPred,
+        obj: newObj
       })
     })
     newState = renderTriples(newState, transformExistingSubjToCompoundNode);
@@ -179,18 +197,20 @@ function addTriples(state, action) {
 
 function removeNode(state, action) {
   const {nodes, edges} = state;
-  const remainingEdges = edges.filter(e => e.data.source !== action.uri && e.data.target !== action.uri);
+  const {node} = action;
+  const remainingEdges = edges.filter(e => e.data.source !== node.id() && e.data.target !== node.id());
   const remainingNodes = nodes
-    .filter(n => n.data.id !== action.uri)
+    .filter(n => n.data.id !== node.id() && (!n.data.parent || (n.data.parent && n.data.parent !== node.id())))
     .filter(n => (remainingEdges.find(e => e.data.source === n.data.id || e.data.target === n.data.id)) ||
       (!remainingEdges.find(e => e.data.source === n.data.id || e.data.target === n.data.id)
-        && (!edges.find(e => (e.data.source === n.data.id && e.data.target === action.uri)
-          || (e.data.source === action.uri && e.data.target === n.data.id)))))
+        && (!edges.find(e => (e.data.source === n.data.id && e.data.target === node.id())
+          || (e.data.source === node.id() && e.data.target === n.data.id)))))
 
+  console.log(remainingNodes.map(c => c.data.parent));
   return Object.assign({}, state, {
     nodes: [...remainingNodes],
     edges: [...remainingEdges],
-    selectedNode: state.selectedNode !== action.uri ? state.selectedNode : null
+    selectedNode: state.selectedNode !== node ? state.selectedNode : null
   });
 }
 
@@ -234,7 +254,9 @@ function renderTriples(state, triples) {
       t.pred.value === e.data.value &&
       t.obj.value === e.data.source));
 
-  const addedEdges = removeAddedBidirectionalEdges.map(t => createGraphEdge(t))
+  const addedEdges = removeAddedBidirectionalEdges
+    .filter(t => !isCompound(t.subj))
+    .map(t => createGraphEdge(t))
   if (addedNodes.length > 0 || addedEdges.length > 0) {
     return Object.assign({}, state, {
       nodes: [...addedNodes, ...nodes], edges: [...addedEdges, ...updateBidirectionalEdges]

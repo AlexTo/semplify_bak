@@ -25,7 +25,7 @@ export const cyThemeDark = [
     selector: "node.compound",
     style: {
       shape: "rectangle",
-      "background-color": '#61d274',
+      "background-color": '#141d14',
     }
   },
   {

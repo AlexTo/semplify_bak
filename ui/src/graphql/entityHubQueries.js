@@ -109,5 +109,24 @@ export const entityHubQueries = {
         }
       }
     }
+  `,
+  objsFromNode: gql`
+    query triplesFromNode($projectId: String!, $graph: String, $subj: String!, $pred: String, $nodeType: String) {
+      triplesFromNode(projectId: $projectId, graph: $graph, subj: $subj, pred: $pred, nodeType: $nodeType) {
+        obj {
+          projectId
+          value
+          graph
+          ... on IRI {
+            prefLabel {
+              value
+            }
+            depiction {
+              value
+            }
+          }
+        }
+      }
+    }
   `
 }

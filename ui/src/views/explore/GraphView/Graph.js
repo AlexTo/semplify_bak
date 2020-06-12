@@ -11,7 +11,7 @@ import spread from 'cytoscape-spread';
 import dagre from 'cytoscape-dagre';
 import klay from 'cytoscape-klay';
 import cxtmenu from 'cytoscape-cxtmenu';
-import {Maximize2, MapPin, Trash, ExternalLink} from 'react-feather';
+import {Maximize2, MapPin, Trash, ExternalLink, List} from 'react-feather';
 import {useDispatch, useSelector} from "react-redux";
 import {renderToString} from 'react-dom/server'
 import {useLazyQuery} from "@apollo/react-hooks";
@@ -74,7 +74,7 @@ function Graph() {
     }
     cy.on('select', 'node', function (e) {
       let node = e.target;
-      dispatch(visualGraphActions.selectNode(node.data().isCompound ? null : node.id()))
+      dispatch(visualGraphActions.selectNode(node.data().isCompound ? null : node))
     });
 
     cy.on('unselect', 'node', function () {
@@ -106,11 +106,11 @@ function Graph() {
     })
   }
 
-  const createMenuItems = (e) => {
+  const createMenuItems = (node) => {
     const commands = [
       {
         content: renderToString(<Trash size={16}/>),
-        select: () => dispatch(visualGraphActions.removeNode(e.id()))
+        select: () => dispatch(visualGraphActions.removeNode(node))
       },
       {
         content: renderToString(<MapPin size={16}/>),
@@ -119,13 +119,18 @@ function Graph() {
       },
       {
         content: renderToString(<Maximize2 size={16}/>),
-        select: e.data().isCompound ? expandCompoundNode : expandNode,
+        select: node.data().isCompound ? expandCompoundNode : expandNode,
       }
     ]
-    if (!e.data().isCompound) {
+    if (!node.data().isCompound) {
       commands.splice(2, 0, {
         content: renderToString(<ExternalLink size={16}/>),
-        select: () => window.open(e.id(), "_blank")
+        select: () => window.open(node.id(), "_blank")
+      });
+    } else {
+      commands.splice(2, 0, {
+        content: renderToString(<List size={16}/>),
+        select: () => dispatch(visualGraphActions.openCompoundNodeExpansionDialog(node))
       });
     }
     return commands;

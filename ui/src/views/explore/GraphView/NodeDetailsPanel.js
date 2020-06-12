@@ -34,21 +34,22 @@ function NodeDetailsPanel() {
   );
 
   useEffect(() => {
-    if (selectedNode) {
-      loadTriplesFromNode({
-        variables: {
-          projectId,
-          subj: selectedNode,
-          nodeType: 'literal'
-        }
-      });
-      loadNode({
-        variables: {
-          projectId,
-          uri: selectedNode
-        }
-      })
+    if (!selectedNode) {
+      return;
     }
+    loadTriplesFromNode({
+      variables: {
+        projectId,
+        subj: selectedNode.id(),
+        nodeType: 'literal'
+      }
+    });
+    loadNode({
+      variables: {
+        projectId,
+        uri: selectedNode.id()
+      }
+    })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedNode]);
 

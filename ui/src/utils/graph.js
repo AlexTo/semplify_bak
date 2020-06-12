@@ -4,16 +4,22 @@ export const createGraphNode = (node) => {
       id: node.value,
       projectId: node.projectId,
       graph: node.graph,
-      subj: node.subj, // only available with compound node
-      pred: node.pred, // only available with compound node
       label: node.prefLabel.value.length > 15
         ? `${node.prefLabel.value.substring(0, 15)}...` : node.prefLabel.value,
       isCompound: isCompound(node)
     },
-    classes: `${isCompound(node) ? "compound center-center" : ""}`
+    classes: `${isCompound(node) ? "compound" : ""}`
   }
   if (node.depiction)
     n.data.depiction = `${node.depiction.value}?type=large`;
+
+  if (isCompound(node)) {
+    n.data.subj = node.subj;
+    n.data.pred = node.pred;
+  }
+  if (node.parent) {
+    n.data.parent = node.parent
+  }
   return n;
 }
 

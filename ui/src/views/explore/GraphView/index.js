@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  Box, Grid, Collapse,
+  Box, Grid,
   Container,
   makeStyles, Typography
 } from '@material-ui/core';
@@ -11,6 +11,7 @@ import Graph from "./Graph";
 import {useSelector} from "react-redux";
 import NodeDetailsPanel from "./NodeDetailsPanel";
 import SettingsDialog from "./SettingsDialog";
+import CompoundNodeExpansionDialog from "./CompoundNodeExpansionDialog";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -52,15 +53,13 @@ function GraphView() {
                 <Grid item md={nodeDetailsPanelOpen ? 10 : 12}>
                   <Graph/>
                 </Grid>
-                <Grid item>
-                  <Collapse in={nodeDetailsPanelOpen}
-                            timeout="auto" unmountOnExit>
-                    <NodeDetailsPanel/>
-                  </Collapse>
-                </Grid>
+                {nodeDetailsPanelOpen && <Grid item md={2}>
+                  <NodeDetailsPanel/>
+                </Grid>}
               </Grid>
             </Box>
             <SettingsDialog/>
+            <CompoundNodeExpansionDialog/>
           </> : <Box mt={3}>
             <Typography variant="h5"
                         color="textSecondary"> Please select a project

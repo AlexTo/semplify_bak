@@ -48,75 +48,73 @@ function NewProjectDialog() {
   }
 
   return (
-    <>
-      <Dialog open={newProjectDialogOpen}
-              onClose={handleClose}
-              aria-labelledby="form-dialog-title"
-              maxWidth="md" fullWidth>
-        <DialogTitle>New Project</DialogTitle>
-        <DialogContent>
+    <Dialog open={newProjectDialogOpen}
+            onClose={handleClose}
+            aria-labelledby="form-dialog-title"
+            maxWidth="md" fullWidth>
+      <DialogTitle>New Project</DialogTitle>
+      <DialogContent>
+        <Box py={1}>
+          <TextField
+            error={Boolean(errors.title)}
+            helperText={errors.title && errors.title.message}
+            fullWidth label="Title" name="title"
+            inputRef={register({required: "Title is required"})}
+          />
+        </Box>
+        <Box py={1}>
+          <FormLabel component="legend">Repository</FormLabel>
+          <RadioGroup aria-label="repositoryType" name="repositoryType"
+                      value={repositoryType}
+                      onChange={(e) => {
+                        setRepositoryType(e.target.value)
+                      }} row>
+            <FormControlLabel value="Native" control={<Radio/>} label="RDF4J Native Store"/>
+            <FormControlLabel value="Virtuoso" control={<Radio/>} label="OpenLink Virtuoso"/>
+          </RadioGroup>
+        </Box>
+        {repositoryType === "Virtuoso" && <>
           <Box py={1}>
             <TextField
-              error={Boolean(errors.title)}
-              helperText={errors.title && errors.title.message}
-              fullWidth label="Title" name="title"
-              inputRef={register({required: "Title is required"})}
+              error={Boolean(errors.hostList)}
+              helperText={errors.hostList ? errors.hostList.message
+                : "host:port separate by comma for e.g. 192.168.1.10:1111, 192.168.1.11:1111"}
+              fullWidth label="Host list" name="hostList"
+              inputRef={register({required: "Host is required"})}
             />
           </Box>
           <Box py={1}>
-            <FormLabel component="legend">Repository</FormLabel>
-            <RadioGroup aria-label="repositoryType" name="repositoryType"
-                        value={repositoryType}
-                        onChange={(e) => {
-                          setRepositoryType(e.target.value)
-                        }} row>
-              <FormControlLabel value="Native" control={<Radio/>} label="RDF4J Native Store"/>
-              <FormControlLabel value="Virtuoso" control={<Radio/>} label="OpenLink Virtuoso"/>
-            </RadioGroup>
+            <TextField
+              error={Boolean(errors.username)}
+              helperText={errors.username && errors.username.message}
+              fullWidth label="Username" name="username" autoComplete="new-password"
+              inputRef={register({required: "Username is required"})}/>
           </Box>
-          {repositoryType === "Virtuoso" && <>
-            <Box py={1}>
-              <TextField
-                error={Boolean(errors.hostList)}
-                helperText={errors.hostList ? errors.hostList.message
-                  : "host:port separate by comma for e.g. 192.168.1.10:1111, 192.168.1.11:1111"}
-                fullWidth label="Host list" name="hostList"
-                inputRef={register({required: "Host is required"})}
-              />
-            </Box>
-            <Box py={1}>
-              <TextField
-                error={Boolean(errors.username)}
-                helperText={errors.username && errors.username.message}
-                fullWidth label="Username" name="username" autoComplete="new-password"
-                inputRef={register({required: "Username is required"})}/>
-            </Box>
-            <Box py={1}>
-              <TextField
-                error={Boolean(errors.password)}
-                helperText={errors.password && errors.password.message}
-                fullWidth label="Password" name="password"
-                type="password" autoComplete="new-password"
-                inputRef={register({required: "Password is required"})}
-              />
-            </Box>
-          </>}
-        </DialogContent>
-        <DialogActions>
-          <Button color="secondary"
-                  size="small"
-                  onClick={handleClose}>
-            Cancel
-          </Button>
-          <Button color="primary"
-                  variant="contained"
-                  size="small"
-                  onClick={handleSubmit(handleOk)}>
-            Ok
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </>
+          <Box py={1}>
+            <TextField
+              error={Boolean(errors.password)}
+              helperText={errors.password && errors.password.message}
+              fullWidth label="Password" name="password"
+              type="password" autoComplete="new-password"
+              inputRef={register({required: "Password is required"})}
+            />
+          </Box>
+        </>}
+      </DialogContent>
+      <DialogActions>
+        <Button color="secondary"
+                size="small"
+                onClick={handleClose}>
+          Cancel
+        </Button>
+        <Button color="primary"
+                variant="contained"
+                size="small"
+                onClick={handleSubmit(handleOk)}>
+          Ok
+        </Button>
+      </DialogActions>
+    </Dialog>
   )
 }
 

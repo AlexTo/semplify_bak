@@ -18,6 +18,7 @@ import org.eclipse.rdf4j.sparqlbuilder.core.SparqlBuilder
 import org.eclipse.rdf4j.sparqlbuilder.core.query.Queries
 import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPatterns
 
+import scala.collection.immutable.HashMap
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.{ExecutionContext, Future}
@@ -286,6 +287,9 @@ class EntityServiceImpl @Inject()(projectService: ProjectService,
   override def findPrefLabel(projectId: String, nodeUri: String): Future[Option[Literal]] =
     projectService.findRepoById(projectId) map {
       case Some((_, repo)) =>
+
+        val prefLang = HashMap("vi" -> 0, "en-us" -> 1, "en-au" -> 2)
+
         val f = repo.getValueFactory
 
         val purlTitle = f.createIRI("http://purl.org/dc/elements/1.1/title")
@@ -306,13 +310,28 @@ class EntityServiceImpl @Inject()(projectService: ProjectService,
           val tq = conn.prepareTupleQuery(QueryLanguage.SPARQL, query.getQueryString)
           val results = tq.evaluate
           var prefLabel = Option.empty[Literal]
-          while (prefLabel.isEmpty && results.hasNext) {
+          var currentLang = Int.MaxValue
+          while (results.hasNext) {
             val bindings = results.next().iterator()
-            while (prefLabel.isEmpty && bindings.hasNext) {
+            while (bindings.hasNext) {
               val value = bindings.next().getValue
               value match {
                 case literal: model.Literal =>
-                  prefLabel = Some(ValueUtils.createValue(projectId, None, literal).asInstanceOf[Literal])
+                  if (prefLabel.isEmpty) {
+                    if (literal.getLanguage.isPresent) {
+                      currentLang = prefLang.getOrElse(literal.getLanguage.get().toLowerCase(), Int.MaxValue)
+                    }
+                    prefLabel = Some(ValueUtils.createValue(projectId, None, literal).asInstanceOf[Literal])
+                  } else {
+                    if (literal.getLanguage.isPresent) {
+                      if (currentLang > prefLang.getOrElse(literal.getLanguage.get().toLowerCase(), Int.MaxValue)) {
+                        currentLang = prefLang.getOrElse(literal.getLanguage.get().toLowerCase(), Int.MaxValue)
+                        prefLabel = Some(ValueUtils.createValue(projectId, None, literal).asInstanceOf[Literal])
+                      }
+                    } else if (currentLang == Int.MaxValue) {
+                      prefLabel = Some(ValueUtils.createValue(projectId, None, literal).asInstanceOf[Literal])
+                    }
+                  }
                 case _ =>
               }
             }
