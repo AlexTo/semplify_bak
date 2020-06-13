@@ -1,4 +1,4 @@
-version: '2.4'
+version: '3.8'
 
 services:
   mongo:
@@ -48,7 +48,6 @@ services:
     image: tenforce/virtuoso
     hostname: virtuoso
     container_name: virtuoso
-    mem_swappiness: 0
     environment:
       SPARQL_UPDATE: "true"
       VIRT_Parameters_NumberOfBuffers: 5140000
@@ -77,26 +76,26 @@ services:
     networks:
       - semplify
 
-#  semplify:
-#    image: tonhudung/semplify
-#    build:
-#      context: ./semplify
-#      args:
-#        REACT_APP_KEYCLOAK_URL: "http://alexto.ddns.net:8080/auth"
-#        REACT_APP_KEYCLOAK_REALM: "semplify"
-#        REACT_APP_KEYCLOAK_CLIENT_ID: "semplify-ui"
-#    hostname: semplify
-#    container_name: semplify
-#    environment:
-#      SEMPLIFY_KEYCLOAK_DISCOVERY_URI: "http://alexto.ddns.net:8080/auth/realms/semplify/.well-known/openid-configuration"
-#      SEMPLIFY_KEYCLOAK_CLIENT_ID: "semplify-services"
-#      SEMPLIFY_RDF4J_URL: "http://rdf4j:8080/rdf4j-server"
-#      SEMPLIFY_MONGO_URL: "mongodb://mongo:27017/semplify"
-#      SEMPLIFY_KEYCLOAK_SECRET: "a82a412d-a847-497e-9423-705910239e4b"
-#    ports:
-#      - 9000:9000
-#    networks:
-#      - semplify
+  semplify:
+    image: tonhudung/semplify
+    build:
+      context: ./semplify
+      args:
+        REACT_APP_KEYCLOAK_URL: "http://alexto.ddns.net:8080/auth" ## Update this to your desired domain
+        REACT_APP_KEYCLOAK_REALM: "semplify"
+        REACT_APP_KEYCLOAK_CLIENT_ID: "semplify-ui"
+    hostname: semplify
+    container_name: semplify
+    environment:
+      SEMPLIFY_RDF4J_URL: "http://rdf4j:8080/rdf4j-server"
+      SEMPLIFY_MONGO_URL: "mongodb://mongo:27017/semplify"
+      SEMPLIFY_KEYCLOAK_DISCOVERY_URI: "http://alexto.ddns.net:8080/auth/realms/semplify/.well-known/openid-configuration"
+      SEMPLIFY_KEYCLOAK_CLIENT_ID: "semplify-services"
+      SEMPLIFY_KEYCLOAK_SECRET: "a82a412d-a847-497e-9423-705910239e4b" ## Update this to the actual secret
+    ports:
+      - 9000:9000
+    networks:
+      - semplify
 
 volumes:
   mongo:

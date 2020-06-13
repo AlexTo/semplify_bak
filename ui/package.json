@@ -130,5 +130,5 @@
     "rimraf": "^3.0.2",
     "typescript": "^3.9.3"
   },
-  "proxy": "http://localhost:9000"
+  "proxy": "http://localhost:9001"
 }

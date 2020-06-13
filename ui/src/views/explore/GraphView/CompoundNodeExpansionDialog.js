@@ -234,7 +234,7 @@ function CompoundNodeExpansionDialog() {
         nodeType: 'iri'
       }
     })
-
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [subj, pred]);
 
   useEffect(() => {
