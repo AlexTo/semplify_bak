@@ -42,13 +42,14 @@ function Graph() {
     entityHubQueries.triplesFromNode, {
       onCompleted: data => {
         const {triplesFromNode} = data;
-        if (triplesFromNode.length === 0) {
+        const {triples} = triplesFromNode
+        if (triples.length === 0) {
           enqueueSnackbar('This node has no other connections', {
             variant: 'success'
           });
           return;
         }
-        dispatch(visualGraphActions.addTriples(triplesFromNode));
+        dispatch(visualGraphActions.addTriples(triples));
       },
       fetchPolicy: 'no-cache'
     });

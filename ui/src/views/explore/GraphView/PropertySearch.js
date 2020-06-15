@@ -78,7 +78,7 @@ function PropertySearch({onSelected}) {
       return;
     }
     if (data && data.searchPreds) {
-      setOptions(data.searchPreds);
+      setOptions(data.searchPreds.searchHits);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, data]);

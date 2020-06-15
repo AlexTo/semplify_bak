@@ -16,6 +16,7 @@ import {
   Search as SearchIcon
 } from 'react-feather';
 import getInitials from 'src/utils/getInitials';
+import {useDebounce} from "../../../hooks";
 
 const useStyles = makeStyles((theme) => ({
   link: {},
@@ -156,8 +157,11 @@ function CompoundNodeExpansionDialog() {
   const [objs, setObjs] = useState([])
   const [selectedObjs, setSelectedObjs] = useState([]);
   const [page, setPage] = useState(0);
+  const [total, setTotal] = useState(0);
   const [limit, setLimit] = useState(5);
-  const [query, setQuery] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+
   const [sort, setSort] = useState(sortOptions[0].value);
 
   const {
@@ -168,7 +172,7 @@ function CompoundNodeExpansionDialog() {
 
   const handleQueryChange = (event) => {
     event.persist();
-    setQuery(event.target.value);
+    setSearchTerm(event.target.value);
   };
 
   const handleSortChange = (event) => {
@@ -197,19 +201,20 @@ function CompoundNodeExpansionDialog() {
     setLimit(event.target.value);
   };
 
-  const filteredObjs = applyFilters(objs, query);
+  const filteredObjs = applyFilters(objs, searchTerm);
   const sortedObjs = applySort(filteredObjs, sort);
-  const paginatedObjs = applyPagination(sortedObjs, page, limit);
 
   const enableBulkOperations = selectedObjs.length > 0;
   const selectedSome = selectedObjs.length > 0 && selectedObjs.length < objs.length;
   const selectedAll = selectedObjs.length === objs.length;
 
   const [loadObjsFromNode] = useLazyQuery(
-    entityHubQueries.objsFromNode, {
+    entityHubQueries.searchObjs, {
       onCompleted: (data) => {
-        const {triplesFromNode} = data;
-        setObjs(triplesFromNode.map(t => t.obj));
+        const {searchObjs} = data;
+        const {searchHits, total} = searchObjs;
+        setTotal(total);
+        setObjs(searchHits.map(t => t.node));
       },
       fetchPolicy: 'no-cache'
     }
@@ -217,11 +222,16 @@ function CompoundNodeExpansionDialog() {
 
   useEffect(() => {
     if (!compoundNodeExpansionDialogOpen) {
+      setSearchTerm('');
       setPage(0);
       setSelectedObjs([])
     }
 
   }, [compoundNodeExpansionDialogOpen]);
+
+  useEffect(() => {
+    setPage(0);
+  }, [debouncedSearchTerm])
 
   useEffect(() => {
     if (!subj || !pred)
@@ -231,11 +241,13 @@ function CompoundNodeExpansionDialog() {
         projectId: subj.projectId,
         subj: subj.id,
         pred: pred.value,
-        nodeType: 'iri'
+        limit,
+        offset: page * limit,
+        term: debouncedSearchTerm
       }
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [subj, pred]);
+  }, [subj, pred, page, limit, debouncedSearchTerm]);
 
   useEffect(() => {
     if (!selectedCompoundNode)
@@ -305,7 +317,7 @@ function CompoundNodeExpansionDialog() {
             }}
             onChange={handleQueryChange}
             placeholder="Search"
-            value={query}
+            value={searchTerm}
             variant="outlined"
           />
           <Box flexGrow={1}/>
@@ -366,7 +378,7 @@ function CompoundNodeExpansionDialog() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {paginatedObjs.map((obj) => {
+                {sortedObjs.map((obj) => {
                   const isSelected = selectedObjs.includes(obj);
                   return (
                     <TableRow
@@ -425,7 +437,7 @@ function CompoundNodeExpansionDialog() {
         </PerfectScrollbar>
         <TablePagination
           component="div"
-          count={filteredObjs.length}
+          count={total}
           onChangePage={handlePageChange}
           onChangeRowsPerPage={handleLimitChange}
           page={page}

@@ -4,6 +4,7 @@ import java.util.Objects
 
 import javax.inject.Inject
 import modules.common.vocabulary.{ASN, DBO}
+import modules.entityhub.models.QueryType.QueryType
 import modules.entityhub.models._
 import modules.entityhub.services.{EntityService, QueryFactory}
 import modules.entityhub.utils.ValueUtils
@@ -64,7 +65,10 @@ class EntityServiceImpl @Inject()(projectService: ProjectService,
 
   override def findTriplesFromNode(projectId: String, graph: Option[String],
                                    subj: String, pred: Option[String],
-                                   nodeType: Option[String], currentUser: String): Future[Seq[Triple]] = {
+                                   nodeType: Option[String],
+                                   currentUser: String,
+                                   limit: Option[Int], offset: Option[Int]): Future[TriplePage] = {
+
     val futureProjRepo = projectService.findRepoById(projectId)
     val futureUserSettings = settingsService.findUserSettings(projectId, currentUser)
     for {
@@ -73,6 +77,9 @@ class EntityServiceImpl @Inject()(projectService: ProjectService,
     } yield {
       projRepo match {
         case Some((_, repo)) =>
+
+          val (lim, off) = calcLimitOffset(limit, offset)
+
           val f = repo.getValueFactory
 
           // here we use user settings to apply filters on nodes and edges
@@ -123,14 +130,24 @@ class EntityServiceImpl @Inject()(projectService: ProjectService,
 
           val predCountFilter = predCount map { p => s"FILTER (?p != <${p._1}>) " } mkString ""
 
-          val q =
+          val graphPattern = "GRAPH ?g { " +
+            "   ?s ?p ?o " +
+            objFilter +
+            (if (pred.isEmpty) predsFilter + predCountFilter else "") +
+            " }"
+
+          val countQ = s"SELECT ${if (pred.isEmpty) "('' AS ?p) " else ""} (COUNT(*) as ?o) ${if (graph.isEmpty) "(<sesame:nil> AS ?g) " else ""} " +
+            "WHERE { " +
+            graphPattern +
+            s" }"
+
+          val mainQ =
             s"SELECT ${if (pred.isEmpty) "?p" else ""} ?o ${if (graph.isEmpty) "?g" else ""} " +
               "WHERE { " +
-              "  GRAPH ?g { " +
-              "   ?s ?p ?o " +
-              objFilter +
-              (if (pred.isEmpty) predsFilter + predCountFilter else "") +
-              " }}"
+              graphPattern +
+              s" } LIMIT $lim OFFSET $off"
+
+          val q = s"SELECT * { { $countQ } UNION { $mainQ } }"
 
           Using(repo.getConnection) { conn =>
             val tq = conn.prepareTupleQuery(QueryLanguage.SPARQL, q)
@@ -143,14 +160,19 @@ class EntityServiceImpl @Inject()(projectService: ProjectService,
             }
             val results = tq.evaluate
             val triples = new ListBuffer[Triple]
+            var total = -1
             while (results.hasNext) {
               val bindings = results.next()
-              val g = if (graph.isEmpty) bindings.getBinding("g").getValue.stringValue() else graph.get
-              val p = ValueUtils.createValue(projectId, Some(g),
-                if (pred.isEmpty) bindings.getBinding("p").getValue else f.createIRI(pred.get))
-              val o = ValueUtils.createValue(projectId, Some(g), bindings.getBinding("o").getValue)
-              val triple = Triple(projectId, Some(g), s.asInstanceOf[IRI], p.asInstanceOf[IRI], o)
-              triples.addOne(triple)
+              if (total < 0) {
+                total = bindings.getValue("o").stringValue().toInt
+              } else {
+                val g = if (graph.isEmpty) bindings.getBinding("g").getValue.stringValue() else graph.get
+                val p = ValueUtils.createValue(projectId, Some(g),
+                  if (pred.isEmpty) bindings.getBinding("p").getValue else f.createIRI(pred.get))
+                val o = ValueUtils.createValue(projectId, Some(g), bindings.getBinding("o").getValue)
+                val triple = Triple(projectId, Some(g), s.asInstanceOf[IRI], p.asInstanceOf[IRI], o)
+                triples.addOne(triple)
+              }
             }
 
             predCount foreach { pc =>
@@ -161,7 +183,8 @@ class EntityServiceImpl @Inject()(projectService: ProjectService,
               triples.addOne(triple)
             }
 
-            triples.toSeq
+            TriplePage(triples.toSeq, lim, off, total)
+
           } match {
             case Success(value) => value
           }
@@ -204,11 +227,17 @@ class EntityServiceImpl @Inject()(projectService: ProjectService,
     }
   }
 
-  override def searchNodes(projectId: String, graph: Option[String], term: String): Future[Seq[SearchHit]] =
+  override def search(projectId: String, graph: Option[String], term: String,
+                      limit: Option[Int], offset: Option[Int], queryType: QueryType,
+                      additionalBindings: Map[String, String] = Map.empty): Future[SearchResult] =
+
     projectService.findRepoById(projectId).map {
       case Some((proj, repo)) =>
         Using(repo.getConnection) { conn =>
-          val q = queryFactory.getQuery(QueryType.SearchNodes, proj, graph)
+
+          val (lim, off) = calcLimitOffset(limit, offset)
+
+          val q = queryFactory.getSearchQuery(queryType, proj, graph, term, limit, offset)
           val f = repo.getValueFactory
 
           val searchHits = new ListBuffer[SearchHit]
@@ -224,65 +253,44 @@ class EntityServiceImpl @Inject()(projectService: ProjectService,
               tq.setBinding("term", f.createLiteral(s"${term.trim}*"))
               tq
           }
+          additionalBindings.foreach(b => tq.setBinding(b._1, f.createIRI(b._2)))
 
           val results = tq.evaluate
+
+          var total = -1
           while (results.hasNext) {
             val bindings = results.next()
-            val g = if (graph.isEmpty) bindings.getBinding("g").getValue.stringValue() else graph.get
-            val s = bindings.getValue("s")
-            if (!searchHits.map(s => s.node.value).contains(s.stringValue())) {
-              val snippet = bindings.getValue("snippet").stringValue()
-              val score = bindings.getValue("sc").stringValue()
-              val node = ValueUtils.createValue(projectId, Some(g), s)
-              val searchHit = SearchHit(node.asInstanceOf[IRI], score.toDouble, snippet)
-              searchHits.addOne(searchHit)
+            if (total < 0) { // a hack to retrieve total number of results. the first row contains the count
+              total = bindings.getValue("s").stringValue().toInt
+            } else {
+              val g = if (graph.isEmpty) bindings.getBinding("g").getValue.stringValue() else graph.get
+              val s = bindings.getValue("s")
+              if (!searchHits.map(s => s.node.value).contains(s.stringValue())) {
+                val snippet = bindings.getValue("snippet").stringValue()
+                val score = bindings.getValue("sc").stringValue()
+                val node = ValueUtils.createValue(projectId, Some(g), s)
+                val searchHit = SearchHit(node.asInstanceOf[IRI], score.toDouble, snippet)
+                searchHits.addOne(searchHit)
+              }
             }
           }
-          searchHits.toSeq
+
+          SearchResult(searchHits.toSeq, lim, off, total)
         } match {
           case Success(value) => value
         }
     }
 
-  override def searchPreds(projectId: String, graph: Option[String], term: String): Future[Seq[SearchHit]]
-  = projectService.findRepoById(projectId).map {
-    case Some((proj, repo)) =>
-      Using(repo.getConnection) { conn =>
-        val q = queryFactory.getQuery(QueryType.SearchPreds, proj, graph)
-        val f = repo.getValueFactory
+  override def searchSubjs(projectId: String, graph: Option[String], term: String, limit: Option[Int], offset: Option[Int]): Future[SearchResult]
+  = search(projectId: String, graph: Option[String], term: String, limit: Option[Int], offset: Option[Int], QueryType.SearchSubjs)
 
-        val searchHits = new ListBuffer[SearchHit]
+  override def searchPreds(projectId: String, graph: Option[String], term: String, limit: Option[Int], offset: Option[Int]): Future[SearchResult]
+  = search(projectId: String, graph: Option[String], term: String, limit: Option[Int], offset: Option[Int], QueryType.SearchPreds)
 
-        val tq = proj.repository.`type` match {
-          case RepositoryType.Virtuoso =>
-            conn.prepareTupleQuery(QueryLanguage.SPARQL,
-              q.replace(
-                "?term",
-                s"""\"${term.split(" ").map(s => s"'${s.trim}'").mkString(" AND ")}\""""))
-          case _ =>
-            val tq = conn.prepareTupleQuery(QueryLanguage.SPARQL, q)
-            tq.setBinding("term", f.createLiteral(s"${term.trim}*"))
-            tq
-        }
-
-        val results = tq.evaluate
-        while (results.hasNext) {
-          val bindings = results.next()
-          val g = if (graph.isEmpty) bindings.getBinding("g").getValue.stringValue() else graph.get
-          val s = bindings.getValue("p")
-          if (!searchHits.map(s => s.node.value).contains(s.stringValue())) {
-            val snippet = bindings.getValue("snippet").stringValue()
-            val score = bindings.getValue("sc").stringValue()
-            val node = ValueUtils.createValue(projectId, Some(g), s)
-            val searchHit = SearchHit(node.asInstanceOf[IRI], score.toDouble, snippet)
-            searchHits.addOne(searchHit)
-          }
-        }
-        searchHits.toSeq
-      } match {
-        case Success(value) => value
-      }
-  }
+  override def searchObjs(projectId: String, graph: Option[String], term: String,
+                          limit: Option[Int], offset: Option[Int], subj: String, pred: String): Future[SearchResult]
+  = search(projectId: String, graph: Option[String], term: String, limit: Option[Int], offset: Option[Int],
+    QueryType.SearchObjs, HashMap("s1" -> subj, "s2" -> pred))
 
   override def findPrefLabel(projectId: String, nodeUri: String): Future[Option[Literal]] =
     projectService.findRepoById(projectId) map {
@@ -422,4 +430,19 @@ class EntityServiceImpl @Inject()(projectService: ProjectService,
       }
     case None => Option.empty[IRI]
   }
+
+  def calcLimitOffset(limit: Option[Int], offset: Option[Int]): (Int, Int) = {
+    val lim = limit match {
+      case Some(value) => if (value > 10000 || value < 0) 10000 else value
+      case None => 10000
+    }
+
+    val off = offset match {
+      case Some(value) => if (value < 0) 0 else value
+      case _ => 0
+    }
+    (lim, off)
+  }
+
+
 }

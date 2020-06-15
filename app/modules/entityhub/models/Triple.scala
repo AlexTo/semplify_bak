@@ -1,6 +1,6 @@
 package modules.entityhub.models
 
-import play.api.libs.json.{Json, OWrites, Reads}
+import play.api.libs.json.{Json, OFormat}
 
 case class Triple(projectId: String,
                   graph: Option[String],
@@ -9,7 +9,6 @@ case class Triple(projectId: String,
                   obj: Value)
 
 object Triple {
-  implicit val reads: Reads[Triple] = Json.reads[Triple]
-  implicit val writes: OWrites[Triple] = Json.writes[Triple]
+  implicit val format: OFormat[Triple] = Json.format[Triple]
 }
 

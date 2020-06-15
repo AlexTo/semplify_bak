@@ -1,7 +1,7 @@
 package modules.graphql.services.impl
 
 import javax.inject.Inject
-import modules.entityhub.models.{GraphGet, IRI, Literal, SearchHit, Triple}
+import modules.entityhub.models._
 import modules.entityhub.services.EntityService
 import modules.fileserver.models.FileInfo
 import modules.fileserver.services.FileService
@@ -32,8 +32,10 @@ class GraphQLServiceImpl @Inject()(entityService: EntityService,
 
   override def triplesFromNode(projectId: String, graph: Option[String],
                                subj: String, pred: Option[String],
-                               nodeType: Option[String], currentUser: String): Future[Seq[Triple]]
-  = entityService.findTriplesFromNode(projectId, graph, subj, pred, nodeType, currentUser)
+                               nodeType: Option[String], currentUser: String,
+                               limit: Option[Int], offset: Option[Int]): Future[TriplePage]
+
+  = entityService.findTriplesFromNode(projectId, graph, subj, pred, nodeType, currentUser, limit, offset)
 
   override def triplesToNode(projectId: String, graph: Option[String], to: String): Future[Seq[Triple]]
   = entityService.findTriplesToNode(projectId, graph, to)
@@ -41,11 +43,16 @@ class GraphQLServiceImpl @Inject()(entityService: EntityService,
   override def projects(): Future[Seq[ProjectGet]]
   = projectService.findAll
 
-  override def searchNodes(projectId: String, graph: Option[String], term: String): Future[Seq[SearchHit]]
-  = entityService.searchNodes(projectId, graph, term)
+  override def searchSubjs(projectId: String, graph: Option[String],
+                           term: String, limit: Option[Int], offset: Option[Int]): Future[SearchResult]
+  = entityService.searchSubjs(projectId, graph, term, limit, offset)
 
-  override def searchPreds(projectId: String, graph: Option[String], term: String): Future[Seq[SearchHit]]
-  = entityService.searchPreds(projectId, graph, term)
+  override def searchPreds(projectId: String, graph: Option[String],
+                           term: String, limit: Option[Int], offset: Option[Int]): Future[SearchResult]
+  = entityService.searchPreds(projectId, graph, term, limit, offset)
+
+  override def searchObjs(projectId: String, graph: Option[String], term: String, limit: Option[Int], offset: Option[Int], subj: String, pred: String): Future[SearchResult]
+  = entityService.searchObjs(projectId, graph, term, limit, offset, subj, pred)
 
   override def prefLabel(projectId: String, uri: String): Future[Option[Literal]]
   = entityService.findPrefLabel(projectId, uri)
@@ -74,4 +81,6 @@ class GraphQLServiceImpl @Inject()(entityService: EntityService,
 
   override def updateVisualGraphSettings(settingsId: String, visualGraph: VisualGraph): Future[Int]
   = settingsService.updateVisualGraphSettings(settingsId, visualGraph)
+
+
 }

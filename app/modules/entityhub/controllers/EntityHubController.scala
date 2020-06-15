@@ -7,7 +7,8 @@ import modules.rml.services.RMLService
 import play.api.Logger
 import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Using
 
 @Singleton
 class EntityHubController @Inject()(rmlService: RMLService,
@@ -34,6 +35,19 @@ class EntityHubController @Inject()(rmlService: RMLService,
               conn.close()
             }
           })
+    }
+  }
+
+  def test2(dataFileId: String, mappingFileId: String, projectId: String, graph: String): Action[AnyContent]
+  = Action.async { _ =>
+    projectService.findRepoById(projectId) map {
+      case Some((_, repo)) =>
+        Using(repo.getConnection) { conn =>
+
+
+
+        }
+        Ok
     }
   }
 

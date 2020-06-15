@@ -7,5 +7,6 @@ import modules.project.models.ProjectGet
 
 @ImplementedBy(classOf[QueryFactoryImpl])
 trait QueryFactory {
-  def getQuery(queryType: QueryType, proj: ProjectGet, graph: Option[String]): String
+  def getSearchQuery(queryType: QueryType, proj: ProjectGet, graph: Option[String], term: String,
+                     limit: Option[Int] = None, offset: Option[Int] = None): String
 }

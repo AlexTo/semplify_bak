@@ -1,7 +1,8 @@
 package modules.entityhub.services
 
 import com.google.inject.ImplementedBy
-import modules.entityhub.models.{GraphGet, IRI, Literal, Triple, SearchHit}
+import modules.entityhub.models.QueryType.QueryType
+import modules.entityhub.models.{GraphGet, IRI, Literal, SearchHit, SearchResult, Triple, TriplePage}
 import modules.entityhub.services.impl.EntityServiceImpl
 
 import scala.concurrent.Future
@@ -13,13 +14,24 @@ trait EntityService {
 
   def findTriplesFromNode(projectId: String, graph: Option[String],
                           subj: String, pred: Option[String], nodeType: Option[String],
-                          currentUser: String): Future[Seq[Triple]]
+                          currentUser: String,
+                          limit: Option[Int] = Some(100),
+                          offset: Option[Int] = Some(0)): Future[TriplePage]
 
   def findTriplesToNode(projectId: String, graph: Option[String], obj: String): Future[Seq[Triple]]
 
-  def searchNodes(projectId: String, graph: Option[String], term: String): Future[Seq[SearchHit]]
+  def search(projectId: String, graph: Option[String], term: String,
+             limit: Option[Int], offset: Option[Int], queryType: QueryType,
+             additionalBindings: Map[String, String]): Future[SearchResult]
 
-  def searchPreds(projectId: String, graph: Option[String], term: String): Future[Seq[SearchHit]]
+  def searchSubjs(projectId: String, graph: Option[String], term: String,
+                  limit: Option[Int], offset: Option[Int]): Future[SearchResult]
+
+  def searchPreds(projectId: String, graph: Option[String], term: String,
+                  limit: Option[Int], offset: Option[Int]): Future[SearchResult]
+
+  def searchObjs(projectId: String, graph: Option[String], term: String,
+                 limit: Option[Int], offset: Option[Int], subj: String, pred: String): Future[SearchResult]
 
   def findPrefLabel(projectId: String, nodeUri: String): Future[Option[Literal]]
 

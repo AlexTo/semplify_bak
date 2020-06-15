@@ -18,6 +18,6 @@ object Value {
   implicit val writes: Writes[Value] = Writes[Value] {
     case iri: IRI => IRI.format.writes(iri)
     case literal: Literal => Literal.format.writes(literal)
-    case bNode: BNode => BNode.writes.writes(bNode)
+    case bNode: BNode => BNode.format.writes(bNode)
   }
 }

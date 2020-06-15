@@ -27,7 +27,9 @@ function NodeDetailsPanel() {
   const [loadTriplesFromNode] = useLazyQuery(
     entityHubQueries.triplesFromNode, {
       onCompleted: (data) => {
-        setTriples(data.triplesFromNode);
+        const {triplesFromNode} = data;
+        const {triples} = triplesFromNode;
+        setTriples(triples);
       },
       fetchPolicy: 'no-cache'
     }

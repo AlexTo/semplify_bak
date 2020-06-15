@@ -1,7 +1,7 @@
 package modules.graphql.services
 
 import com.google.inject.ImplementedBy
-import modules.entityhub.models.{GraphGet, IRI, Literal, SearchHit, Triple}
+import modules.entityhub.models._
 import modules.fileserver.models.FileInfo
 import modules.graphql.services.impl.GraphQLServiceImpl
 import modules.project.models.ProjectGet
@@ -23,7 +23,8 @@ trait GraphQLService {
 
   def triplesFromNode(projectId: String, graph: Option[String],
                       subj: String, pred: Option[String],
-                      nodeType: Option[String], currentUser: String): Future[Seq[Triple]]
+                      nodeType: Option[String], currentUser: String,
+                      limit: Option[Int], offset: Option[Int]): Future[TriplePage]
 
   def triplesToNode(projectId: String, graph: Option[String], to: String): Future[Seq[Triple]]
 
@@ -31,9 +32,14 @@ trait GraphQLService {
 
   def tasks(): Future[Seq[TaskGet]]
 
-  def searchNodes(projectId: String, graph: Option[String], term: String): Future[Seq[SearchHit]]
+  def searchSubjs(projectId: String, graph: Option[String], term: String,
+                  limit: Option[Int], offset: Option[Int]): Future[SearchResult]
 
-  def searchPreds(projectId: String, graph: Option[String], term: String): Future[Seq[SearchHit]]
+  def searchPreds(projectId: String, graph: Option[String], term: String,
+                  limit: Option[Int], offset: Option[Int]): Future[SearchResult]
+
+  def searchObjs(projectId: String, graph: Option[String], term: String,
+                 limit: Option[Int], offset: Option[Int], subj: String, pred: String): Future[SearchResult]
 
   def crawledPages(projectId: String): Future[Seq[PageGet]]
 

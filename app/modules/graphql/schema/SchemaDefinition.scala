@@ -47,12 +47,7 @@ object SchemaDefinition {
       Field("graph", OptionType(StringType), resolve = _.value.graph),
       Field("value", StringType, resolve = _.value.value),
       Field("prefLabel", OptionType(Literal), resolve = ctx => ctx.ctx.svc.prefLabel(ctx.value.projectId, ctx.value.value)),
-      Field("depiction", OptionType(IRI), resolve = ctx => ctx.ctx.svc.depiction(ctx.value.projectId, ctx.value.value)),
-      Field("outGoingPredicates", ListType(Triple),
-        resolve = ctx => ctx.ctx.svc.triplesFromNode(ctx.value.projectId, None, ctx.value.value,
-          None, None, ctx.ctx.username)),
-      Field("incomingPredicates", ListType(Triple),
-        resolve = ctx => ctx.ctx.svc.triplesToNode(ctx.value.projectId, None, ctx.value.value))))
+      Field("depiction", OptionType(IRI), resolve = ctx => ctx.ctx.svc.depiction(ctx.value.projectId, ctx.value.value))))
 
   val CompoundNode: ObjectType[GraphQLContext, CompoundNode] = ObjectType("CompoundNode", "A compound virtual node",
     interfaces[GraphQLContext, CompoundNode](Value),
@@ -94,6 +89,14 @@ object SchemaDefinition {
       Field("subj", IRI, resolve = _.value.subj),
       Field("pred", IRI, resolve = _.value.pred),
       Field("obj", Value, resolve = _.value.obj)))
+
+  val TriplePage: ObjectType[GraphQLContext, TriplePage] = ObjectType("TriplePage",
+    () => fields[GraphQLContext, TriplePage](
+      Field("triples", ListType(Triple), resolve = _.value.triples),
+      Field("total", IntType, resolve = _.value.total),
+      Field("limit", IntType, resolve = _.value.limit),
+      Field("offset", IntType, resolve = _.value.offset)
+    ))
 
   val WebPage: ObjectType[GraphQLContext, PageGet] = ObjectType("WebPage",
     () => fields[GraphQLContext, PageGet](
@@ -180,6 +183,15 @@ object SchemaDefinition {
       Field("snippet", StringType, resolve = _.value.snippet),
       Field("score", FloatType, resolve = _.value.score)
     ))
+
+  val SearchResult: ObjectType[GraphQLContext, SearchResult] = ObjectType("SearchResult",
+    () => fields[GraphQLContext, SearchResult](
+      Field("searchHits", ListType(SearchHit), resolve = _.value.searchHits),
+      Field("total", IntType, resolve = _.value.total),
+      Field("limit", IntType, resolve = _.value.limit),
+      Field("offset", IntType, resolve = _.value.offset)
+    )
+  )
   val Graph: ObjectType[GraphQLContext, GraphGet] = ObjectType("Graph",
     () => fields[GraphQLContext, GraphGet](
       Field("projectId", StringType, resolve = _.value.projectId),
@@ -214,12 +226,16 @@ object SchemaDefinition {
   val UsernameArg: Argument[Option[String]] = Argument("username", OptionInputType(StringType))
   val GraphArg: Argument[Option[String]] = Argument("graph", OptionInputType(StringType))
   val SubjArg: Argument[String] = Argument("subj", StringType)
-  val PredArg: Argument[Option[String]] = Argument("pred", OptionInputType(StringType))
+  val PredArg: Argument[String] = Argument("pred", StringType)
+  val OptPredArg: Argument[Option[String]] = Argument("pred", OptionInputType(StringType))
   val NodeTypeArg: Argument[Option[String]] = Argument("nodeType", OptionInputType(StringType))
   val GraphsArg: Argument[Seq[String @@ FromInput.CoercedScalaResult]] = Argument("graphs", ListInputType(StringType))
   val FileIdsArg: Argument[Seq[String @@ FromInput.CoercedScalaResult]] = Argument("fileIds", ListInputType(StringType))
   val UriArg: Argument[String] = Argument("uri", StringType)
   val TermArg: Argument[String] = Argument("term", StringType)
+
+  val LimitArg: Argument[Option[Int]] = Argument("limit", OptionInputType(IntType))
+  val OffsetArg: Argument[Option[Int]] = Argument("offset", OptionInputType(IntType))
 
   val VisualGraphSettingsInputArg: Argument[VisualGraph] = Argument("visualGraph", VisualGraphSettingsInput)
 
@@ -229,10 +245,10 @@ object SchemaDefinition {
         arguments = ProjectIdArg :: GraphArg :: UriArg :: Nil,
         resolve = ctx => ctx.ctx.svc.node(ctx arg ProjectIdArg, ctx arg GraphArg, ctx arg UriArg)
       ),
-      Field("triplesFromNode", ListType(Triple),
-        arguments = ProjectIdArg :: GraphArg :: SubjArg :: PredArg :: NodeTypeArg :: Nil,
+      Field("triplesFromNode", TriplePage,
+        arguments = ProjectIdArg :: GraphArg :: SubjArg :: OptPredArg :: NodeTypeArg :: LimitArg :: OffsetArg :: Nil,
         resolve = ctx => ctx.ctx.svc.triplesFromNode(ctx arg ProjectIdArg, ctx arg GraphArg, ctx arg SubjArg,
-          ctx arg PredArg, ctx arg NodeTypeArg, ctx.ctx.username)
+          ctx arg OptPredArg, ctx arg NodeTypeArg, ctx.ctx.username, ctx arg LimitArg, ctx arg OffsetArg)
       ),
       Field("settings", Settings,
         arguments = ProjectIdArg :: UsernameArg :: Nil,
@@ -256,13 +272,20 @@ object SchemaDefinition {
         resolve = ctx => ctx.ctx.svc.crawledPages(ctx arg ProjectIdArg)
       ),
 
-      Field("searchNodes", ListType(SearchHit),
-        arguments = ProjectIdArg :: GraphArg :: TermArg :: Nil,
-        resolve = ctx => ctx.ctx.svc.searchNodes(ctx arg ProjectIdArg, ctx arg GraphArg, ctx arg TermArg)
+      Field("searchSubjs", SearchResult,
+        arguments = ProjectIdArg :: GraphArg :: TermArg :: LimitArg :: OffsetArg :: Nil,
+        resolve = ctx => ctx.ctx.svc.searchSubjs(ctx arg ProjectIdArg, ctx arg GraphArg,
+          ctx arg TermArg, ctx arg LimitArg, ctx arg OffsetArg)
       ),
-      Field("searchPreds", ListType(SearchHit),
-        arguments = ProjectIdArg :: GraphArg :: TermArg :: Nil,
-        resolve = ctx => ctx.ctx.svc.searchPreds(ctx arg ProjectIdArg, ctx arg GraphArg, ctx arg TermArg)
+      Field("searchPreds", SearchResult,
+        arguments = ProjectIdArg :: GraphArg :: TermArg :: LimitArg :: OffsetArg :: Nil,
+        resolve = ctx => ctx.ctx.svc.searchPreds(ctx arg ProjectIdArg, ctx arg GraphArg
+          , ctx arg TermArg, ctx arg LimitArg, ctx arg OffsetArg)
+      ),
+      Field("searchObjs", SearchResult,
+        arguments = ProjectIdArg :: GraphArg :: TermArg :: LimitArg :: OffsetArg :: SubjArg :: PredArg :: Nil,
+        resolve = ctx => ctx.ctx.svc.searchObjs(ctx arg ProjectIdArg, ctx arg GraphArg
+          , ctx arg TermArg, ctx arg LimitArg, ctx arg OffsetArg, ctx arg SubjArg, ctx arg PredArg)
       ),
       Field("sparqlQueries", ListType(SparqlQuery),
         arguments = ProjectIdArg :: Nil,
