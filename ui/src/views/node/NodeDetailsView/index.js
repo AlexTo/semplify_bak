@@ -24,7 +24,6 @@ function NodeDetailsView({location}) {
   const classes = useStyles();
   const [node, setNode] = useState(null);
   const {search} = location;
-  const dispatch = useDispatch();
   const params = new URLSearchParams(search);
   const uri = params.get('uri');
   const projectId = params.get('projectId');

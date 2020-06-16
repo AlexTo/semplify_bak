@@ -1,13 +1,13 @@
 import React from "react";
 import {
   Card, Box, Typography,
-  CardMedia, Avatar, Link, makeStyles
+  Avatar, Link, makeStyles
 } from "@material-ui/core";
 import clsx from "clsx";
 import getInitials from "../../../utils/getInitials";
 import {useSelector} from "react-redux";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   root: {},
 }));
 

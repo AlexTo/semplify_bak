@@ -46,6 +46,7 @@ function SearchView({location}) {
         offset
       }
     })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [q, t, offset, limit, projectId])
 
   return (
