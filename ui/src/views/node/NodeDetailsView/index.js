@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from "react";
 import {Avatar, Box, Container, Typography, makeStyles} from "@material-ui/core";
-import {useDispatch} from "react-redux";
 import Page from "../../../components/Page";
 import {useLazyQuery} from "@apollo/react-hooks";
 import {entityHubQueries} from "../../../graphql";
@@ -42,6 +41,7 @@ function NodeDetailsView({location}) {
         projectId, uri
       }
     })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [uri, projectId])
 
   if (!uri || !projectId) return null;
