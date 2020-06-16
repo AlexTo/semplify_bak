@@ -69,40 +69,6 @@ const sortOptions = [
   }
 ];
 
-function applyFilters(objs, query) {
-  return objs.filter((obj) => {
-    let matches = true;
-
-    if (query) {
-      const properties = ['prefLabel.value', 'value'];
-      let containsQuery = false;
-
-      properties.forEach((property) => {
-        let o = obj;
-        let i;
-        const path = property.split('.');
-        for (i = 0; i < path.length - 1; i++)
-          o = o[path[i]];
-
-        const value = o[path[i]];
-        if (value.toLowerCase().includes(query.toLowerCase())) {
-          containsQuery = true;
-        }
-      });
-
-      if (!containsQuery) {
-        matches = false;
-      }
-    }
-
-    return matches;
-  });
-}
-
-function applyPagination(objs, page, limit) {
-  return objs.slice(page * limit, page * limit + limit);
-}
-
 function descendingComparator(a, b, orderBy) {
   let i;
   const path = orderBy.split('.');
@@ -201,8 +167,7 @@ function CompoundNodeExpansionDialog() {
     setLimit(event.target.value);
   };
 
-  const filteredObjs = applyFilters(objs, searchTerm);
-  const sortedObjs = applySort(filteredObjs, sort);
+  const sortedObjs = applySort(objs, sort);
 
   const enableBulkOperations = selectedObjs.length > 0;
   const selectedSome = selectedObjs.length > 0 && selectedObjs.length < objs.length;

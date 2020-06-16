@@ -52,6 +52,7 @@ services:
       SPARQL_UPDATE: "true"
       VIRT_Parameters_NumberOfBuffers: 5140000
       VIRT_Parameters_MaxDirtyBuffers: 4000000
+      VIRT_Parameters_MaxSortedTopRows: 50000
     volumes:
       - virtuoso:/data
     ports:

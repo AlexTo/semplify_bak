@@ -22,11 +22,13 @@ class QueryFactoryImpl extends QueryFactory {
           graphPattern +
           "}"
 
-        val mainQ = "SELECT ?s ?sc (?o AS ?snippet) " + (if (graph.isEmpty) "?g" else "") +
+        // http://vos.openlinksw.com/owiki/wiki/VOS/VirtTipsAndTricksHowToHandleBandwidthLimitExceed
+        val mainQ = "SELECT  ?s ?sc ?snippet ?g WHERE { " +
+          "SELECT ?s ?sc (?o AS ?snippet) " + (if (graph.isEmpty) "?g" else "") +
           " WHERE { " +
           graphPattern +
           " } " +
-          "ORDER BY DESC (?sc) " +
+          "ORDER BY DESC (?sc) } " +
           (if (limit.isDefined) s"LIMIT ${limit.get} " else "") +
           (if (offset.isDefined) s"OFFSET ${offset.get} " else "")
 

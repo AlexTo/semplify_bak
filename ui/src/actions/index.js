@@ -5,3 +5,4 @@ export * from './webCrawlerActions';
 export * from './yasqeActions';
 export * from './sessionActions';
 export * from './importActions';
+export * from './searchActions';

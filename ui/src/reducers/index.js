@@ -6,6 +6,7 @@ import {webCrawlerReducer} from "./webCrawlerReducer";
 import {yasqeReducer} from "./yasqeReducer";
 import {sparqlReducer} from "./sparqlReducer";
 import {importReducer} from "./importReducer";
+import {searchReducer} from "./searchReducer";
 
 const rootReducer = combineReducers({
   projectReducer,
@@ -14,7 +15,8 @@ const rootReducer = combineReducers({
   webCrawlerReducer,
   yasqeReducer,
   sparqlReducer,
-  importReducer
+  importReducer,
+  searchReducer
 });
 
 export default rootReducer;

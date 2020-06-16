@@ -2,8 +2,8 @@ import gql from "graphql-tag";
 
 export const entityHubQueries = {
   searchSubjs: gql`
-    query searchSubjs($projectId: String!, $graph: String, $term: String!) {
-      searchSubjs(projectId: $projectId, graph: $graph, term: $term) {
+    query searchSubjs($projectId: String!, $graph: String, $term: String!, $limit: Int, $offset: Int) {
+      searchSubjs(projectId: $projectId, graph: $graph, term: $term, limit: $limit, offset: $offset) {
         searchHits {
           node {
             projectId
@@ -86,6 +86,9 @@ export const entityHubQueries = {
       node(projectId: $projectId, graph: $graph, uri: $uri) {
         value
         prefLabel {
+          value
+        }
+        depiction {
           value
         }
       }

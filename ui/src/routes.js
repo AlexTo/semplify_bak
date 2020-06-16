@@ -31,6 +31,16 @@ const routesConfig = [
       },
       {
         exact: true,
+        path: '/node',
+        component: lazy(() => import('src/views/node/NodeDetailsView'))
+      },
+      {
+        exact: true,
+        path: '/search',
+        component: lazy(() => import('src/views/search/SearchView'))
+      },
+      {
+        exact: true,
         path: '/graphs',
         component: lazy(() => import('src/views/explore/GraphListView'))
       },
