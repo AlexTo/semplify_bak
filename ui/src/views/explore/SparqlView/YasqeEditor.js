@@ -15,6 +15,7 @@ import {
 } from "@material-ui/core";
 import {useKeycloak} from "@react-keycloak/web";
 import {sparqlActions} from "../../../actions/sparqlActions";
+import {Alert} from "@material-ui/lab";
 
 
 function YasqeEditor({id}) {
@@ -27,6 +28,7 @@ function YasqeEditor({id}) {
   const {theme} = useSelector(state => state.yasqeReducer);
   const [yasqe, setYasqe] = useState(null)
   const {executeTab, queryResults} = useSelector(state => state.sparqlReducer);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const yasqe = new Yasqe(document.getElementById("yasqe"), {
@@ -37,16 +39,13 @@ function YasqeEditor({id}) {
     });
 
     yasqe.on("queryResults", (instance, results) => {
+      setError(null);
       dispatch(sparqlActions.queryFinished(id, results));
     });
 
     yasqe.on("queryResponse", (instance, req, duration) => {
       setDuration(duration);
     });
-
-    yasqe.on("error", instance => {
-      console.log(instance)
-    })
 
     setYasqe(yasqe);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -62,6 +61,8 @@ function YasqeEditor({id}) {
       headers: {
         Authorization: `Bearer ${keycloak.token}`
       },
+    }).catch(e => {
+      setError(e.response.body.error.exception.description);
     });
     dispatch(sparqlActions.tabExecuting(id));
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -86,7 +87,8 @@ function YasqeEditor({id}) {
   return (
     <>
       <div id="yasqe"/>
-      {queryResults[id] && <PerfectScrollbar>
+      {error && <Alert severity="error">{error}</Alert>}
+      {!error && queryResults[id] && <PerfectScrollbar>
         <Box px={2}>
           {duration > 0 && <Typography
             variant="h6"

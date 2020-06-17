@@ -123,7 +123,6 @@ object SchemaDefinition {
       Field("createdBy", StringType, resolve = _.value.createdBy),
       Field("created", LongType, resolve = _.value.created)))
 
-
   val ColorMapSettings: ObjectType[GraphQLContext, ColorMap] = ObjectType("ColorMapSettings",
     () => fields[GraphQLContext, ColorMap](
       Field("key", StringType, resolve = _.value.key),
