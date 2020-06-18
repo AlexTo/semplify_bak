@@ -20,7 +20,7 @@ import {
 import {visualGraphActions} from "../../../actions";
 import PropertySearch from "./PropertySearch";
 import {useLazyQuery, useMutation} from "@apollo/react-hooks";
-import {settingsQueries} from "../../../graphql/settingsQueries";
+import {settingsQueries} from "../../../graphql";
 import {useKeycloak} from "@react-keycloak/web";
 import {Delete as DeleteIcon} from '@material-ui/icons';
 

@@ -85,7 +85,6 @@ class FileServiceImpl @Inject()(reactiveMongoApi: ReactiveMongoApi)
     })
   }
 
-
   override def findAll(projectId: String): Future[Seq[FileInfo]] = collection map {
     _.find(Json.obj("metadata.projectId" -> projectId), Option.empty[JsObject]).cursor[FileInfo]()
   } flatMap {

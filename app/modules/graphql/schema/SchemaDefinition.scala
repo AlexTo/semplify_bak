@@ -230,6 +230,7 @@ object SchemaDefinition {
   val NodeTypeArg: Argument[Option[String]] = Argument("nodeType", OptionInputType(StringType))
   val GraphsArg: Argument[Seq[String @@ FromInput.CoercedScalaResult]] = Argument("graphs", ListInputType(StringType))
   val FileIdsArg: Argument[Seq[String @@ FromInput.CoercedScalaResult]] = Argument("fileIds", ListInputType(StringType))
+  val SparqlQueryIdsArg: Argument[Seq[String @@ FromInput.CoercedScalaResult]] = Argument("queryIds", ListInputType(StringType))
   val UriArg: Argument[String] = Argument("uri", StringType)
   val TermArg: Argument[String] = Argument("term", StringType)
 
@@ -297,6 +298,10 @@ object SchemaDefinition {
       Field("deleteGraphs", ListType(Graph),
         arguments = ProjectIdArg :: GraphsArg :: Nil,
         resolve = ctx => ctx.ctx.svc.deleteGraphs(ctx arg ProjectIdArg, ctx arg GraphsArg)
+      ),
+      Field("deleteQueries", IntType,
+        arguments = ProjectIdArg :: SparqlQueryIdsArg :: Nil,
+        resolve = ctx => ctx.ctx.svc.deleteQueries(ctx arg ProjectIdArg, ctx arg SparqlQueryIdsArg)
       ),
       Field("deleteFiles", ListType(FileInfo),
         arguments = ProjectIdArg :: FileIdsArg :: Nil,

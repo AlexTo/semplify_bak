@@ -322,7 +322,7 @@ function Results({className, ...rest}) {
       </PerfectScrollbar>
       <OkCancelDialog open={deleteDialogOpen}
                       onClose={() => setDeleteDialogOpen(false)}
-                      message="Are you sure you want to delete selected graphs?"
+                      message="Are you sure you want to delete the selected graphs?"
                       onOk={handleDeleteConfirm}/>
     </Card>
   );

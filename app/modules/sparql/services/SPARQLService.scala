@@ -11,4 +11,5 @@ trait SPARQLService {
   def executeQuery(projectId: String, query: String): Future[QueryResult]
 
   def executeUpdate(projectId: String, update: String)
+
 }

@@ -9,10 +9,13 @@ import {
   SPARQL_OPEN_SAVE_QUERY_DIALOG,
   SPARQL_CLOSE_SAVE_QUERY_DIALOG,
   SPARQL_OPEN_OPEN_QUERY_DIALOG,
-  SPARQL_CLOSE_OPEN_QUERY_DIALOG,
+  SPARQL_CLOSE_OPEN_QUERY_DIALOG, SPARQL_OPEN_QUERIES,
 } from "../actions/sparqlActions";
 
 import _ from 'lodash';
+import {v4 as uuidv4} from "uuid";
+import YasqeEditor from "../views/explore/SparqlView/YasqeEditor";
+import React from "react";
 
 const initialState = {
   executingQueries: [],
@@ -29,9 +32,10 @@ export const sparqlReducer = (state = initialState, action) => {
   const {tabs, currentTab} = state;
   switch (action.type) {
     case SPARQL_NEW_TAB:
+      const tab = newTab(null, '', '', null);
       return Object.assign({}, state, {
-        tabs: [...state.tabs, action.tab],
-        currentTab: state.tabs.length === 0 ? action.tab : state.currentTab
+        tabs: [...state.tabs, tab],
+        currentTab: tab
       })
 
     case SPARQL_REMOVE_TAB:
@@ -88,6 +92,19 @@ export const sparqlReducer = (state = initialState, action) => {
         })
       })
 
+    case SPARQL_OPEN_QUERIES:
+      const {queries} = action;
+      const unopenedQueries = queries.filter(q => !state.tabs.find(t => t.serverId === q.id));
+      console.log(state.tabs);
+      console.log(unopenedQueries);
+      if (unopenedQueries.length > 0) {
+        return Object.assign({}, state, {
+          tabs: [...state.tabs, ...(unopenedQueries.map(q => newTab(q.id, q.title, q.description, q.query)))]
+        })
+      } else {
+        return state;
+      }
+
     case SPARQL_OPEN_SAVE_QUERY_DIALOG:
       return Object.assign({}, state, {
         saveQueryDialogOpen: true
@@ -109,5 +126,17 @@ export const sparqlReducer = (state = initialState, action) => {
       })
     default:
       return state
+  }
+}
+
+function newTab(serverId, title, description, query) {
+  const key = uuidv4()
+  return {
+    key: key,
+    value: key,
+    title: title,
+    description: description,
+    serverId: serverId,
+    editor: () => <YasqeEditor id={key} query={query}/>
   }
 }

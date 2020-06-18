@@ -25,7 +25,7 @@ import {
   Search as SearchIcon
 } from 'react-feather';
 import {useQuery} from "@apollo/react-hooks";
-import {webCrawlerQueries} from "../../../graphql/webCrawlerQueries";
+import {webCrawlerQueries} from "../../../graphql";
 import {useSelector} from "react-redux";
 
 const categoryOptions = [

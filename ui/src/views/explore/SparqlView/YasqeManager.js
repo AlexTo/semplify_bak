@@ -1,12 +1,10 @@
 import React, {useEffect} from "react";
 import {
-  Tabs, Tab, Card, Box, IconButton, makeStyles, Grid
+  Tabs, Tab, Card, Box, IconButton, makeStyles, Grid, Tooltip
 } from "@material-ui/core";
 import {
   Plus as PlusIcon
 } from "react-feather";
-import YasqeEditor from "./YasqeEditor";
-import {v4 as uuidv4} from 'uuid';
 import CloseIcon from '@material-ui/icons/Close';
 import {useSnackbar} from "notistack";
 import Toolbar from "./Toolbar";
@@ -30,13 +28,12 @@ function YasqeManager() {
   const classes = useStyles();
   const dispatch = useDispatch();
   const {tabs, currentTab} = useSelector(state => state.sparqlReducer)
-
   const {enqueueSnackbar} = useSnackbar();
 
   useEffect(() => {
     if (tabs.length === 0) {
       yasqeService.cleanup();
-      handleNewTab();
+      dispatch(sparqlActions.newTab())
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -48,19 +45,6 @@ function YasqeManager() {
     }
     dispatch(sparqlActions.setCurrentTabByKey(value))
   };
-
-  const handleNewTab = (title, description, serverId, query) => {
-    const key = uuidv4()
-    const tab = {
-      key: key,
-      value: key,
-      title: title,
-      description: description,
-      serverId: null,
-      editor: () => <YasqeEditor id={key} query={query}/>
-    }
-    dispatch(sparqlActions.newTab(tab))
-  }
 
   const handleCloseTab = (e, tab) => {
     e.stopPropagation();
@@ -85,15 +69,17 @@ function YasqeManager() {
             {tabs.map(t =>
               <Tab component="div" key={t.key}
                    value={t.key} label={
-                <div className={classes.tab}>
-                  {t.title ? t.title : 'New *'}
-                  <Box flexGrow={1}/>
-                  <IconButton onClick={(e) => handleCloseTab(e, t)}>
-                    <CloseIcon fontSize="small"/>
-                  </IconButton>
-                </div>
+                <Tooltip title={t.description} placement="bottom-start">
+                  <div className={classes.tab}>
+                    {t.title ? t.title : 'New *'}
+                    <Box flexGrow={1}/>
+                    <IconButton onClick={(e) => handleCloseTab(e, t)}>
+                      <CloseIcon fontSize="small"/>
+                    </IconButton>
+                  </div>
+                </Tooltip>
               }/>)}
-            <Tab key={0} value={0} label={<PlusIcon/>} onClick={() => handleNewTab()}/>
+            <Tab key={0} value={0} label={<PlusIcon/>} onClick={() => dispatch(sparqlActions.newTab())}/>
           </Tabs>
         </Grid>
         <Grid item>

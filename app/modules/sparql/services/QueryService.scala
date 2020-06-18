@@ -16,4 +16,6 @@ trait QueryService {
   def findById(id: String): Future[Option[QueryGet]]
 
   def findAll(projectId: String): Future[Seq[QueryGet]]
+
+  def delete(projectId: String, queryIds: Seq[String]): Future[Int]
 }

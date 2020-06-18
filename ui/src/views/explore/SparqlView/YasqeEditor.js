@@ -18,7 +18,7 @@ import {sparqlActions} from "../../../actions/sparqlActions";
 import {Alert} from "@material-ui/lab";
 
 
-function YasqeEditor({id}) {
+function YasqeEditor({id, query}) {
   const {projectId} = useSelector(state => state.projectReducer);
   const [duration, setDuration] = useState(-1);
   const dispatch = useDispatch();
@@ -37,7 +37,9 @@ function YasqeEditor({id}) {
       theme: theme,
       persistenceId: `yasqe_${id}`
     });
-
+    if (query) {
+      yasqe.setValue(query);
+    }
     yasqe.on("queryResults", (instance, results) => {
       setError(null);
       dispatch(sparqlActions.queryFinished(id, results));

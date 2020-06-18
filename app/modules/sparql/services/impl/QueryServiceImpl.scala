@@ -68,4 +68,17 @@ class QueryServiceImpl @Inject()(reactiveMongoApi: ReactiveMongoApi,
       _.collect[Seq](-1, Cursor.FailOnError[Seq[QueryGet]]())
     }
   }
+
+  override def delete(projectId: String, queryIds: Seq[String]): Future[Int] = BSONObjectID.parse(projectId) match {
+    case Success(id) => collection flatMap { coll =>
+      val deleteBuilder = coll.delete(ordered = false)
+      val deletes = Future.sequence(queryIds.map(q =>
+        deleteBuilder.element(BSONDocument(
+          "_id" -> BSONObjectID.parse(q).get,
+          "projectId" -> id))))
+      deletes.flatMap(ops => deleteBuilder.many(ops)) map {
+        _.n
+      }
+    }
+  }
 }

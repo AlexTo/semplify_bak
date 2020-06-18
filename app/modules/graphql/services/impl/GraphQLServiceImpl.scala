@@ -82,5 +82,6 @@ class GraphQLServiceImpl @Inject()(entityService: EntityService,
   override def updateVisualGraphSettings(settingsId: String, visualGraph: VisualGraph): Future[Int]
   = settingsService.updateVisualGraphSettings(settingsId, visualGraph)
 
-
+  override def deleteQueries(projectId: String, queryIds: Seq[String]): Future[Int]
+  = queryService.delete(projectId, queryIds)
 }
