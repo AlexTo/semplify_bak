@@ -4,7 +4,8 @@ export const SPARQL_REMOVE_TAB = "SPARQL/REMOVE_TAB";
 export const SPARQL_UPDATE_CURRENT_TAB = "SPARQL/UPDATE_CURRENT_TAB";
 export const SPARQL_SET_CURRENT_TAB = "SPARQL/SET_CURRENT_TAB";
 export const SPARQL_TAB_EXECUTING = "SPARQL/TAB_EXECUTING";
-export const SPARQL_QUERY_FINISHED = "SPARQL/QUERY_FINISHED";
+export const SPARQL_QUERY_RESULTS = "SPARQL/QUERY_RESULTS";
+export const SPARQL_QUERY_ERROR = "SPARQL/QUERY_ERROR";
 export const SPARQL_OPEN_QUERIES = "SPARQL/OPEN_QUERIES";
 export const SPARQL_OPEN_SAVE_QUERY_DIALOG = "SPARQL/OPEN_SAVE_QUERY_DIALOG"
 export const SPARQL_CLOSE_SAVE_QUERY_DIALOG = "SPARQL/CLOSE_SAVE_QUERY_DIALOG"
@@ -17,7 +18,8 @@ export const sparqlActions = {
   updateCurrentTab,
   setCurrentTabByKey,
   execute,
-  queryFinished,
+  queryResults,
+  queryError,
   tabExecuting,
   openQueries,
   openSaveQueryDialog,
@@ -97,9 +99,16 @@ function tabExecuting(tabId) {
   })
 }
 
-function queryFinished(tabId, results) {
+function queryResults(tabId, results) {
   return dispatch => dispatch({
-    type: SPARQL_QUERY_FINISHED,
+    type: SPARQL_QUERY_RESULTS,
     tabId, results
+  })
+}
+
+function queryError(tabId, error) {
+  return dispatch => dispatch({
+    type: SPARQL_QUERY_ERROR,
+    tabId, error
   })
 }

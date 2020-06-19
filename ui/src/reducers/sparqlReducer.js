@@ -1,7 +1,7 @@
 import {
   SPARQL_EXECUTE_TAB,
   SPARQL_NEW_TAB,
-  SPARQL_QUERY_FINISHED,
+  SPARQL_QUERY_RESULTS,
   SPARQL_TAB_EXECUTING,
   SPARQL_REMOVE_TAB,
   SPARQL_SET_CURRENT_TAB,
@@ -9,13 +9,14 @@ import {
   SPARQL_OPEN_SAVE_QUERY_DIALOG,
   SPARQL_CLOSE_SAVE_QUERY_DIALOG,
   SPARQL_OPEN_OPEN_QUERY_DIALOG,
-  SPARQL_CLOSE_OPEN_QUERY_DIALOG, SPARQL_OPEN_QUERIES,
+  SPARQL_CLOSE_OPEN_QUERY_DIALOG, SPARQL_OPEN_QUERIES, SPARQL_QUERY_ERROR,
 } from "../actions/sparqlActions";
 
 import _ from 'lodash';
 import {v4 as uuidv4} from "uuid";
 import YasqeEditor from "../views/explore/SparqlView/YasqeEditor";
 import React from "react";
+import {yasqeService} from "../services";
 
 const initialState = {
   executingQueries: [],
@@ -46,6 +47,7 @@ export const sparqlReducer = (state = initialState, action) => {
       } else if (!remainingTabs.find(t => t === currentTab)) {
         newCurrentTab = remainingTabs[remainingTabs.length - 1]
       }
+      yasqeService.clearStorage(action.tab.key);
       return Object.assign({}, state, {
         tabs: remainingTabs,
         currentTab: newCurrentTab,
@@ -84,12 +86,22 @@ export const sparqlReducer = (state = initialState, action) => {
         executingQueries: [action.tabId, ...state.executingQueries]
       })
 
-    case SPARQL_QUERY_FINISHED:
+    case SPARQL_QUERY_RESULTS:
       return Object.assign({}, state, {
         executingQueries: state.executingQueries.filter(q => q !== action.tabId),
         queryResults: Object.assign({}, state.queryResults, {
           [action.tabId]: action.results,
-        })
+        }),
+        queryErrors: _.omit(state.queryErrors, [action.tabId]),
+      })
+
+    case SPARQL_QUERY_ERROR:
+      return Object.assign({}, state, {
+        executingQueries: state.executingQueries.filter(q => q !== action.tabId),
+        queryErrors: Object.assign({}, state.queryErrors, {
+          [action.tabId]: action.error,
+        }),
+        queryResults: _.omit(state.queryResults, [action.tabId]),
       })
 
     case SPARQL_OPEN_QUERIES:

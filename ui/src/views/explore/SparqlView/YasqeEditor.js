@@ -16,6 +16,7 @@ import {
 import {useKeycloak} from "@react-keycloak/web";
 import {sparqlActions} from "../../../actions/sparqlActions";
 import {Alert} from "@material-ui/lab";
+import {yasqeService} from "../../../services";
 
 
 function YasqeEditor({id, query}) {
@@ -27,8 +28,7 @@ function YasqeEditor({id, query}) {
   const [limit, setLimit] = useState(5);
   const {theme} = useSelector(state => state.yasqeReducer);
   const [yasqe, setYasqe] = useState(null)
-  const {executeTab, queryResults} = useSelector(state => state.sparqlReducer);
-  const [error, setError] = useState(null);
+  const {executeTab, queryResults, queryErrors} = useSelector(state => state.sparqlReducer);
 
   useEffect(() => {
     const yasqe = new Yasqe(document.getElementById("yasqe"), {
@@ -37,12 +37,11 @@ function YasqeEditor({id, query}) {
       theme: theme,
       persistenceId: `yasqe_${id}`
     });
-    if (query) {
+    if (query && !yasqeService.hasInstance(id)) {
       yasqe.setValue(query);
     }
     yasqe.on("queryResults", (instance, results) => {
-      setError(null);
-      dispatch(sparqlActions.queryFinished(id, results));
+      dispatch(sparqlActions.queryResults(id, results));
     });
 
     yasqe.on("queryResponse", (instance, req, duration) => {
@@ -64,7 +63,7 @@ function YasqeEditor({id, query}) {
         Authorization: `Bearer ${keycloak.token}`
       },
     }).catch(e => {
-      setError(e.response.body.error.exception.description);
+      dispatch(sparqlActions.queryError(id, e.response.body.error.exception.description))
     });
     dispatch(sparqlActions.tabExecuting(id));
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -89,8 +88,8 @@ function YasqeEditor({id, query}) {
   return (
     <>
       <div id="yasqe"/>
-      {error && <Alert severity="error">{error}</Alert>}
-      {!error && queryResults[id] && <PerfectScrollbar>
+      {queryErrors[id] && <Alert severity="error">{queryErrors[id]}</Alert>}
+      {queryResults[id] && <PerfectScrollbar>
         <Box px={2}>
           {duration > 0 && <Typography
             variant="h6"

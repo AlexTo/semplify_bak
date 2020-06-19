@@ -2,7 +2,9 @@ import Yasqe from "@triply/yasqe";
 
 export const yasqeService = {
   getQuery,
-  cleanup
+  cleanup,
+  clearStorage,
+  hasInstance,
 }
 
 function getQuery(id) {
@@ -16,4 +18,12 @@ function cleanup() {
       localStorage.removeItem(key);
     }
   }
+}
+
+function clearStorage(id) {
+  localStorage.removeItem(`yasqe_${id}`);
+}
+
+function hasInstance(id) {
+  return localStorage.getItem(`yasqe_${id}`)
 }

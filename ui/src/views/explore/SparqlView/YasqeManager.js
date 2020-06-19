@@ -93,7 +93,7 @@ function YasqeManager() {
         alignItems="center">
         {currentTab && tabs.map(t => {
           const Editor = t.editor;
-          return currentTab.key === t.key && <Editor key={t.key}/>;
+          return currentTab.key === t.key && <Editor key={t.key} query={t.query}/>;
         })}
       </Box>
       <SaveQueryDialog/>
