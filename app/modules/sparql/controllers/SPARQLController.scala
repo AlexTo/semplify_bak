@@ -1,11 +1,11 @@
 package modules.sparql.controllers
 
 import javax.inject.{Inject, Singleton}
-import modules.security.services.ProfileService
-import modules.sparql.models.QueryCreate
+import modules.common.models.{Error, ErrorBody}
 import modules.sparql.services.SPARQLService
-import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents, Request, Result}
+import org.eclipse.rdf4j.repository.http.HTTPQueryEvaluationException
+import play.api.libs.json.Json
+import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -15,11 +15,14 @@ class SPARQLController @Inject()(sparqlService: SPARQLService,
                                 (implicit ec: ExecutionContext) extends AbstractController(cc) {
   def execute(projectId: String): Action[AnyContent] = Action.async { request =>
     request.body.asFormUrlEncoded match {
-      case Some(kv) => {
+      case Some(kv) =>
         kv.get("query") match {
           case Some(query) =>
             sparqlService.executeQuery(projectId, query.head) map { queryResult =>
               Ok(Json.toJson(queryResult))
+            } recover {
+              case e: HTTPQueryEvaluationException =>
+                BadRequest(Json.toJson(Error(ErrorBody(e.getMessage))))
             }
           case _ => kv.get("update") match {
             case Some(update) =>
@@ -29,7 +32,6 @@ class SPARQLController @Inject()(sparqlService: SPARQLService,
               Future(BadRequest)
           }
         }
-      }
     }
   }
 

@@ -63,7 +63,7 @@ function YasqeEditor({id, query}) {
         Authorization: `Bearer ${keycloak.token}`
       },
     }).catch(e => {
-      dispatch(sparqlActions.queryError(id, e.response.body.error.exception.description))
+      dispatch(sparqlActions.queryError(id, e.response.body.error.message))
     });
     dispatch(sparqlActions.tabExecuting(id));
     // eslint-disable-next-line react-hooks/exhaustive-deps

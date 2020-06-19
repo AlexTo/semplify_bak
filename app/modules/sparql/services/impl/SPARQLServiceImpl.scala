@@ -10,7 +10,7 @@ import org.eclipse.rdf4j.query.QueryLanguage
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.{ExecutionContext, Future}
 import scala.jdk.CollectionConverters._
-import scala.util.{Success, Using}
+import scala.util.{Failure, Success, Using}
 
 class SPARQLServiceImpl @Inject()(projectService: ProjectService)
                                  (implicit ec: ExecutionContext) extends SPARQLService {
@@ -32,6 +32,7 @@ class SPARQLServiceImpl @Inject()(projectService: ProjectService)
           queryResult
         } match {
           case Success(value) => value
+          case Failure(e) => throw e
         }
     }
 
