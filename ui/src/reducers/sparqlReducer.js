@@ -107,8 +107,6 @@ export const sparqlReducer = (state = initialState, action) => {
     case SPARQL_OPEN_QUERIES:
       const {queries} = action;
       const unopenedQueries = queries.filter(q => !state.tabs.find(t => t.serverId === q.id));
-      console.log(state.tabs);
-      console.log(unopenedQueries);
       if (unopenedQueries.length > 0) {
         return Object.assign({}, state, {
           tabs: [...state.tabs, ...(unopenedQueries.map(q => newTab(q.id, q.title, q.description, q.query)))]
