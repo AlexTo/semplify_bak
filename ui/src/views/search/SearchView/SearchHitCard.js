@@ -5,7 +5,8 @@ import {
 } from "@material-ui/core";
 import clsx from "clsx";
 import getInitials from "../../../utils/getInitials";
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
+import {nodeDetailsActions} from "../../../actions/nodeDetailsActions";
 
 const useStyles = makeStyles(() => ({
   root: {},
@@ -16,7 +17,13 @@ function SearchHitCard({searchHit}) {
   const classes = useStyles();
   const {node} = searchHit;
   const {projectId} = useSelector(state => state.projectReducer);
+  const dispatch = useDispatch();
   const {depiction, prefLabel, value} = node;
+
+  const handleClick = () => {
+    dispatch(nodeDetailsActions.setNode(projectId, value));
+    dispatch(nodeDetailsActions.openNodeDetailsViewDialog());
+  }
 
   return (
     <Card
@@ -39,8 +46,8 @@ function SearchHitCard({searchHit}) {
             <Link
               color="textPrimary"
               variant="h5"
-              href={`/node?uri=${encodeURIComponent(value)}&projectId=${projectId}`}
-              target="_blank">
+              onClick={handleClick}
+              href="#">
               {prefLabel.value}
             </Link>
             <Typography

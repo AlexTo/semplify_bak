@@ -18,6 +18,7 @@ import {useLazyQuery} from "@apollo/react-hooks";
 import {entityHubQueries} from "../../../graphql";
 import {useSnackbar} from "notistack";
 import {visualGraphActions} from "../../../actions";
+import {nodeDetailsActions} from "../../../actions/nodeDetailsActions";
 
 cytoscape.use(avsdf);
 cytoscape.use(cola);
@@ -108,6 +109,11 @@ function Graph() {
     })
   }
 
+  const viewNode = (node) => {
+    dispatch(nodeDetailsActions.setNode(projectId, node.id()));
+    dispatch(nodeDetailsActions.openNodeDetailsViewDialog());
+  }
+
   const createMenuItems = (node) => {
     const commands = [
       {
@@ -127,7 +133,7 @@ function Graph() {
     if (!node.data().isCompound) {
       commands.splice(2, 0, {
         content: renderToString(<ExternalLink size={16}/>),
-        select: () => window.open(`/node?uri=${encodeURIComponent(node.id())}&projectId=${projectId}`, "_blank")
+        select: () => viewNode(node)
       });
     } else {
       commands.splice(2, 0, {
