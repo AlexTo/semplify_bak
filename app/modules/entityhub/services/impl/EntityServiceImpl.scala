@@ -3,6 +3,7 @@ package modules.entityhub.services.impl
 import java.util.Objects
 
 import javax.inject.Inject
+import modules.common.exceptions.ProjectNotFoundException
 import modules.common.vocabulary.{ASN, DBO}
 import modules.entityhub.models.QueryType.QueryType
 import modules.entityhub.models._
@@ -23,7 +24,7 @@ import scala.collection.immutable.HashMap
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Success, Using}
+import scala.util.{Failure, Success, Using}
 
 class EntityServiceImpl @Inject()(projectService: ProjectService,
                                   settingsService: SettingsService,
@@ -59,7 +60,9 @@ class EntityServiceImpl @Inject()(projectService: ProjectService,
           } else None
         } match {
           case Success(value) => value
+          case Failure(e) => throw e
         }
+      case None => throw ProjectNotFoundException(projectId)
     }
   }
 
@@ -77,7 +80,6 @@ class EntityServiceImpl @Inject()(projectService: ProjectService,
     } yield {
       projRepo match {
         case Some((_, repo)) =>
-
           val (lim, off) = calcLimitOffset(limit, offset)
 
           val f = repo.getValueFactory
@@ -124,7 +126,7 @@ class EntityServiceImpl @Inject()(projectService: ProjectService,
                 predCount.toMap
               } match {
                 case Success(value) => value
-                case _ => Map.empty
+                case Failure(e) => throw e
               }
             } else Map.empty
 
@@ -187,7 +189,9 @@ class EntityServiceImpl @Inject()(projectService: ProjectService,
 
           } match {
             case Success(value) => value
+            case Failure(e) => throw e
           }
+        case None => throw ProjectNotFoundException(projectId)
       }
     }
   }
@@ -223,7 +227,9 @@ class EntityServiceImpl @Inject()(projectService: ProjectService,
           triples.toSeq
         } match {
           case Success(value) => value
+          case Failure(e) => throw e
         }
+      case None => throw ProjectNotFoundException(projectId)
     }
   }
 
@@ -278,7 +284,9 @@ class EntityServiceImpl @Inject()(projectService: ProjectService,
           SearchResult(searchHits.toSeq, lim, off, total)
         } match {
           case Success(value) => value
+          case Failure(e) => throw e
         }
+      case None => throw ProjectNotFoundException(projectId)
     }
 
   override def searchSubjs(projectId: String, graph: Option[String], term: String, limit: Option[Int], offset: Option[Int]): Future[SearchResult]
@@ -353,16 +361,17 @@ class EntityServiceImpl @Inject()(projectService: ProjectService,
             if (separator < 0)
               separator = 0
             if (separator < nodeUri.length - 1) {
-              prefLabel = Some(Literal(projectId, None, nodeUri.substring(separator + 1), None, RDF.LANGSTRING.stringValue()))
+              prefLabel = Some(Literal(projectId, None, nodeUri.substring(separator + 1), None, None))
             } else {
-              prefLabel = Some(Literal(projectId, None, "", None, RDF.LANGSTRING.stringValue()))
+              prefLabel = Some(Literal(projectId, None, "", None, None))
             }
           }
           prefLabel
         } match {
           case Success(value) => value
+          case Failure(e) => throw e
         }
-      case None => Option.empty[Literal]
+      case None => throw ProjectNotFoundException(projectId)
     }
 
   override def findGraphs(projectId: String): Future[Seq[GraphGet]] = projectService.findRepoById(projectId) map {
@@ -383,6 +392,7 @@ class EntityServiceImpl @Inject()(projectService: ProjectService,
         }
       }
       graphs.toSeq
+    case None => throw ProjectNotFoundException(projectId)
   }
 
   override def deleteGraphs(projectId: String, graphs: Seq[String]): Future[Seq[GraphGet]]
@@ -393,6 +403,7 @@ class EntityServiceImpl @Inject()(projectService: ProjectService,
         graphs.foreach(g => conn.clear(f.createIRI(g)))
       }
       graphs.map(g => GraphGet(projectId, g))
+    case None => throw ProjectNotFoundException(projectId)
   }
 
   override def findDepiction(projectId: String, nodeUri: String): Future[Option[IRI]]
@@ -427,6 +438,7 @@ class EntityServiceImpl @Inject()(projectService: ProjectService,
         depiction
       } match {
         case Success(value) => value
+        case Failure(e) => throw e
       }
     case None => Option.empty[IRI]
   }
@@ -444,5 +456,39 @@ class EntityServiceImpl @Inject()(projectService: ProjectService,
     (lim, off)
   }
 
+  override def deleteTriple(projectId: String,
+                            graph: String, subj: String, pred: String,
+                            objType: String, objValue: String, lang: Option[String],
+                            dataType: Option[String]): Future[Triple] = projectService.findRepoById(projectId) map {
+    case Some((_, repo)) =>
+      val f = repo.getValueFactory
+      Using(repo.getConnection) { conn =>
+        val obj = if ("iri".equals(objType.toLowerCase)) {
+          f.createIRI(objValue)
+        } else {
+          if (lang.isDefined) {
+            f.createLiteral(objValue, lang.get)
+          } else if (dataType.isDefined) {
+            f.createLiteral(objValue, f.createIRI(dataType.get))
+          } else {
+            f.createLiteral(objValue)
+          }
+        }
+        conn.remove(f.createIRI(subj), f.createIRI(pred), obj, f.createIRI(graph))
 
+      } match {
+        case Success(_) =>
+          val obj = if ("iri".equals(objType.toLowerCase)) {
+            IRI(projectId, Some(graph), objValue)
+          } else {
+            Literal(projectId, Some(graph), objValue, lang, dataType)
+          }
+          Triple(projectId, Some(graph),
+            subj = IRI(projectId, Some(graph), subj),
+            pred = IRI(projectId, Some(graph), pred),
+            obj = obj)
+        case Failure(e) => throw e
+      }
+    case None => throw ProjectNotFoundException(projectId)
+  }
 }

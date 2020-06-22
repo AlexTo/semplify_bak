@@ -58,4 +58,10 @@ trait GraphQLService {
   def deleteFiles(projectId: String, fileIds: Seq[String]): Future[Seq[FileInfo]]
 
   def deleteQueries(projectId: String, queryIds: Seq[String]): Future[Int]
+
+  def deleteTriple(projectId: String, graph: String,
+                   subj: String, pred: String,
+                   objType: String, objValue: String,
+                   lang: Option[String],
+                   dataType: Option[String]): Future[Triple]
 }

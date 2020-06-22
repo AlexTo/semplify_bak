@@ -8,9 +8,16 @@ import {v4 as uuidv4} from 'uuid';
 import {useLazyQuery} from '@apollo/react-hooks';
 import {entityHubQueries} from '../../../graphql';
 import FieldEditor from './FieldEditor';
+import {Pagination} from "@material-ui/lab";
+
+function applyPagination(triples, page, limit) {
+  return triples.slice(page * limit, page * limit + limit);
+}
 
 function NodeDetailsPanel() {
   const [node, setNode] = useState(null);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
   const [triples, setTriples] = useState([]);
   const {projectId} = useSelector((state) => state.projectReducer);
   const {selectedNode} = useSelector((state) => state.visualGraphReducer);
@@ -55,8 +62,13 @@ function NodeDetailsPanel() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedNode]);
 
+  const handlePageChange = (event, value) => {
+    setPage(value)
+  }
 
   if (!selectedNode) return null;
+
+  const paginatedTriples = applyPagination(triples, page - 1, limit);
 
   return (
     <PerfectScrollbar
@@ -72,11 +84,21 @@ function NodeDetailsPanel() {
         </Tooltip>
       </Box>}
 
-      {triples.map((t) => (
+      {paginatedTriples.map((t) => (
         <Box px={2} py={1} key={uuidv4()}>
-          <FieldEditor pred={t}/>
+          <FieldEditor triple={t}/>
         </Box>
       ))}
+      {triples.length > 0 && <Box
+        mt={6}
+        display="flex"
+        justifyContent="center"
+      >
+        <Pagination
+          count={Math.ceil(triples.length / limit)}
+          page={page}
+          onChange={handlePageChange}/>
+      </Box>}
     </PerfectScrollbar>
   );
 }

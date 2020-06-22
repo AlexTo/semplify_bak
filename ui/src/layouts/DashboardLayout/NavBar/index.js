@@ -17,7 +17,6 @@ import {
 } from '@material-ui/core';
 import {
   Hexagon as HexagonIcon,
-  Globe as GlobeIcon,
   Upload as UploadIcon,
   Code as CodeIcon,
   Trello as TrelloIcon,
@@ -56,11 +55,6 @@ const navConfig = [
         title: 'Import',
         icon: UploadIcon,
         href: '/import'
-      },
-      {
-        title: 'Web Crawler',
-        icon: GlobeIcon,
-        href: '/web-crawler'
       },
       {
         title: 'RDF Mapping Language',

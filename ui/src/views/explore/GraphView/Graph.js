@@ -35,6 +35,7 @@ function Graph() {
   const [cy, setCy] = useState(null);
   const {theme} = useSelector(state => state.cyReducer)
   const {enqueueSnackbar} = useSnackbar();
+  const {projectId} = useSelector(state => state.projectReducer);
   const {nodes, edges, centerFocus, fit, layout, refreshLayout} = useSelector(state => state.visualGraphReducer)
   const dispatch = useDispatch();
 
@@ -126,7 +127,7 @@ function Graph() {
     if (!node.data().isCompound) {
       commands.splice(2, 0, {
         content: renderToString(<ExternalLink size={16}/>),
-        select: () => window.open(node.id(), "_blank")
+        select: () => window.open(`/node?uri=${encodeURIComponent(node.id())}&projectId=${projectId}`, "_blank")
       });
     } else {
       commands.splice(2, 0, {

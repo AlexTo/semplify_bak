@@ -73,7 +73,7 @@ object SchemaDefinition {
       Field("graph", OptionType(StringType), resolve = _.value.graph),
       Field("value", StringType, resolve = _.value.value),
       Field("lang", OptionType(StringType), resolve = _.value.lang),
-      Field("dataType", StringType, resolve = _.value.dataType)))
+      Field("dataType", OptionType(StringType), resolve = _.value.dataType)))
 
   val BNode: ObjectType[GraphQLContext, BNode] = ObjectType("BNode", "An RDF BNode",
     interfaces[GraphQLContext, BNode](Value),
@@ -223,10 +223,17 @@ object SchemaDefinition {
   val ProjectIdArg: Argument[String] = Argument("projectId", StringType)
   val SettingsIdArg: Argument[String] = Argument("settingsId", StringType)
   val UsernameArg: Argument[Option[String]] = Argument("username", OptionInputType(StringType))
-  val GraphArg: Argument[Option[String]] = Argument("graph", OptionInputType(StringType))
+  val OptGraphArg: Argument[Option[String]] = Argument("graph", OptionInputType(StringType))
+  val GraphArg: Argument[String] = Argument("graph", StringType)
+
   val SubjArg: Argument[String] = Argument("subj", StringType)
   val PredArg: Argument[String] = Argument("pred", StringType)
   val OptPredArg: Argument[Option[String]] = Argument("pred", OptionInputType(StringType))
+  val ObjValueArg: Argument[String] = Argument("objValue", StringType)
+  val ObjTypeArg: Argument[String] = Argument("objType", StringType)
+  val OptLangArg: Argument[Option[String]] = Argument("lang", OptionInputType(StringType))
+  val OptDataTypeArg: Argument[Option[String]] = Argument("dataType", OptionInputType(StringType))
+
   val NodeTypeArg: Argument[Option[String]] = Argument("nodeType", OptionInputType(StringType))
   val GraphsArg: Argument[Seq[String @@ FromInput.CoercedScalaResult]] = Argument("graphs", ListInputType(StringType))
   val FileIdsArg: Argument[Seq[String @@ FromInput.CoercedScalaResult]] = Argument("fileIds", ListInputType(StringType))
@@ -242,12 +249,12 @@ object SchemaDefinition {
   val Query: ObjectType[GraphQLContext, Unit] = ObjectType(
     "Query", fields[GraphQLContext, Unit](
       Field("node", OptionType(IRI),
-        arguments = ProjectIdArg :: GraphArg :: UriArg :: Nil,
-        resolve = ctx => ctx.ctx.svc.node(ctx arg ProjectIdArg, ctx arg GraphArg, ctx arg UriArg)
+        arguments = ProjectIdArg :: OptGraphArg :: UriArg :: Nil,
+        resolve = ctx => ctx.ctx.svc.node(ctx arg ProjectIdArg, ctx arg OptGraphArg, ctx arg UriArg)
       ),
       Field("triplesFromNode", TriplePage,
-        arguments = ProjectIdArg :: GraphArg :: SubjArg :: OptPredArg :: NodeTypeArg :: LimitArg :: OffsetArg :: Nil,
-        resolve = ctx => ctx.ctx.svc.triplesFromNode(ctx arg ProjectIdArg, ctx arg GraphArg, ctx arg SubjArg,
+        arguments = ProjectIdArg :: OptGraphArg :: SubjArg :: OptPredArg :: NodeTypeArg :: LimitArg :: OffsetArg :: Nil,
+        resolve = ctx => ctx.ctx.svc.triplesFromNode(ctx arg ProjectIdArg, ctx arg OptGraphArg, ctx arg SubjArg,
           ctx arg OptPredArg, ctx arg NodeTypeArg, ctx.ctx.username, ctx arg LimitArg, ctx arg OffsetArg)
       ),
       Field("settings", Settings,
@@ -273,18 +280,18 @@ object SchemaDefinition {
       ),
 
       Field("searchSubjs", SearchResult,
-        arguments = ProjectIdArg :: GraphArg :: TermArg :: LimitArg :: OffsetArg :: Nil,
-        resolve = ctx => ctx.ctx.svc.searchSubjs(ctx arg ProjectIdArg, ctx arg GraphArg,
+        arguments = ProjectIdArg :: OptGraphArg :: TermArg :: LimitArg :: OffsetArg :: Nil,
+        resolve = ctx => ctx.ctx.svc.searchSubjs(ctx arg ProjectIdArg, ctx arg OptGraphArg,
           ctx arg TermArg, ctx arg LimitArg, ctx arg OffsetArg)
       ),
       Field("searchPreds", SearchResult,
-        arguments = ProjectIdArg :: GraphArg :: TermArg :: LimitArg :: OffsetArg :: Nil,
-        resolve = ctx => ctx.ctx.svc.searchPreds(ctx arg ProjectIdArg, ctx arg GraphArg
+        arguments = ProjectIdArg :: OptGraphArg :: TermArg :: LimitArg :: OffsetArg :: Nil,
+        resolve = ctx => ctx.ctx.svc.searchPreds(ctx arg ProjectIdArg, ctx arg OptGraphArg
           , ctx arg TermArg, ctx arg LimitArg, ctx arg OffsetArg)
       ),
       Field("searchObjs", SearchResult,
-        arguments = ProjectIdArg :: GraphArg :: TermArg :: LimitArg :: OffsetArg :: SubjArg :: PredArg :: Nil,
-        resolve = ctx => ctx.ctx.svc.searchObjs(ctx arg ProjectIdArg, ctx arg GraphArg
+        arguments = ProjectIdArg :: OptGraphArg :: TermArg :: LimitArg :: OffsetArg :: SubjArg :: PredArg :: Nil,
+        resolve = ctx => ctx.ctx.svc.searchObjs(ctx arg ProjectIdArg, ctx arg OptGraphArg
           , ctx arg TermArg, ctx arg LimitArg, ctx arg OffsetArg, ctx arg SubjArg, ctx arg PredArg)
       ),
       Field("sparqlQueries", ListType(SparqlQuery),
@@ -302,6 +309,11 @@ object SchemaDefinition {
       Field("deleteQueries", IntType,
         arguments = ProjectIdArg :: SparqlQueryIdsArg :: Nil,
         resolve = ctx => ctx.ctx.svc.deleteQueries(ctx arg ProjectIdArg, ctx arg SparqlQueryIdsArg)
+      ),
+      Field("deleteTriple", Triple,
+        arguments = ProjectIdArg :: GraphArg :: SubjArg :: PredArg :: ObjValueArg :: ObjTypeArg :: OptLangArg :: OptDataTypeArg :: Nil,
+        resolve = ctx => ctx.ctx.svc.deleteTriple(ctx arg ProjectIdArg, ctx arg GraphArg, ctx arg SubjArg, ctx arg PredArg,
+          ctx arg ObjTypeArg, ctx arg ObjValueArg, ctx arg OptLangArg, ctx arg OptDataTypeArg)
       ),
       Field("deleteFiles", ListType(FileInfo),
         arguments = ProjectIdArg :: FileIdsArg :: Nil,

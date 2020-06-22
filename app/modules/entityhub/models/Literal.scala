@@ -7,7 +7,7 @@ case class Literal(override val projectId: String,
                    override val graph: Option[String],
                    override val value: String,
                    lang: Option[String],
-                   dataType: String) extends Value
+                   dataType: Option[String]) extends Value
 
 object Literal {
   implicit val format: OFormat[Literal] = Json.format[Literal]

@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import {TextField, Tooltip} from "@material-ui/core";
 import {useDebounce} from "../../../hooks";
 
-function FieldEditor({pred: triple}) {
+function FieldEditor({triple}) {
 
   const [value, setValue] = useState(triple.obj.value)
   const debouncedValue = useDebounce(value, 500);

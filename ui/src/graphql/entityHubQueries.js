@@ -150,6 +150,13 @@ export const entityHubQueries = {
       }
     }
   `,
+  deleteTriple: gql`
+    mutation deleteTriple($projectId: String!, $graph: String!, $subj: String!, $pred: String!, $objType: String!, $objValue: String!, $dataType: String, $lang: String) {
+      deleteTriple(projectId: $projectId, graph: $graph, subj: $subj, pred: $pred, objType: $objType, objValue: $objValue, dataType: $dataType, lang: $lang) {
+        projectId
+      }
+    }
+  `,
   objsFromNode: gql`
     query triplesFromNode($projectId: String!, $graph: String, $subj: String!, $pred: String, $nodeType: String, $limit: Int, $offset: Int) {
       triplesFromNode(projectId: $projectId, graph: $graph, subj: $subj, pred: $pred, nodeType: $nodeType, limit: $limit, offset: $offset) {

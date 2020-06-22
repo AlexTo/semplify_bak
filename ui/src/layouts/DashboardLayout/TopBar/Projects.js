@@ -23,8 +23,7 @@ function Projects() {
   const actionRef = useRef(null);
   const [isMenuOpen, setMenuOpen] = useState(false);
   const [projects, setProjects] = useState([]);
-  const projectReducer = useSelector(state => state.projectReducer);
-  const {projectTitle} = projectReducer;
+  const {projectTitle} = useSelector(state => state.projectReducer);
   const {data} = useQuery(projectQueries.projects);
   const dispatch = useDispatch();
 
