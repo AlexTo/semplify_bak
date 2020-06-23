@@ -17,7 +17,7 @@ function applyPagination(triples, page, limit) {
 function NodeDetailsPanel() {
   const [node, setNode] = useState(null);
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
+  const limit = 10;
   const [triples, setTriples] = useState([]);
   const {projectId} = useSelector((state) => state.projectReducer);
   const {selectedNode} = useSelector((state) => state.visualGraphReducer);

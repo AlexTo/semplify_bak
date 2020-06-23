@@ -7,7 +7,6 @@ import {
   Tab,
   Tabs,
   Typography,
-  DialogTitle,
   DialogContent, Dialog
 } from "@material-ui/core";
 import {useLazyQuery} from "@apollo/react-hooks";

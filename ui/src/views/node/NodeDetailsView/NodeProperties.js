@@ -21,12 +21,6 @@ import Value from "./Value";
 import ConfirmationDialog from "../../../components/ConfirmationDialog";
 import {useSnackbar} from "notistack";
 
-function applyFilters(graphs) {
-  return graphs.filter(() => {
-    return true;
-  });
-}
-
 function applyPagination(triples, page, limit) {
   return triples.slice(page * limit, page * limit + limit);
 }
