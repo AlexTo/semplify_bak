@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {
   SvgIcon,
-  makeStyles
+  makeStyles, Button
 } from '@material-ui/core';
 import {
   Search as SearchIcon
@@ -16,6 +16,9 @@ const useStyles = makeStyles((theme) => ({
   root: {
     width: 500,
     margin: theme.spacing(1),
+  },
+  input: {
+    color: "inherit"
   }
 }));
 
@@ -40,20 +43,20 @@ function Search() {
   return (
     <form className={classes.root} noValidate autoComplete="off">
       <TextField
+        className={classes.input}
         onKeyPress={(e) => {
           if (e.key === 'Enter') {
             handleSearch();
             e.preventDefault();
           }
         }}
-        className={classes.queryField}
         fullWidth
         InputProps={{
+          className: classes.input,
           startAdornment: (
             <InputAdornment position="start">
               <SvgIcon
                 fontSize="small"
-                color="action"
               >
                 <SearchIcon/>
               </SvgIcon>

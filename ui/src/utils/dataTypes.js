@@ -1,5 +1,6 @@
 export const dataTypes = [
   "xsd:string",
+  "rdf:langString",
   "xsd:boolean",
   "xsd:decimal",
   "xsd:integer",

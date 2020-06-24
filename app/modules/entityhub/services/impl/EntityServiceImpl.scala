@@ -363,7 +363,7 @@ class EntityServiceImpl @Inject()(projectService: ProjectService,
             if (separator < nodeUri.length - 1) {
               prefLabel = Some(Literal(projectId, None, nodeUri.substring(separator + 1), None, None))
             } else {
-              prefLabel = Some(Literal(projectId, None, "", None, None))
+              prefLabel = Some(Literal(projectId, None, nodeUri, None, None))
             }
           }
           prefLabel
@@ -476,6 +476,40 @@ class EntityServiceImpl @Inject()(projectService: ProjectService,
         }
         conn.remove(f.createIRI(subj), f.createIRI(pred), obj, f.createIRI(graph))
 
+      } match {
+        case Success(_) =>
+          val obj = if ("iri".equals(objType.toLowerCase)) {
+            IRI(projectId, Some(graph), objValue)
+          } else {
+            Literal(projectId, Some(graph), objValue, lang, dataType)
+          }
+          Triple(projectId, Some(graph),
+            subj = IRI(projectId, Some(graph), subj),
+            pred = IRI(projectId, Some(graph), pred),
+            obj = obj)
+        case Failure(e) => throw e
+      }
+    case None => throw ProjectNotFoundException(projectId)
+  }
+
+  override def insertTriple(projectId: String, graph: String, subj: String, pred: String,
+                            objType: String, objValue: String, lang: Option[String], dataType: Option[String]): Future[Triple]
+  = projectService.findRepoById(projectId) map {
+    case Some((_, repo)) =>
+      val f = repo.getValueFactory
+      Using(repo.getConnection) { conn =>
+        val obj = if ("iri".equals(objType.toLowerCase)) {
+          f.createIRI(objValue)
+        } else {
+          if (lang.isDefined) {
+            f.createLiteral(objValue, lang.get)
+          } else if (dataType.isDefined) {
+            f.createLiteral(objValue, f.createIRI(dataType.get))
+          } else {
+            f.createLiteral(objValue)
+          }
+        }
+        conn.add(f.createIRI(subj), f.createIRI(pred), obj, f.createIRI(graph))
       } match {
         case Success(_) =>
           val obj = if ("iri".equals(objType.toLowerCase)) {

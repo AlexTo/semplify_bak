@@ -315,6 +315,11 @@ object SchemaDefinition {
         resolve = ctx => ctx.ctx.svc.deleteTriple(ctx arg ProjectIdArg, ctx arg GraphArg, ctx arg SubjArg, ctx arg PredArg,
           ctx arg ObjTypeArg, ctx arg ObjValueArg, ctx arg OptLangArg, ctx arg OptDataTypeArg)
       ),
+      Field("insertTriple", Triple,
+        arguments = ProjectIdArg :: GraphArg :: SubjArg :: PredArg :: ObjValueArg :: ObjTypeArg :: OptLangArg :: OptDataTypeArg :: Nil,
+        resolve = ctx => ctx.ctx.svc.insertTriple(ctx arg ProjectIdArg, ctx arg GraphArg, ctx arg SubjArg, ctx arg PredArg,
+          ctx arg ObjTypeArg, ctx arg ObjValueArg, ctx arg OptLangArg, ctx arg OptDataTypeArg)
+      ),
       Field("deleteFiles", ListType(FileInfo),
         arguments = ProjectIdArg :: FileIdsArg :: Nil,
         resolve = ctx => ctx.ctx.svc.deleteFiles(ctx arg ProjectIdArg, ctx arg FileIdsArg)

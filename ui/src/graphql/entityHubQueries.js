@@ -84,6 +84,8 @@ export const entityHubQueries = {
   node: gql`
     query node($projectId: String!, $graph: String, $uri: String!) {
       node(projectId: $projectId, graph: $graph, uri: $uri) {
+        projectId
+        graph
         value
         prefLabel {
           value
@@ -153,6 +155,13 @@ export const entityHubQueries = {
   deleteTriple: gql`
     mutation deleteTriple($projectId: String!, $graph: String!, $subj: String!, $pred: String!, $objType: String!, $objValue: String!, $dataType: String, $lang: String) {
       deleteTriple(projectId: $projectId, graph: $graph, subj: $subj, pred: $pred, objType: $objType, objValue: $objValue, dataType: $dataType, lang: $lang) {
+        projectId
+      }
+    }
+  `,
+  insertTriple: gql`
+    mutation insertTriple($projectId: String!, $graph: String!, $subj: String!, $pred: String!, $objType: String!, $objValue: String!, $dataType: String, $lang: String) {
+      insertTriple(projectId: $projectId, graph: $graph, subj: $subj, pred: $pred, objType: $objType, objValue: $objValue, dataType: $dataType, lang: $lang) {
         projectId
       }
     }

@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import {
   Divider,
   Container,
@@ -9,8 +9,6 @@ import {
   Typography,
   DialogContent, Dialog
 } from "@material-ui/core";
-import {useLazyQuery} from "@apollo/react-hooks";
-import {entityHubQueries} from "../../../graphql";
 import Header from "./Header";
 import NodeProperties from "./NodeProperties";
 import NodeRelations from "./NodeRelations";
@@ -26,28 +24,11 @@ const useStyles = makeStyles(() => ({
 
 function NodeDetailsViewDialog() {
   const classes = useStyles();
-  const [node, setNode] = useState(null);
   const [tab, setTab] = useState("properties");
   const dispatch = useDispatch();
-  const {projectId, uri, nodeDetailsViewDialogOpen} = useSelector(state => state.nodeDetailsReducer);
-
-  const [load] = useLazyQuery(entityHubQueries.node, {
-    onCompleted: data => {
-      setNode(data.node)
-    }
-  });
-
-  useEffect(() => {
-    if (!uri || !projectId || !nodeDetailsViewDialogOpen)
-      return;
-
-    load({
-      variables: {
-        projectId, uri
-      }
-    })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [uri, projectId, nodeDetailsViewDialogOpen])
+  const {
+    node, nodeDetailsViewDialogOpen
+  } = useSelector(state => state.nodeDetailsReducer);
 
   const handleTabsChange = (event, value) => {
     setTab(value);
@@ -57,7 +38,7 @@ function NodeDetailsViewDialog() {
     dispatch(nodeDetailsActions.closeNodeDetailsViewDialog());
   }
 
-  if (!uri || !projectId || !node) return null;
+  if (!node) return null;
 
   return (
     <Dialog className={classes.root}

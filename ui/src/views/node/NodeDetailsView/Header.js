@@ -1,6 +1,9 @@
 import React from "react";
-import {Avatar, Box, makeStyles, Typography} from "@material-ui/core";
+import {Avatar, Box, IconButton, makeStyles, Typography} from "@material-ui/core";
 import getInitials from "../../../utils/getInitials";
+import {ArrowBack as ArrowBackIcon, ArrowForward as ArrowForwardIcon} from "@material-ui/icons";
+import {useDispatch, useSelector} from "react-redux";
+import {nodeDetailsActions} from "../../../actions/nodeDetailsActions";
 
 const useStyles = makeStyles((theme) => ({
   avatar: {
@@ -18,17 +21,17 @@ const useStyles = makeStyles((theme) => ({
 
 function Header({node}) {
   const classes = useStyles();
-
+  const {histStack, histIndex} = useSelector(state => state.nodeDetailsReducer);
+  const dispatch = useDispatch();
   return (
     <Box mt={10}>
       <Box
         position="relative"
         display="flex"
-        alignItems="center"
-      >
+        alignItems="center">
         {node && node.depiction && <Avatar
           className={classes.avatar}
-          src={`${node.depiction.value}?type=large`}
+          src={`${node.depiction.value.replace("?type=large", "")}?type=large`}
         />}
         {node && (!node.depiction || !node.depiction.value) && <Avatar
           className={classes.avatar}
@@ -36,8 +39,7 @@ function Header({node}) {
         <Box marginLeft="160px">
           {node && <Typography
             variant="h4"
-            color="textPrimary"
-          >
+            color="textPrimary">
             {node.prefLabel.value}
           </Typography>}
           <Typography
@@ -47,6 +49,21 @@ function Header({node}) {
             {node.value}
           </Typography>
         </Box>
+        <Box flexGrow={1}/>
+        {(histStack.length > 0) && <Box>
+          <IconButton
+            color="primary"
+            disabled={histIndex === 0}
+            onClick={() => dispatch(nodeDetailsActions.histBack())}>
+            <ArrowBackIcon/>
+          </IconButton>
+          <IconButton
+            color="primary"
+            disabled={histIndex === histStack.length - 1}
+            onClick={() => dispatch(nodeDetailsActions.histForward())}>
+            <ArrowForwardIcon/>
+          </IconButton>
+        </Box>}
       </Box>
     </Box>
   )

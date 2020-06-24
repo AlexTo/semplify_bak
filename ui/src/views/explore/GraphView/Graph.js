@@ -36,7 +36,6 @@ function Graph() {
   const [cy, setCy] = useState(null);
   const {theme} = useSelector(state => state.cyReducer)
   const {enqueueSnackbar} = useSnackbar();
-  const {projectId} = useSelector(state => state.projectReducer);
   const {nodes, edges, centerFocus, fit, layout, refreshLayout} = useSelector(state => state.visualGraphReducer)
   const dispatch = useDispatch();
 
@@ -110,7 +109,13 @@ function Graph() {
   }
 
   const viewNode = (node) => {
-    dispatch(nodeDetailsActions.setNode(projectId, node.id()));
+    const {id, projectId, graph, depiction, label} = node.data();
+    console.log(depiction);
+    dispatch(nodeDetailsActions.setNode({
+      value: id, projectId, graph,
+      depiction: (depiction ? {value: depiction} : null),
+      prefLabel: (label ? {value: label} : null)
+    }));
     dispatch(nodeDetailsActions.openNodeDetailsViewDialog());
   }
 

@@ -5,7 +5,7 @@ import {
 } from "@material-ui/core";
 import clsx from "clsx";
 import getInitials from "../../../utils/getInitials";
-import {useDispatch, useSelector} from "react-redux";
+import {useDispatch} from "react-redux";
 import {nodeDetailsActions} from "../../../actions/nodeDetailsActions";
 
 const useStyles = makeStyles(() => ({
@@ -16,12 +16,11 @@ const useStyles = makeStyles(() => ({
 function SearchHitCard({searchHit}) {
   const classes = useStyles();
   const {node} = searchHit;
-  const {projectId} = useSelector(state => state.projectReducer);
   const dispatch = useDispatch();
   const {depiction, prefLabel, value} = node;
 
   const handleClick = () => {
-    dispatch(nodeDetailsActions.setNode(projectId, value));
+    dispatch(nodeDetailsActions.setNode(node));
     dispatch(nodeDetailsActions.openNodeDetailsViewDialog());
   }
 

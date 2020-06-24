@@ -6,7 +6,7 @@ import {entityHubQueries} from "../../../graphql";
 import Header from "./Header";
 import NodeProperties from "./NodeProperties";
 import NodeRelations from "./NodeRelations";
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {nodeDetailsActions} from "../../../actions/nodeDetailsActions";
 
 const useStyles = makeStyles(() => ({
@@ -18,17 +18,17 @@ const useStyles = makeStyles(() => ({
 
 function NodeDetailsView({location}) {
   const classes = useStyles();
-  const [node, setNode] = useState(null);
   const [tab, setTab] = useState("properties");
   const dispatch = useDispatch();
   const {search} = location;
   const params = new URLSearchParams(search);
   const uri = params.get('uri');
   const projectId = params.get('projectId');
+  const {node} = useSelector(state => state.nodeDetailsReducer);
 
   const [load] = useLazyQuery(entityHubQueries.node, {
     onCompleted: data => {
-      setNode(data.node)
+      dispatch(nodeDetailsActions.setNode(data.node));
     }
   });
 
@@ -36,7 +36,6 @@ function NodeDetailsView({location}) {
     if (!uri || !projectId)
       return;
 
-    dispatch(nodeDetailsActions.setNode(projectId, uri));
 
     load({
       variables: {

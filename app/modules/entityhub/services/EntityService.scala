@@ -26,6 +26,12 @@ trait EntityService {
                    lang: Option[String],
                    dataType: Option[String]): Future[Triple]
 
+  def insertTriple(projectId: String, graph: String,
+                   subj: String, pred: String,
+                   objType: String, objValue: String,
+                   lang: Option[String],
+                   dataType: Option[String]): Future[Triple]
+
   def search(projectId: String, graph: Option[String], term: String,
              limit: Option[Int], offset: Option[Int], queryType: QueryType,
              additionalBindings: Map[String, String]): Future[SearchResult]

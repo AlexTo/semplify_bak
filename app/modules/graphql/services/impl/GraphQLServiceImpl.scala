@@ -88,4 +88,8 @@ class GraphQLServiceImpl @Inject()(entityService: EntityService,
   override def deleteTriple(projectId: String, graph: String, subj: String, pred: String,
                             objType: String, objValue: String, lang: Option[String], dataType: Option[String]): Future[Triple]
   = entityService.deleteTriple(projectId, graph, subj, pred, objType, objValue, lang, dataType)
+
+  override def insertTriple(projectId: String, graph: String, subj: String, pred: String,
+                            objType: String, objValue: String, lang: Option[String], dataType: Option[String]): Future[Triple]
+  = entityService.insertTriple(projectId, graph, subj, pred, objType, objValue, lang, dataType)
 }
