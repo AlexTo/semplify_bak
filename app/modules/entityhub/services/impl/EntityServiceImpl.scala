@@ -474,6 +474,13 @@ class EntityServiceImpl @Inject()(projectService: ProjectService,
             f.createLiteral(objValue)
           }
         }
+        // https://rdf4j.org/javadoc/latest/org/eclipse/rdf4j/model/impl/SimpleLiteral.html#getDatatype--
+        // Due to getDataType always return xsd:string even if there is no data type actually associated with the literal,
+        // A literal like "Hello, World!" will be returned as "Hello, World!"^^xsd:string
+        // In that case, when the front end attempts to delete, the triple will be sent as <s> <p> "Hello, World!"^^xsd:string
+        // which we have no match in the triple store
+        // the dirty fix is to remove both "Hello, World!" and "Hello, World!"^^xsd:string
+
         conn.remove(f.createIRI(subj), f.createIRI(pred), obj, f.createIRI(graph))
 
       } match {

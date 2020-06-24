@@ -28,12 +28,12 @@ function TripleEditor({triple, onSave}) {
     .replace("http://www.w3.org/2001/XMLSchema#", "xsd:")
     .replace("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:") : dataType;
 
-  lang = lang ? lang.toLowerCase() : lang;
+  const lowerCaseLang = lang ? lang.toLowerCase() : lang;
 
   const [val, setVal] = useState(value);
 
   const [dt, setDt] = useState(dataTypes.includes(shortenDataType) ? shortenDataType : "");
-  const [language, setLanguage] = useState(langs.includes(lang) ? lang : "");
+  const [language, setLanguage] = useState(langs.includes(lowerCaseLang) ? lowerCaseLang : "");
 
   const handleSave = () => {
     insertTriple({
