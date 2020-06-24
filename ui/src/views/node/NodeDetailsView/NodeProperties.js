@@ -98,10 +98,10 @@ function NodeProperties() {
       }
     }).then(() => {
       setDeleteDialogOpen(false);
+      enqueueSnackbar("Property deleted", {
+        variant: "success"
+      });
       refetch().then(() => {
-        enqueueSnackbar("Property deleted", {
-          variant: "success"
-        });
       })
     })
   }
@@ -166,7 +166,9 @@ function NodeProperties() {
                     horizontal: 'right',
                   }}>
                   <TripleEditor triple={t} onSave={() => {
-                    refetch().then(() => setAnchorEl(_.omit(anchorEl, [key])));
+                    setAnchorEl(_.omit(anchorEl, [key]));
+                    refetch().then(() => {
+                    });
                   }}/>
                 </Popover>
               </TableRow>

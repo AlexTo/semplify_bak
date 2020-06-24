@@ -96,10 +96,10 @@ function NodeRelations() {
       }
     }).then(() => {
       setDeleteDialogOpen(false);
+      enqueueSnackbar("Relation deleted", {
+        variant: "success"
+      });
       refetch().then(() => {
-        enqueueSnackbar("Relation deleted", {
-          variant: "success"
-        });
       })
     })
   }

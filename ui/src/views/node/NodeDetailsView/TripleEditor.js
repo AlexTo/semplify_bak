@@ -22,9 +22,9 @@ function TripleEditor({triple, onSave}) {
   const [insertTriple] = useMutation(entityHubQueries.insertTriple)
 
   const {subj, pred, obj} = triple;
-  let {projectId, graph, value, dataType, lang, __typename} = obj;
+  let {projectId, graph, value, dataType, lang} = obj;
 
-  dataType = dataType ? dataType
+  const shortenDataType = dataType ? dataType
     .replace("http://www.w3.org/2001/XMLSchema#", "xsd:")
     .replace("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:") : dataType;
 
@@ -32,7 +32,7 @@ function TripleEditor({triple, onSave}) {
 
   const [val, setVal] = useState(value);
 
-  const [dt, setDt] = useState(dataTypes.includes(dataType) ? dataType : "");
+  const [dt, setDt] = useState(dataTypes.includes(shortenDataType) ? shortenDataType : "");
   const [language, setLanguage] = useState(langs.includes(lang) ? lang : "");
 
   const handleSave = () => {
@@ -45,8 +45,8 @@ function TripleEditor({triple, onSave}) {
         objType: "literal",
         objValue: val,
         lang: language ? language : null,
-        dataType: dt ? dt.replace("xsd:", )
-          .replace("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:") : null
+        dataType: dt ? dt.replace("xsd:", "http://www.w3.org/2001/XMLSchema#")
+          .replace("rdf:", "http://www.w3.org/1999/02/22-rdf-syntax-ns#") : null
       }
     }).then(() => {
       deleteTriple({

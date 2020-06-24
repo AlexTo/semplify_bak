@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {
   SvgIcon,
-  makeStyles, Button
+  makeStyles
 } from '@material-ui/core';
 import {
   Search as SearchIcon
