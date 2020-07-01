@@ -32,6 +32,11 @@ function NewProjectDialog() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [register])
 
+  useEffect(() => {
+    setValue("repositoryType", repositoryType)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [repositoryType])
+
   const handleClose = () => {
     dispatch(projectActions.closeNewProjectDialog())
   }
